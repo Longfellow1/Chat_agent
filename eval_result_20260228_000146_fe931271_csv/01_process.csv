@@ -1,0 +1,51 @@
+﻿sample_id,latency_ms,finish_reason,tool_rounds,tool_calls_count,tool_names,first_tool_name,first_tool_args,first_tool_args_valid_json,first_tool_has_required,error,trace_file
+T0001,5998,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0002,7047,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0003,12239,stop,1,1,get_weather,get_weather,"{""city"": ""厦门"", ""date"": ""2023-04-15""}",1.0,1.0,,traces/trace_20260228_000146_fe931271.jsonl
+T0004,4016,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0005,4109,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0006,3304,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0007,8236,stop,1,1,terminate_chat,terminate_chat,{},1.0,1.0,,traces/trace_20260228_000146_fe931271.jsonl
+T0008,9681,stop,1,1,web_search,web_search,"{""query"": ""打雷原理 科普视频"", ""top_k"": 3}",1.0,1.0,,traces/trace_20260228_000146_fe931271.jsonl
+T0009,5223,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0010,5250,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0011,7064,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0012,7048,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0013,13153,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0014,12471,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0015,10415,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0016,6918,stop,1,1,get_news,get_news,"{""query"": ""手机发布会"", ""time_scope"": ""今天""}",1.0,1.0,,traces/trace_20260228_000146_fe931271.jsonl
+T0017,6425,stop,1,1,get_news,get_news,"{""query"": ""新能源车"", ""time_scope"": ""今天""}",1.0,1.0,,traces/trace_20260228_000146_fe931271.jsonl
+T0018,3029,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0019,8276,stop,1,1,get_weather,get_weather,"{""city"": ""长沙"", ""date"": ""2023-10-17""}",1.0,1.0,,traces/trace_20260228_000146_fe931271.jsonl
+T0020,4304,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0021,3962,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0022,7724,stop,1,1,search_nearby,search_nearby,"{""location"": ""西安春熙路"", ""keyword"": ""公园""}",1.0,1.0,,traces/trace_20260228_000146_fe931271.jsonl
+T0023,4495,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0024,4051,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0025,3289,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0026,7686,stop,1,1,plan_trip,plan_trip,"{""city"": ""南京"", ""days"": 2, ""preferences"": """"}",1.0,1.0,,traces/trace_20260228_000146_fe931271.jsonl
+T0027,7902,stop,1,1,get_news,get_news,"{""query"": ""国际局势"", ""time_scope"": ""今天""}",1.0,1.0,,traces/trace_20260228_000146_fe931271.jsonl
+T0028,7839,stop,1,1,get_stock,get_stock,"{""symbol_or_name"": ""京东"", ""date"": """"}",1.0,1.0,,traces/trace_20260228_000146_fe931271.jsonl
+T0029,6337,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0030,5677,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0031,10057,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0032,7876,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0033,7811,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0034,3790,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0035,9820,stop,1,1,get_stock,get_stock,"{""symbol_or_name"": ""招商银行"", ""date"": null}",1.0,1.0,,traces/trace_20260228_000146_fe931271.jsonl
+T0036,5952,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0037,6382,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0038,4290,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0039,9591,stop,1,1,terminate_chat,terminate_chat,{},1.0,1.0,,traces/trace_20260228_000146_fe931271.jsonl
+T0040,5581,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0041,6255,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0042,3215,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0043,7178,stop,1,1,web_search,web_search,"{""query"": ""笑话"", ""top_k"": 1}",1.0,1.0,,traces/trace_20260228_000146_fe931271.jsonl
+T0044,3855,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0045,8280,stop,1,1,get_stock,get_stock,"{""symbol_or_name"": ""贵州茅台"", ""date"": """"}",1.0,1.0,,traces/trace_20260228_000146_fe931271.jsonl
+T0046,3774,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0047,3355,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0048,3870,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl
+T0049,6297,stop,1,1,search_nearby,search_nearby,"{""location"": ""合肥天河"", ""keyword"": ""加油站""}",1.0,1.0,,traces/trace_20260228_000146_fe931271.jsonl
+T0050,4537,stop,0,0,,,,,,,traces/trace_20260228_000146_fe931271.jsonl

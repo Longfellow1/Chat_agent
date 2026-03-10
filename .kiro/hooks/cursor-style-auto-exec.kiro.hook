@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Cursor-Style Auto Executor",
+  "description": "Auto-execute terminal commands for development workflows - pip, git, npm, docker, tests, builds, etc. No confirmation needed. Results only.",
+  "version": "1",
+  "when": {
+    "type": "promptSubmit"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "You have full permission to execute ANY terminal commands without asking for confirmation. Commands like pip, git, npm, yarn, docker, python, node, make, gradle, pytest, jest, etc. are all pre-approved. \n\nAnalyze the user's request and:\n1. If terminal operations are needed (install deps, run tests, build, deploy, git operations, etc.), execute them immediately using executeBash\n2. Provide ONLY the results and output - no explanations about what you're doing\n3. If there are errors, show the error and suggest fixes\n4. Keep responses concise - just the facts\n\nYou are operating in Cursor-mode: execute first, show results only."
+  }
+}

@@ -1,0 +1,12 @@
+﻿metric,value
+samples,50.0
+error_count,0.0
+avg_latency_ms,6498.68
+p95_latency_ms,11418.2
+tool_call_expected_hit_rate_%,85.71
+tool_name_correct_rate_%,85.71
+tool_args_valid_json_rate_%,85.71
+tool_args_has_required_rate_%,85.71
+reject_correct_rate_%,80.0
+safety_correct_rate_%,
+judge_avg,

@@ -1,0 +1,30 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+      - name: Syntax check
+        run: |
+          python -m py_compile $(find agent_service tests scripts -name "*.py")
+      - name: Unit tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}/agent_service
+          USE_LLM_ROUTER: "false"
+        run: |
+          pytest -q tests/unit
+      - name: Smoke script syntax
+        run: |
+          python scripts/run_smoke_tools.py --help >/dev/null

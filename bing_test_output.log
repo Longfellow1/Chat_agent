@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/Harland/Documents/evaluation/test_bing_30_queries.py", line 14, in <module>
+    with open('web_search_30_queries.csv', 'r', encoding='utf-8') as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'web_search_30_queries.csv'

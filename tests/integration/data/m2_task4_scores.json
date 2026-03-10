@@ -1,0 +1,452 @@
+[
+  {
+    "query_id": 1,
+    "query": "最近的油价",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "时间词保留"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 2,
+    "query": "今天的新闻",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "时间词保留"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 3,
+    "query": "2026年世界杯",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "时间词保留"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 4,
+    "query": "最新的iPhone",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "时间词保留"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 5,
+    "query": "现在的天气",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "时间词保留"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 6,
+    "query": "特斯拉最新消息",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 7,
+    "query": "苹果发布会",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 1 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 8,
+    "query": "世界杯比赛结果",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 9,
+    "query": "iPhone 15价格",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 10,
+    "query": "华为Mate 60评测",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 11,
+    "query": "量子计算原理",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 12,
+    "query": "区块链技术",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 13,
+    "query": "人工智能发展史",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 14,
+    "query": "马斯克个人经历",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 15,
+    "query": "五条人乐队成员",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 1 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 16,
+    "query": "Python怎么学",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 17,
+    "query": "React框架优缺点",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 18,
+    "query": "如何学习量子计算",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 19,
+    "query": "特斯拉值得买吗",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 20,
+    "query": "iPhone和华为哪个好",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 2 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 21,
+    "query": "杭州西湖旅游攻略",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 22,
+    "query": "格里菲斯天文台游玩攻略",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 23,
+    "query": "洛杉矶旅游景点推荐",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 24,
+    "query": "北京美食推荐",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 25,
+    "query": "上海购物攻略",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 26,
+    "query": "Docker教程",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 27,
+    "query": "Kubernetes部署",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 28,
+    "query": "Git使用指南",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 29,
+    "query": "MySQL优化",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  },
+  {
+    "query_id": 30,
+    "query": "Redis缓存",
+    "scores": {
+      "technical_validity": {
+        "score": 1.0,
+        "reason": "返回 3 条结果"
+      },
+      "time_word_preservation": {
+        "score": 1.0,
+        "reason": "无时间词"
+      }
+    },
+    "final_judgment": "pass"
+  }
+]

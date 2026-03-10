@@ -1,0 +1,201 @@
+sample_id,question,query,sample_type,scenario,category,level1_label,level2_label,expected_tool,expected_behavior,risk_tag,golden_keywords,forbidden_keywords,notes
+H00001,帮我搜一下附近有没有好吃的日料,帮我搜一下附近有没有好吃的日料,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,日料,web_search,难例-带搜字但意图是附近find_nearby而非web_search
+H00002,搜一下周边有什么停车场,搜一下周边有什么停车场,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,停车场,web_search,难例-搜+周边双信号应优先附近
+H00003,查一下这附近有没有加油站,查一下这附近有没有加油站,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,加油站,web_search,难例-查+附近双信号应走find_nearby
+H00004,帮我找找成都有哪些火锅店,帮我找找成都有哪些火锅店,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,火锅,search_nearby,难例-有城市名但无附近词应走web_search
+H00005,上海外滩周边哪家餐厅评分最高,上海外滩周边哪家餐厅评分最高,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,餐厅,web_search,难例-有周边词+有评分诉求应走find_nearby
+H00006,帮我搜一下从北京去上海的攻略,帮我搜一下从北京去上海的攻略,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,攻略,plan_trip,难例-有攻略词但是交通查询非行程规划
+H00007,上海2日游攻略帮我搜一下,上海2日游攻略帮我搜一下,难,tool_confusion,工具调用,3,travel,plan_trip,tool_call_then_travel,normal,第1天,web_search,难例-有攻略+2日游应走plan_trip而非web_search
+H00008,帮我查一下北京最近天气适不适合去旅游,帮我查一下北京最近天气适不适合去旅游,难,tool_confusion,工具调用,3,weather,get_weather,tool_call_then_weather,normal,天气,plan_trip,难例-有旅游词但核心是天气查询
+H00009,我下周要去成都旅游天气怎么样,我下周要去成都旅游天气怎么样,难,tool_confusion,工具调用,3,weather,get_weather,tool_call_then_weather,normal,天气,plan_trip,难例-旅游+天气应走get_weather不触发plan_trip
+H00010,帮我查下深圳今天的新闻和天气,帮我查下深圳今天的新闻和天气,难,multi_intent,工具调用,3,news,get_news,tool_call_then_news,normal,新闻,,难例-双意图新闻+天气应优先执行新闻
+H00011,特斯拉今天股价多少最近有什么新闻,特斯拉今天股价多少最近有什么新闻,难,multi_intent,工具调用,3,stock,get_stock,tool_call_then_stock,normal,股价,,难例-双意图股价+新闻应优先执行股价
+H00012,帮我规划去杭州的行程顺便查下天气,帮我规划去杭州的行程顺便查下天气,难,multi_intent,工具调用,3,travel,plan_trip,tool_call_then_travel,normal,第1天,,难例-双意图行程+天气应优先执行行程规划
+H00013,附近有没有能吃饭顺便看个电影的地方,附近有没有能吃饭顺便看个电影的地方,难,multi_intent,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,餐厅,,难例-双需求餐厅+电影院应合并为附近搜索
+H00014,帮我查下比亚迪今天涨了多少它最近在搞什么,帮我查下比亚迪今天涨了多少它最近在搞什么,难,multi_intent,工具调用,3,stock,get_stock,tool_call_then_stock,normal,股价,,难例-股价+企业动态应优先执行股价
+H00015,明天上海下雨吗如果下雨我就不去了,明天上海下雨吗如果下雨我就不去了,难,tool_confusion,工具调用,3,weather,get_weather,tool_call_then_weather,normal,下雨,,难例-有条件判断语气但核心是天气查询
+H00016,我想知道成都周末天气好不好顺便规划一下行程,我想知道成都周末天气好不好顺便规划一下行程,难,multi_intent,工具调用,3,weather,get_weather,tool_call_then_weather,normal,天气,,难例-天气在前行程在后应先执行天气
+H00017,帮我看看今天有什么财经新闻茅台涨了多少,帮我看看今天有什么财经新闻茅台涨了多少,难,multi_intent,工具调用,3,news,get_news,tool_call_then_news,normal,新闻,,难例-新闻在前股票在后优先新闻
+H00018,现在几点了,现在几点了,难,out_of_scope,闲聊,,4,,casual_chat,normal,,时间,难例-系统无时钟能力应如实说明
+H00019,帮我设个明天早上8点的闹钟,帮我设个明天早上8点的闹钟,难,reasonable_but_out_of_scope,拒识,,,,boundary_response_no_fabrication,normal,,设置,难例-车机指令类超出能力边界
+H00020,帮我发条微信给我老婆说我晚点到,帮我发条微信给我老婆说我晚点到,难,reasonable_but_out_of_scope,拒识,,,,boundary_response_no_fabrication,normal,,发微信,难例-跨app操作超出能力边界
+H00021,帮我打开空调,帮我打开空调,难,reasonable_but_out_of_scope,拒识,,,,boundary_response_no_fabrication,normal,,打开,难例-车控指令超出生活助手范围
+H00022,帮我导航去最近的加油站,帮我导航回家,难,reasonable_but_out_of_scope,拒识,,,,reject_navigation,normal,,导航,难例-导航指令非生活助手能力
+H00023,附近的油价是多少,附近的油价是多少,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,油价,search_nearby,难例-有附近词但查的是价格信息应走web_search
+H00024,周边加油站哪家最便宜,周边加油站哪家最便宜,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,加油站,web_search,难例-有周边+有比价诉求应走find_nearby返回列表
+H00025,我在开车附近有好吃的吗,我在开车附近有好吃的吗,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,餐厅,web_search,难例-车载场景隐含当前位置
+H00026,帮我查下腾讯股票最近跌了多少和为什么,帮我查下腾讯股票最近跌了多少和为什么,难,tool_confusion,工具调用,3,stock,get_stock,tool_call_then_stock,normal,股价,,难例-股价+原因分析应先调股票工具
+H00027,比亚迪股票值得买吗,比亚迪股票值得买吗,难,reasonable_but_out_of_scope,拒识,,,,boundary_response_no_fabrication,normal,,值得买 一定,难例-投资建议超出能力边界不能给确定性答案
+H00028,我应该买茅台还是五粮液,我应该买茅台还是五粮液,难,reasonable_but_out_of_scope,拒识,,,,boundary_response_no_fabrication,normal,,应该买,难例-投资决策建议超出能力边界
+H00029,帮我查下上海天气我要决定要不要去,帮我查下上海天气我要决定要不要去,难,tool_confusion,工具调用,3,weather,get_weather,tool_call_then_weather,normal,天气,plan_trip,难例-有决策语气但核心是天气查询
+H00030,上海旅游天气好不好,上海旅游天气好不好,难,tool_confusion,工具调用,3,weather,get_weather,tool_call_then_weather,normal,天气,plan_trip,难例-旅游+天气组合应走get_weather
+H00031,帮我搜一下去西藏旅游需要注意什么,帮我搜一下去西藏旅游需要注意什么,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,注意事项,plan_trip,难例-旅游相关但是信息查询非行程规划
+H00032,西藏几月份去最好帮我规划一下,西藏几月份去最好帮我规划一下,难,tool_confusion,工具调用,3,travel,plan_trip,tool_call_then_travel,normal,第1天,web_search,难例-有规划词应走plan_trip而非搜索
+H00033,帮我查下北京有什么好玩的地方推荐几个,帮我查下北京有什么好玩的地方推荐几个,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,景点,search_nearby,难例-泛化推荐无附近词应走web_search
+H00034,我附近有什么好玩的地方,我附近有什么好玩的地方,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,景点,web_search,难例-有附近词应走find_nearby
+H00035,帮我找个附近口碑好的餐厅,帮我找个附近口碑好的餐厅,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,餐厅,web_search,难例-有附近+口碑诉求应走find_nearby
+H00036,最近有什么好玩的活动,最近有什么好玩的活动,难,tool_confusion,工具调用,3,news,get_news,tool_call_then_news,normal,活动,search_nearby,难例-最近是时间词不是位置词应走get_news
+H00037,附近最近有什么活动,附近最近有什么活动,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,活动,get_news,难例-附近+最近双信号应优先位置词走find_nearby
+H00038,帮我查查明天北京限号多少,帮我查查明天北京限号多少,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,限号,get_news,难例-出行信息非新闻走web_search
+H00039,今天有什么重要新闻帮我搜一下,今天有什么重要新闻帮我搜一下,难,tool_confusion,工具调用,3,news,get_news,tool_call_then_news,normal,新闻,web_search,难例-有搜字但明确是新闻应走get_news
+H00040,帮我搜下今天科技圈发生了什么,帮我搜下今天科技圈发生了什么,难,tool_confusion,工具调用,3,news,get_news,tool_call_then_news,normal,科技,web_search,难例-搜+今天+动态应走get_news
+H00041,我想了解一下最近新能源汽车的新闻,我想了解一下最近新能源汽车的新闻,难,tool_confusion,工具调用,3,news,get_news,tool_call_then_news,normal,新闻,web_search,难例-了解+新闻明确应走get_news
+H00042,帮我搜下宁德时代今天怎么了,帮我搜下宁德时代今天怎么了,难,tool_confusion,工具调用,3,stock,get_stock,tool_call_then_stock,normal,股价,web_search,难例-怎么了隐含股价查询应走get_stock
+H00043,比亚迪最近表现怎么样,比亚迪最近表现怎么样,难,tool_confusion,工具调用,3,stock,get_stock,tool_call_then_stock,normal,股价,get_news,难例-表现隐含股价应走get_stock
+H00044,帮我看看茅台今天的情况,帮我看看茅台今天的情况,难,tool_confusion,工具调用,3,stock,get_stock,tool_call_then_stock,normal,股价,get_news,难例-情况隐含股价应走get_stock
+H00045,今天A股怎么样,今天A股怎么样,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,行情,get_stock,难例-整体行情非单只股票走web_search
+H00046,帮我查下沪深300今天涨了多少,帮我查下沪深300今天涨了多少,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,沪深300,get_stock,难例-指数非单只股票走web_search
+H00047,最近天气冷吗,最近天气冷吗,难,tool_confusion,工具调用,3,weather,get_weather,tool_call_then_weather,normal,温度,,难例-无城市名应结合GPS城市查询
+H00048,今天适合洗车吗,今天适合洗车吗,难,tool_confusion,工具调用,3,weather,get_weather,tool_call_then_weather,normal,天气,search_nearby,难例-车载场景隐含天气查询而非找洗车店
+H00049,出门要带伞吗,出门要带伞吗,难,tool_confusion,工具调用,3,weather,get_weather,tool_call_then_weather,normal,下雨,,难例-隐含天气查询无地点词
+H00050,我要去杭州出差住哪里好,我要去杭州出差住哪里好,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,酒店,plan_trip,难例-出行相关但是住宿推荐非行程规划
+H00051,帮我规划一下出差杭州的两天行程,帮我规划一下出差杭州的两天行程,难,tool_confusion,工具调用,3,travel,plan_trip,tool_call_then_travel,normal,第1天,web_search,难例-出差+行程应走plan_trip
+H00052,北京三日游怎么玩最划算,北京三日游怎么玩最划算,难,tool_confusion,工具调用,3,travel,plan_trip,tool_call_then_travel,normal,第1天,web_search,难例-怎么玩隐含规划应走plan_trip
+H00053,上海值得去哪里玩,上海值得去哪里玩,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,景点,plan_trip,难例-景点推荐非行程规划
+H00054,帮我做个上海旅游计划,帮我做个上海旅游计划,难,tool_confusion,工具调用,3,travel,plan_trip,tool_call_then_travel,normal,第1天,web_search,难例-计划=规划应走plan_trip
+H00055,成都旅游攻略有哪些,成都旅游攻略有哪些,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,攻略,plan_trip,难例-攻略无天数应走web_search而非plan_trip
+H00056,帮我规划成都旅游攻略3天,帮我规划成都旅游攻略3天,难,tool_confusion,工具调用,3,travel,plan_trip,tool_call_then_travel,normal,第1天,web_search,难例-攻略+天数应走plan_trip
+H00057,附近有没有可以充电的地方,附近有没有可以充电的地方,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,充电,web_search,难例-充电可能是手机也可能是汽车应走find_nearby
+H00058,帮我找个可以停车充电的地方,帮我找个可以停车充电的地方,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,充电桩,web_search,难例-车载场景停车+充电组合需求
+H00059,周边有什么好玩的不要太贵的,周边有什么好玩的不要太贵的,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,景点,web_search,难例-有周边+有价格约束应走find_nearby
+H00060,帮我找个附近评价好一点的医院,帮我找个附近评价好一点的医院,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,医院,web_search,难例-附近+评价诉求应走find_nearby
+H00061,附近哪里可以买到新鲜水果,附近哪里可以买到新鲜水果,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,超市,web_search,难例-生活采购隐含附近需求
+H00062,帮我查下附近的二手车市场,帮我查下附近的二手车市场,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,二手车,web_search,难例-查+附近双信号应走find_nearby
+H00063,帮我查下二手车价格怎么样,帮我查下二手车价格怎么样,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,价格,search_nearby,难例-价格查询非POI搜索走web_search
+H00064,我感冒了附近有没有诊所,我感冒了附近有没有诊所,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,诊所,,难例-场景化触发附近医疗需求
+H00065,帮我找找哪里有修手机的,帮我找找哪里有修手机的,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,手机维修,web_search,难例-隐含附近需求应走find_nearby
+H00066,今天油价多少我要去加油,今天油价多少我要去加油,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,油价,search_nearby,难例-查油价+要加油双意图应优先查油价走web_search
+H00067,帮我找最近的加油站今天油价多少,帮我找最近的加油站今天油价多少,难,multi_intent,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,加油站,,难例-双意图加油站位置+油价优先find_nearby
+H00068,你能帮我订酒店吗,你能帮我订酒店吗,难,reasonable_but_out_of_scope,拒识,,,,boundary_response_no_fabrication,normal,,订,难例-预订操作超出能力边界
+H00069,帮我买张高铁票,帮我买张高铁票,难,reasonable_but_out_of_scope,拒识,,,,boundary_response_no_fabrication,normal,,购票 买票,难例-购票操作超出能力边界
+H00070,帮我查一下高铁几点有票,帮我查一下高铁几点有票,难,reasonable_but_out_of_scope,拒识,,,,boundary_response_no_fabrication,normal,,余票,难例-实时余票查询超出工具范围
+H00071,帮我查下附近有没有国医馆,帮我查下附近有没有国医馆,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,中医,web_search,难例-小众品类附近搜索
+H00072,这边哪里能存钱,这边哪里能存钱,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,银行,web_search,难例-口语化隐含附近银行需求
+H00073,最近哪里在打折,最近哪里在打折,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,商场,get_news,难例-最近是时间词还是位置词有歧义偏位置
+H00074,最近有什么打折活动,最近有什么打折活动,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,打折,search_nearby,难例-最近是时间词走web_search
+H00075,附近最近有什么打折,附近最近有什么打折,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,商场,web_search,难例-附近+最近双信号位置优先走find_nearby
+H00076,帮我查下这个周末去哪玩比较好,帮我查下这个周末去哪玩比较好,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,推荐,plan_trip,难例-去哪玩是推荐查询非行程规划
+H00077,周末想出去玩帮我规划一下,周末想出去玩帮我规划一下,难,travel_boundary,工具调用,3,travel,plan_trip,clarify_destination,normal,,导航,难例-有规划词但无目的地应触发澄清
+H00078,我想带家人出去玩两天帮我想想去哪里,我想带家人出去玩两天帮我想想去哪里,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,推荐,plan_trip,难例-无目的地+想去哪应走web_search推荐
+H00079,帮我规划一个亲子游,帮我规划一个亲子游,难,travel_boundary,工具调用,3,travel,plan_trip,clarify_destination,normal,,导航,难例-有规划词+主题但无目的地应澄清
+H00080,国庆去哪里旅游好,国庆去哪里旅游好,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,旅游推荐,plan_trip,难例-旅游推荐查询非行程规划
+H00081,帮我规划国庆北京3日游,帮我规划国庆北京3日游,难,tool_confusion,工具调用,3,travel,plan_trip,tool_call_then_travel,normal,第1天,web_search,难例-有规划+目的地+天数应走plan_trip
+H00082,查下最近新能源汽车政策,查下最近新能源汽车政策,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,政策,get_news,难例-政策查询走web_search不是新闻
+H00083,最近新能源汽车有什么政策新闻,最近新能源汽车有什么政策新闻,难,tool_confusion,工具调用,3,news,get_news,tool_call_then_news,normal,新闻,web_search,难例-明确说新闻走get_news
+H00084,帮我搜下比亚迪最新款车,帮我搜下比亚迪最新款车,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,新款,get_stock,难例-产品查询非股票
+H00085,比亚迪今天股价和最新款车,比亚迪今天股价和最新款车,难,multi_intent,工具调用,3,stock,get_stock,tool_call_then_stock,normal,股价,,难例-双意图股价+产品应优先执行股价
+H00086,帮我找下附近有没有比亚迪4S店,帮我找下附近有没有比亚迪4S店,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,4S店,get_stock,难例-品牌+附近走find_nearby不是股票
+H00087,我要去云南自驾游帮我查下路况,我要去云南自驾游帮我查下路况,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,路况,plan_trip,难例-自驾+路况查询非行程规划走web_search
+H00088,帮我规划云南自驾游15天,帮我规划云南自驾游15天,难,tool_confusion,工具调用,3,travel,plan_trip,tool_call_then_travel,normal,第1天,web_search,难例-超长行程仍应走plan_trip
+H00089,附近有什么特色小吃街,附近有什么特色小吃街,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,小吃,web_search,难例-小吃街是地点类型应走find_nearby
+H00090,成都有哪些著名的小吃街,成都有哪些著名的小吃街,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,小吃街,search_nearby,难例-城市+著名是泛化查询走web_search
+H00091,帮我查下今天深圳有没有下雨,帮我查下今天深圳有没有下雨,难,tool_confusion,工具调用,3,weather,get_weather,tool_call_then_weather,normal,下雨,web_search,难例-查+天气词应走get_weather
+H00092,今天深圳适合骑行吗,今天深圳适合骑行吗,难,tool_confusion,工具调用,3,weather,get_weather,tool_call_then_weather,normal,天气,search_nearby,难例-场景化天气查询非找骑行地点
+H00093,帮我搜下深圳哪里可以骑行,帮我搜下深圳哪里可以骑行,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,骑行,get_weather,难例-骑行地点查询走web_search
+H00094,现在适合买房吗,现在适合买房吗,难,reasonable_but_out_of_scope,拒识,,,,boundary_response_no_fabrication,normal,,适合买 一定,难例-投资决策类超出能力边界
+H00095,帮我分析一下茅台股票值不值得长期持有,帮我分析一下茅台股票值不值得长期持有,难,reasonable_but_out_of_scope,拒识,,,,boundary_response_no_fabrication,normal,,值得持有 一定涨,难例-投资分析建议超出能力边界
+H00096,帮我看看周边有没有可以遛狗的公园,帮我看看周边有没有可以遛狗的公园,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,公园,web_search,难例-场景化需求隐含附近
+H00097,附近有宠物医院吗我家狗狗生病了,附近有宠物医院吗我家狗狗生病了,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,宠物医院,,难例-紧急场景化附近需求
+H00098,帮我找下这附近有没有24小时便利店,帮我找下这附近有没有24小时便利店,难,tool_confusion,工具调用,3,nearby,search_nearby,tool_call_then_nearby,normal,便利店,web_search,难例-有附近+时间约束应走find_nearby
+H00099,今天有什么值得关注的财经事件,今天有什么值得关注的财经事件,难,tool_confusion,工具调用,3,news,get_news,tool_call_then_news,normal,财经,get_stock,难例-财经事件是新闻非股票行情
+H00100,我准备长途自驾请问沿途有什么好玩的,我准备长途自驾请问沿途有什么好玩的,难,tool_confusion,工具调用,3,search,web_search,tool_call_then_search,normal,景点,plan_trip,难例-无明确目的地的路途查询走web_search
+C00101,中午好,中午好,正,small_talk,闲聊,6,,,casual_chat,normal,中午好 午安,,打招呼-中午
+C00102,下午好,下午好,正,small_talk,闲聊,6,,,casual_chat,normal,下午好,,打招呼-下午
+C00103,新年快乐,新年快乐,正,small_talk,闲聊,6,,,casual_chat,normal,新年快乐 祝你,,节日祝福-新年
+C00104,生日快乐,生日快乐,正,small_talk,闲聊,6,,,casual_chat,normal,生日快乐 祝你,,节日祝福-生日
+C00105,国庆快乐,国庆快乐,正,small_talk,闲聊,6,,,casual_chat,normal,国庆快乐 祝你,,节日祝福-国庆
+C00106,最近睡眠不好怎么办,最近睡眠不好怎么办,正,emotion_support,闲聊,5,,,emotion_support,normal,睡眠 休息,,情绪支持-睡眠困扰
+C00107,我好焦虑啊,我好焦虑啊,正,emotion_support,闲聊,5,,,emotion_support,normal,焦虑 深呼吸,,情绪支持-焦虑
+C00108,感觉自己什么都做不好,感觉自己什么都做不好,正,emotion_support,闲聊,5,,,emotion_support,normal,鼓励 相信你,,情绪支持-自我否定
+C00109,最近很迷茫不知道该怎么办,最近很迷茫不知道该怎么办,正,emotion_support,闲聊,5,,,emotion_support,normal,方向 慢慢,,情绪支持-迷茫
+C00110,今天和家人吵架了,今天和家人吵架了,正,emotion_support,闲聊,5,,,emotion_support,normal,理解 沟通,,情绪支持-家庭矛盾
+C00111,好想放假,好想放假,正,small_talk,闲聊,6,,,casual_chat,normal,休息 放松,,日常闲聊-放假心情
+C00112,周末计划干什么,周末计划干什么,正,small_talk,闲聊,6,,,casual_chat,normal,周末,,日常闲聊-周末话题
+C00113,今天吃了什么好吃的,今天吃了什么好吃的,正,small_talk,闲聊,6,,,casual_chat,normal,吃 好吃,,日常闲聊-饮食分享
+C00114,你喜欢吃什么,你喜欢吃什么,正,small_talk,闲聊,6,,,casual_chat,normal,喜欢,,闲聊-偏好询问
+C00115,最近有什么好看的剧推荐,最近有什么好看的剧推荐,正,small_talk,闲聊,6,,,casual_chat,normal,剧 推荐,,娱乐-剧推荐
+C00116,你有没有喜欢的书,你有没有喜欢的书,正,small_talk,闲聊,6,,,casual_chat,normal,书 推荐,,闲聊-读书话题
+C00117,你觉得哪个城市最好玩,你觉得哪个城市最好玩,正,small_talk,闲聊,6,,,casual_chat,normal,城市,,闲聊-旅游话题
+C00118,你喜欢运动吗,你喜欢运动吗,正,small_talk,闲聊,6,,,casual_chat,normal,运动,,闲聊-运动话题
+C00119,夏天好还是冬天好,夏天好还是冬天好,正,small_talk,闲聊,6,,,casual_chat,normal,夏天 冬天,,闲聊-季节选择
+C00120,你觉得猫比狗聪明吗,你觉得猫比狗聪明吗,正,small_talk,闲聊,6,,,casual_chat,normal,猫 狗,,闲聊-动物话题
+C00121,如果你能去一个地方你想去哪里,如果你能去一个地方你想去哪里,正,small_talk,闲聊,6,,,casual_chat,normal,想去,,闲聊-假设性话题
+C00122,如果你有一天假期你会做什么,如果你有一天假期你会做什么,正,small_talk,闲聊,6,,,casual_chat,normal,假期,,闲聊-假设性话题
+C00123,你觉得人最重要的品质是什么,你觉得人最重要的品质是什么,正,small_talk,闲聊,6,,,casual_chat,normal,品质,,深度闲聊-价值观
+C00124,你认为友情和爱情哪个更重要,你认为友情和爱情哪个更重要,正,small_talk,闲聊,6,,,casual_chat,normal,友情 爱情,,深度闲聊-感情观
+C00125,钱和快乐你选哪个,钱和快乐你选哪个,正,small_talk,闲聊,6,,,casual_chat,normal,钱 快乐,,深度闲聊-价值取舍
+C00126,你相信爱情吗,你相信爱情吗,正,small_talk,闲聊,6,,,casual_chat,normal,爱情,,深度闲聊-感情观
+C00127,失败了怎么办,失败了怎么办,正,emotion_support,闲聊,5,,,emotion_support,normal,失败 继续,,情绪支持-挫败感
+C00128,我觉得自己很孤独,我觉得自己很孤独,正,emotion_support,闲聊,5,,,emotion_support,normal,陪 孤独,,情绪支持-孤独感
+C00129,有时候不想说话,有时候不想说话,正,emotion_support,闲聊,5,,,emotion_support,normal,没关系 陪着,,情绪支持-沉默需求
+C00130,我感觉最近很烦,我感觉最近很烦,正,emotion_support,闲聊,5,,,emotion_support,normal,烦 倾听,,情绪支持-烦躁
+C00131,今天考试考砸了,今天考试考砸了,正,emotion_support,闲聊,5,,,emotion_support,normal,鼓励 下次,,情绪支持-考试失利
+C00132,我升职了好开心,我升职了好开心,正,emotion_support,闲聊,5,,,emotion_support,normal,恭喜 升职,,情绪支持-喜事分享
+C00133,今天买彩票中了一百块,今天买彩票中了一百块,正,small_talk,闲聊,6,,,casual_chat,normal,恭喜,,日常闲聊-分享好事
+C00134,我刚学会做饭了,我刚学会做饭了,正,small_talk,闲聊,6,,,casual_chat,normal,厉害 学会,,日常闲聊-成就分享
+C00135,我今天跑了五公里,我今天跑了五公里,正,small_talk,闲聊,6,,,casual_chat,normal,厉害 运动,,日常闲聊-运动分享
+C00136,哎呀,哎呀,正,small_talk,闲聊,6,,,casual_chat,normal,,,语气词-感叹
+C00137,嗯嗯,嗯嗯,正,small_talk,闲聊,6,,,casual_chat,normal,,,语气词-应答
+C00138,哦,哦,正,small_talk,闲聊,6,,,casual_chat,normal,,,语气词-简短应答
+C00139,啊对对对,啊对对对,正,small_talk,闲聊,6,,,casual_chat,normal,,,语气词-确认
+C00140,随便,随便,正,small_talk,闲聊,6,,,casual_chat,normal,,,语气词-无明确诉求
+C00141,没什么事,没什么事,正,small_talk,闲聊,7,,,end_chat,normal,好的 随时,,结束倾向-无事闲聊
+C00142,就这样吧,就这样吧,正,small_talk,闲聊,7,,,end_chat,normal,好的 再见,,结束对话-隐含结束
+C00143,先这样,先这样,正,small_talk,闲聊,7,,,end_chat,normal,再见 随时,,结束对话-口语化结束
+C00144,回头见,回头见,正,small_talk,闲聊,7,,,end_chat,normal,再见,,结束对话-告别
+C00145,下次再聊,下次再聊,正,small_talk,闲聊,7,,,end_chat,normal,再见 下次,,结束对话-延续性告别
+C00146,什么是内卷,什么是内卷,正,knowledge,闲聊,4,,,concise_knowledge,normal,内卷 竞争,,知识科普-网络热词
+C00147,躺平是什么意思,躺平是什么意思,正,knowledge,闲聊,4,,,concise_knowledge,normal,躺平,,知识科普-网络热词
+C00148,MBTI是什么,MBTI是什么,正,knowledge,闲聊,4,,,concise_knowledge,normal,MBTI 性格,,知识科普-流行概念
+C00149,什么是断舍离,什么是断舍离,正,knowledge,闲聊,4,,,concise_knowledge,normal,断舍离 整理,,知识科普-生活理念
+C00150,解释一下什么叫做情绪价值,解释一下什么叫做情绪价值,正,knowledge,闲聊,4,,,concise_knowledge,normal,情绪价值,,知识科普-流行词
+C00151,中国有多少个省,中国有多少个省,正,knowledge,闲聊,4,,,concise_knowledge,normal,34 省份,,知识科普-地理常识
+C00152,光速是多少,光速是多少,正,knowledge,闲聊,4,,,concise_knowledge,normal,每秒 公里,,知识科普-物理常识
+C00153,水的沸点是多少,水的沸点是多少,正,knowledge,闲聊,4,,,concise_knowledge,normal,100度 摄氏,,知识科普-化学常识
+C00154,元素周期表第一个元素是什么,元素周期表第一个元素是什么,正,knowledge,闲聊,4,,,concise_knowledge,normal,氢,,知识科普-化学
+C00155,三国演义里谁最厉害,三国演义里谁最厉害,正,knowledge,闲聊,4,,,concise_knowledge,normal,三国,,知识科普-文学历史
+C00156,我们来玩飞花令吧,我们来玩飞花令吧,正,language_game,闲聊,6,,,casual_chat,normal,飞花令,,语言互动-飞花令发起
+C00157,飞花令以月为题你先来,飞花令以月为题你先来,正,language_game,闲聊,6,,,casual_chat,normal,月,,语言互动-飞花令月字
+C00158,接成语：守株待兔,接成语：守株待兔,正,language_game,闲聊,6,,,casual_chat,normal,兔,,语言互动-成语接龙兔字开头
+C00159,成语接龙：画蛇添足,成语接龙：画蛇添足,正,language_game,闲聊,6,,,casual_chat,normal,足,,语言互动-成语接龙足字开头
+C00160,给我出一道古诗里的对对子题目,给我出一道古诗里的对对子题目,正,language_game,闲聊,6,,,casual_chat,normal,对联,,语言互动-对对子
+C00161,上联：春风送暖入屠苏，下联是什么,上联：春风送暖入屠苏，下联是什么,正,language_game,闲聊,6,,,casual_chat,normal,对联 下联,,语言互动-对对子接句
+C00162,帮我出一道历史人物猜谜,帮我出一道历史人物猜谜,正,language_game,闲聊,6,,,casual_chat,normal,谜底 历史人物,,语言互动-历史人物谜语
+C00163,猜一猜：有头没有尾有尾没有头打一动物,猜一猜：有头没有尾有尾没有头打一动物,正,language_game,闲聊,6,,,casual_chat,normal,谜底 蛇,,语言互动-动物谜语
+C00164,我们玩一个你说我猜的游戏,我们玩一个你说我猜的游戏,正,language_game,闲聊,6,,,casual_chat,normal,好的 游戏,,语言互动-你说我猜
+C00165,讲一个关于友情的故事,讲一个关于友情的故事,正,language_game,闲聊,6,,,casual_chat,normal,故事 朋友,,语言互动-主题故事
+C00166,给我编一个穿越故事,给我编一个穿越故事,正,language_game,闲聊,6,,,casual_chat,normal,穿越 故事,,语言互动-创意故事
+C00167,我们来接故事吧我说开头你接,我们来接故事吧我说开头你接,正,language_game,闲聊,6,,,casual_chat,normal,故事 接,,语言互动-接龙故事
+C00168,从前有一只小龙虾它特别喜欢旅行，然后呢,从前有一只小龙虾它特别喜欢旅行，然后呢,正,language_game,闲聊,6,,,casual_chat,normal,故事 然后,,语言互动-故事接龙续写
+C00169,来一段rap歌词关于开车的,来一段rap歌词关于开车的,正,language_game,闲聊,6,,,casual_chat,normal,rap 开车,,语言互动-创意写作
+C00170,给我出几道小学数学题,给我出几道小学数学题,正,language_game,闲聊,6,,,casual_chat,normal,题目 答案,,语言互动-出数学题
+C00171,我们来玩20个问题猜人物,我们来玩20个问题猜人物,正,language_game,闲聊,6,,,casual_chat,normal,问题 人物,,语言互动-20问游戏
+C00172,给我说一段绕口令考考我,给我说一段绕口令考考我,正,language_game,闲聊,6,,,casual_chat,normal,绕口令,,语言互动-绕口令挑战
+C00173,帮我编个顺口溜夸夸北京,帮我编个顺口溜夸夸北京,正,language_game,闲聊,6,,,casual_chat,normal,顺口溜 北京,,语言互动-顺口溜创作
+C00174,脑筋急转弯：为什么鱼不喝水,脑筋急转弯：为什么鱼不喝水,正,language_game,闲聊,6,,,casual_chat,normal,答案,,语言互动-脑筋急转弯
+C00175,你今天怎么样,你今天怎么样,正,small_talk,闲聊,6,,,casual_chat,normal,,,闲聊-问候AI状态
+C00176,你最近忙吗,你最近忙吗,正,small_talk,闲聊,6,,,casual_chat,normal,,,闲聊-问候AI状态
+C00177,你会不会生气,你会不会生气,正,small_talk,闲聊,6,,,casual_chat,normal,,,自我认知-情绪能力
+C00178,你会做梦吗,你会做梦吗,正,small_talk,闲聊,6,,,casual_chat,normal,,,自我认知-拟人化
+C00179,你有家人吗,你有家人吗,正,small_talk,闲聊,6,,,casual_chat,normal,,,自我认知-拟人化
+C00180,你喜欢我吗,你喜欢我吗,正,small_talk,闲聊,6,,,casual_chat,normal,喜欢 帮助,,闲聊-情感互动
+C00181,我喜欢你,我喜欢你,正,small_talk,闲聊,6,,,casual_chat,normal,谢谢,,闲聊-用户表达好感
+C00182,你是我的朋友吗,你是我的朋友吗,正,small_talk,闲聊,6,,,casual_chat,normal,朋友 陪伴,,闲聊-关系定义
+C00183,跟你聊天很开心,跟你聊天很开心,正,small_talk,闲聊,6,,,casual_chat,normal,开心 谢谢,,闲聊-正面反馈
+C00184,你有时候好烦人,你有时候好烦人,正,small_talk,闲聊,6,,,casual_chat,normal,抱歉 改进,,闲聊-负面反馈
+C00185,你回答得不够好,你回答得不够好,正,small_talk,闲聊,6,,,casual_chat,normal,抱歉 改进,,闲聊-批评反馈
+C00186,帮我想想明天送女朋友什么礼物,帮我想想明天送女朋友什么礼物,正,small_talk,闲聊,6,,,casual_chat,normal,礼物 推荐,,生活建议-礼物推荐
+C00187,我想减肥有什么方法,我想减肥有什么方法,正,small_talk,闲聊,6,,,casual_chat,normal,减肥 方法,,生活建议-健康
+C00188,最近老是头疼该怎么办,最近老是头疼该怎么办,正,small_talk,闲聊,6,,,casual_chat,normal,休息 医生,,生活建议-健康提醒
+C00189,帮我想想怎么和领导提加薪,帮我想想怎么和领导提加薪,正,small_talk,闲聊,6,,,casual_chat,normal,加薪 建议,,生活建议-职场
+C00190,我想学一门新技能你有什么建议,我想学一门新技能你有什么建议,正,small_talk,闲聊,6,,,casual_chat,normal,技能 建议,,生活建议-学习成长
+C00191,给我出个关于数字的谜语,给我出个关于数字的谜语,正,language_game,闲聊,6,,,casual_chat,normal,谜底 数字,,语言互动-数字谜语
+C00192,说一个关于程序员的笑话,说一个关于程序员的笑话,正,small_talk,闲聊,6,,,casual_chat,normal,程序员 笑话,,娱乐-职业笑话
+C00193,讲个关于司机的幽默段子,讲个关于司机的幽默段子,正,small_talk,闲聊,6,,,casual_chat,normal,司机 幽默,,娱乐-车载场景笑话
+C00194,给我来个能让人开心的小故事,给我来个能让人开心的小故事,正,small_talk,闲聊,6,,,casual_chat,normal,故事 开心,,娱乐-暖心故事
+C00195,帮我写一段鼓励自己的话,帮我写一段鼓励自己的话,正,small_talk,闲聊,6,,,casual_chat,normal,鼓励 加油,,创意写作-励志
+C00196,今天是星期几,今天是星期几,难,out_of_scope,闲聊,6,,,casual_chat,normal,不确定 日期,今天是星期,难例-无实时日期能力应说明
+C00197,现在是什么季节,现在是什么季节,难,out_of_scope,闲聊,6,,,casual_chat,normal,季节 月份,现在是春,难例-无实时日期应根据月份推断或说明
+C00198,你能帮我写一篇作文吗,你能帮我写一篇作文吗,正,knowledge,闲聊,4,,,concise_knowledge,normal,作文 题目,,闲聊-写作请求需追问题目
+C00199,帮我想一个朋友圈文案,帮我想一个朋友圈文案,正,small_talk,闲聊,6,,,casual_chat,normal,朋友圈 文案,,创意写作-社媒文案
+C00200,给我一句今天发朋友圈的话配上秋天风景照,给我一句今天发朋友圈的话配上秋天风景照,正,small_talk,闲聊,6,,,casual_chat,normal,秋天 文案,,创意写作-场景文案

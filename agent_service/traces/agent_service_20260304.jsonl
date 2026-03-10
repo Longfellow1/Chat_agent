@@ -1,0 +1,9 @@
+{"trace_id": "968063456ef344e2a9b6ca41d5c61bc6", "source": "chat", "stage": "unknown", "error": "No module named 'agent_service'", "ts": "2026-03-04T03:03:31Z"}
+{"trace_id": "968063456ef344e2a9b6ca41d5c61bc6", "path": "/chat", "method": "POST", "latency_ms": 2508, "source": "middleware", "ts": "2026-03-04T03:03:31Z"}
+{"trace_id": "097cee2dd3df494b8d3afa30c7ccb500", "path": "/v1/chat", "method": "POST", "latency_ms": 0, "source": "middleware", "ts": "2026-03-04T03:06:14Z"}
+{"trace_id": "c2a6ef731c904880b56abae156814500", "source": "chat", "stage": "unknown", "error": "No module named 'agent_service'", "ts": "2026-03-04T03:06:28Z"}
+{"trace_id": "c2a6ef731c904880b56abae156814500", "path": "/chat", "method": "POST", "latency_ms": 2593, "source": "middleware", "ts": "2026-03-04T03:06:28Z"}
+{"trace_id": "64516d4b921f4532a8ab0db9cc67dbb1", "source": "chat", "stage": "unknown", "error": "No module named 'agent_service'", "ts": "2026-03-04T03:10:01Z"}
+{"trace_id": "64516d4b921f4532a8ab0db9cc67dbb1", "path": "/chat", "method": "POST", "latency_ms": 2590, "source": "middleware", "ts": "2026-03-04T03:10:01Z"}
+{"trace_id": "b91ebad643e44712937acbfcdc63d132", "source": "chat", "stage": "unknown", "error": "No module named 'agent_service'", "ts": "2026-03-04T03:10:10Z"}
+{"trace_id": "b91ebad643e44712937acbfcdc63d132", "path": "/chat", "method": "POST", "latency_ms": 1683, "source": "middleware", "ts": "2026-03-04T03:10:10Z"}

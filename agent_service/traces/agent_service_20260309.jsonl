@@ -1,0 +1,2 @@
+{"trace_id": "b06b2145a5424b9ab421d4c019294510", "path": "/health", "method": "GET", "latency_ms": 1, "source": "middleware", "ts": "2026-03-09T13:22:18Z"}
+{"trace_id": "a5f0c2787e0c404e86ad9dfdb916bfbb", "path": "/health", "method": "GET", "latency_ms": 1, "source": "middleware", "ts": "2026-03-09T13:56:41Z"}

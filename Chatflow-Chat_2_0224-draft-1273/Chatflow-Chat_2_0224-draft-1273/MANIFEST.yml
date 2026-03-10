@@ -1,0 +1,11 @@
+type: Workflow
+version: 1.0.0
+main:
+    id: 7611375200538771491
+    name: Chat_2_0224
+    desc: 无目标闲聊、常识/百科、情绪表达、实时数据检索
+    icon: plugin_icon/chatflow-icon.png
+    version: ""
+    flowMode: 3
+    commitId: ""
+sub: []

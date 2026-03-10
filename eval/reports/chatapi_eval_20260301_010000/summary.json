@@ -1,0 +1,7 @@
+{
+  "total": 50,
+  "ok": 46,
+  "avg_latency_ms": 4138.67,
+  "p95_latency_ms": 8372,
+  "cost_ms": 190688
+}

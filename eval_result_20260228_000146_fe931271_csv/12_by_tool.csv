@@ -1,0 +1,8 @@
+﻿expected_tool,samples,called_rate,tool_name_correct_rate,args_json_ok_rate,args_required_ok_rate
+get_news,3,100.0,100.0,100.0,100.0
+get_stock,3,100.0,100.0,100.0,100.0
+get_weather,2,100.0,100.0,100.0,100.0
+plan_trip,6,16.67,16.67,16.67,16.67
+search_nearby,2,100.0,100.0,100.0,100.0
+terminate_chat,1,100.0,100.0,100.0,100.0
+web_search,3,0.0,0.0,0.0,0.0

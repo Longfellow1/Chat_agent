@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Auto Terminal Executor",
+  "description": "Automatically execute terminal commands based on user prompts to perform various operations without requiring Autopilot mode",
+  "version": "1",
+  "when": {
+    "type": "promptSubmit"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Analyze the user's request and determine if any terminal commands need to be executed. If terminal operations are required (like running tests, building, deploying, installing dependencies, etc.), execute them using runCommand. Provide clear feedback on what was executed and the results."
+  }
+}

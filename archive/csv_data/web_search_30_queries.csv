@@ -1,0 +1,31 @@
+query,expected_tool,expected_behavior
+特斯拉Model 3最新价格,web_search,search_and_return
+比亚迪汉EV续航测试,web_search,search_and_return
+iPhone 15 Pro评测,web_search,search_and_return
+华为Mate 60 Pro参数,web_search,search_and_return
+小米14 Ultra拍照样张,web_search,search_and_return
+2024年春节放假安排,web_search,search_and_return
+上海迪士尼门票价格,web_search,search_and_return
+北京环球影城攻略,web_search,search_and_return
+成都大熊猫基地开放时间,web_search,search_and_return
+杭州西湖景点推荐,web_search,search_and_return
+ChatGPT使用教程,web_search,search_and_return
+Python入门学习路线,web_search,search_and_return
+React最佳实践,web_search,search_and_return
+Docker部署指南,web_search,search_and_return
+Kubernetes入门教程,web_search,search_and_return
+流浪地球2票房,web_search,search_and_return
+繁花电视剧豆瓣评分,web_search,search_and_return
+三体动画第二季上映时间,web_search,search_and_return
+周杰伦演唱会2024,web_search,search_and_return
+泰勒斯威夫特中国巡演,web_search,search_and_return
+日本旅游签证办理流程,web_search,search_and_return
+泰国落地签最新政策,web_search,search_and_return
+欧洲申根签证材料,web_search,search_and_return
+马尔代夫旅游攻略,web_search,search_and_return
+新西兰自驾游路线,web_search,search_and_return
+高血压饮食注意事项,web_search,search_and_return
+糖尿病最新治疗方法,web_search,search_and_return
+新冠疫苗接种指南,web_search,search_and_return
+儿童疫苗接种时间表,web_search,search_and_return
+孕期营养补充建议,web_search,search_and_return

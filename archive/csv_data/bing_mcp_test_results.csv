@@ -1,0 +1,48 @@
+query,status,ok,error,elapsed,result_preview
+特斯拉Model 3最新价格,✓,True,,6.16s,"已搜索特斯拉Model 3最新价格，结果如下：
+1. 【Model 3】特斯拉_Model 3报价_Model 3图片_汽车之家 | https://www.autohome.com.cn/5346/"
+比亚迪汉EV续航测试,✓,True,,3.07s,"已搜索比亚迪汉EV续航测试，结果如下：
+1. 比亚迪要怎样“颠覆”？3月5日发布会的几大猜想_腾讯新闻 [官方] | https://news.qq.com/rain/a/20260303A04QJ2"
+iPhone 15 Pro评测,✓,True,,9.27s,"已搜索iPhone 15 Pro评测，结果如下：
+1. 2026（新款）苹果手机推荐！Apple iPhone 17/plus/Pro /Pro ... [可信] | https://www.zhih"
+华为Mate 60 Pro参数,✗,False,no_relevant_results,8.22s,
+小米14 Ultra拍照样张,✗,False,timeout,10.00s,
+2024年春节放假安排,✓,True,,8.06s,"已搜索2024年春节放假安排，结果如下：
+1. 2024 年放假安排公布，春节连休 8 天，还有哪些信息值得关注？ [可信] | https://www.zhihu.com/question/6277"
+上海迪士尼门票价格,✓,True,,8.12s,"已搜索上海迪士尼门票价格，结果如下：
+1. 上海迪士尼每个项目的快速通行的VIP票多少钱？ - 知乎 [可信] | https://www.zhihu.com/question/476581351 |"
+北京环球影城攻略,✓,True,,4.83s,"已搜索北京环球影城攻略，结果如下：
+1. 北京环球影城游玩攻略 [可信] | https://www.zhihu.com/tardis/bd/art/30279085222 | 2025年3月14日 "
+成都大熊猫基地开放时间,✗,False,no_relevant_results,8.45s,
+杭州西湖景点推荐,✓,True,,7.76s,"已搜索杭州西湖景点推荐，结果如下：
+1. Hangzhou - 杭州西湖风景名胜区管委会 [官方] | https://westlake.hangzhou.gov.cn/ | 2026年2月19日 ·"
+ChatGPT使用教程,✓,True,,8.23s,"已搜索ChatGPT使用教程，结果如下：
+1. ChatGPT 免费使用指南：GPT-5 新手快速入门教程~ 【2025 ... [可信] | https://zhuanlan.zhihu.com/p"
+Python入门学习路线,✓,True,,6.82s,"已搜索Python入门学习路线，结果如下：
+1. Welcome to Python.org [可信] | https://www.python.org/ | Python knows the usu"
+React最佳实践,✓,True,,8.27s,"已搜索React最佳实践，结果如下：
+1. Microsoft 365 help & learning | https://support.microsoft.com/en-us/microsoft-"
+Docker部署指南,✓,True,,4.14s,"已搜索Docker部署指南，结果如下：
+1. 开发者们，Docker到底是什么，能干什么？ - 知乎 [可信] | https://www.zhihu.com/question/600292294/a"
+Kubernetes入门教程,✓,True,,8.59s,"已搜索Kubernetes入门教程，结果如下：
+1. 一文了解 Kubernetes 是什么？ - 知乎 [可信] | https://www.zhihu.com/question/639690506"
+流浪地球2票房,✓,True,,8.35s,"已搜索流浪地球2票房，结果如下：
+1. 为什么 《流浪地球 2》比第一部口碑更好，但票房少了 6 亿 ... [可信] | https://www.zhihu.com/question/6364511"
+繁花电视剧豆瓣评分,✗,False,no_relevant_results,8.07s,
+三体动画第二季上映时间,✗,False,no_relevant_results,4.65s,
+周杰伦演唱会2024,✗,False,no_relevant_results,5.12s,
+泰勒斯威夫特中国巡演,✗,False,no_relevant_results,9.98s,
+日本旅游签证办理流程,✗,False,timeout,10.01s,
+泰国落地签最新政策,✗,False,no_relevant_results,8.65s,
+欧洲申根签证材料,✗,False,no_relevant_results,8.00s,
+马尔代夫旅游攻略,✓,True,,7.46s,"已搜索马尔代夫旅游攻略，结果如下：
+1. 中国人去一次马尔代夫旅游需要多少钱？ - 知乎 [可信] | https://www.zhihu.com/question/296368683 | 2024年"
+新西兰自驾游路线,✓,True,,8.24s,"已搜索新西兰自驾游路线，结果如下：
+1. 新西兰自然与风景 | 百分百纯净新西兰 | https://www.newzealand.com/cn/scenic-highlights/ | 火山和地热 "
+高血压饮食注意事项,✓,True,,7.83s,"已搜索高血压饮食注意事项，结果如下：
+1. 高血压饮食及注意事项 - 百度经验 | https://jingyan.baidu.com/article/73c3ce28cfdbb0e50343d9ce"
+糖尿病最新治疗方法,✗,False,no_relevant_results,3.72s,
+新冠疫苗接种指南,✗,False,no_relevant_results,6.01s,
+儿童疫苗接种时间表,✓,True,,8.19s,"已搜索儿童疫苗接种时间表，结果如下：
+1. 幼儿及儿童疫苗接种时间表 - 百度经验 | https://jingyan.baidu.com/article/b7001fe16e669f0e7282dd"
+孕期营养补充建议,✗,False,no_relevant_results,3.34s,

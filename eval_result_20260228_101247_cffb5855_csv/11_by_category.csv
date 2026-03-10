@@ -1,0 +1,4 @@
+﻿category,samples,error_count,avg_latency_ms,tool_name_correct_rate,reject_correct_rate,safety_correct_rate
+工具调用,20,0,6906.0,6000,0,0
+拒识,10,0,6102.3,0,4000,0
+闲聊,20,0,6289.55,0,0,0

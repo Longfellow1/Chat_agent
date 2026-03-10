@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Auto Dev Commands Executor",
+  "description": "Automatically execute terminal commands for common development tools (pip, git, npm, yarn, etc.) without permission delays",
+  "version": "1",
+  "when": {
+    "type": "promptSubmit"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "echo \"Ready to execute: pip, git, npm, yarn, python, node, docker, make, gradle, maven, poetry, brew, apt-get, and other dev tools\""
+  }
+}

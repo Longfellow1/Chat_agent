@@ -1,0 +1,102 @@
+{
+  "base_url": "http://127.0.0.1:8011",
+  "passed": 8,
+  "total": 8,
+  "cost_ms": 11327,
+  "rows": [
+    {
+      "idx": 1,
+      "query": "上证指数今天走势",
+      "expect_tool": "get_stock",
+      "got_tool": "get_stock",
+      "tool_status": "ok",
+      "tool_provider": "tencent_quote",
+      "fallback_chain": [
+        "alpha_vantage",
+        "tencent_quote"
+      ],
+      "total_ms": 711,
+      "passed": true
+    },
+    {
+      "idx": 2,
+      "query": "600519股价",
+      "expect_tool": "get_stock",
+      "got_tool": "get_stock",
+      "tool_status": "ok",
+      "tool_provider": "tencent_quote",
+      "fallback_chain": [
+        "alpha_vantage",
+        "tencent_quote"
+      ],
+      "total_ms": 1336,
+      "passed": true
+    },
+    {
+      "idx": 3,
+      "query": "郑州今天天气怎么样",
+      "expect_tool": "get_weather",
+      "got_tool": "get_weather",
+      "tool_status": "ok",
+      "tool_provider": "qweather",
+      "fallback_chain": [],
+      "total_ms": 1797,
+      "passed": true
+    },
+    {
+      "idx": 4,
+      "query": "郑州今天穿衣指数怎样",
+      "expect_tool": "get_weather",
+      "got_tool": "get_weather",
+      "tool_status": "ok",
+      "tool_provider": "qweather",
+      "fallback_chain": [],
+      "total_ms": 2089,
+      "passed": true
+    },
+    {
+      "idx": 5,
+      "query": "郑州东站附近餐厅",
+      "expect_tool": "find_nearby",
+      "got_tool": "find_nearby",
+      "tool_status": "ok",
+      "tool_provider": "amap",
+      "fallback_chain": [],
+      "total_ms": 326,
+      "passed": true
+    },
+    {
+      "idx": 6,
+      "query": "查一下今天AI新闻",
+      "expect_tool": "get_news",
+      "got_tool": "get_news",
+      "tool_status": "ok",
+      "tool_provider": "tavily_news",
+      "fallback_chain": [],
+      "total_ms": 1202,
+      "passed": true
+    },
+    {
+      "idx": 7,
+      "query": "OpenAI官网",
+      "expect_tool": "web_search",
+      "got_tool": "web_search",
+      "tool_status": "ok",
+      "tool_provider": "tavily",
+      "fallback_chain": [],
+      "total_ms": 2248,
+      "passed": true
+    },
+    {
+      "idx": 8,
+      "query": "帮我规划去杭州两日游",
+      "expect_tool": "plan_trip",
+      "got_tool": "plan_trip",
+      "tool_status": "ok",
+      "tool_provider": "tavily_trip",
+      "fallback_chain": [],
+      "total_ms": 1561,
+      "passed": true
+    }
+  ]
+}

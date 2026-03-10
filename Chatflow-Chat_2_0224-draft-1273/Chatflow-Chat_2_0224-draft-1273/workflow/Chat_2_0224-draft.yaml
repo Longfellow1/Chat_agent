@@ -1,0 +1,4764 @@
+schema_version: 1.0.0
+name: Chat_2_0224
+id: 7611375200538771491
+description: "无目标闲聊、常识/百科、情绪表达、实时数据检索"
+mode: chatflow
+icon: plugin_icon/chatflow-icon.png
+nodes:
+    - id: "100001"
+      type: start
+      title: 开始
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Start-v2.jpg
+      description: "工作流的起始节点，用于设定启动工作流需要的信息"
+      position:
+        x: 180
+        y: 4113.225
+      parameters:
+        node_outputs:
+            CONVERSATION_NAME:
+                type: string
+                value: null
+                default_value: Default
+                description: 本次请求绑定的会话，会自动写入消息、会从该会话读对话历史。
+            USER_INPUT:
+                type: string
+                value: null
+    - id: "900001"
+      type: end
+      title: 结束
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-End-v2.jpg
+      description: "工作流的最终节点，用于返回工作流运行后的结果信息"
+      position:
+        x: 6620
+        y: 2357.4249999999997
+      parameters:
+        terminatePlan: returnVariables
+    - id: "120239"
+      type: llm
+      title: 常识/百科查询
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 3400
+        y: 3586.7499999999995
+      parameters:
+        fcParam:
+            llmNodeUID: "7611381563285192713"
+            pluginFCParam:
+                pluginList:
+                    - api_id: "7516843396187783202"
+                      api_name: search
+                      is_draft: false
+                      plugin_id: "7516843396187766818"
+                      plugin_version: ""
+                    - api_id: "7516843396187799586"
+                      api_name: search_sync
+                      is_draft: false
+                      plugin_id: "7516843396187766818"
+                      plugin_version: ""
+            spaceID: "7611174943728238598"
+            workflowVersion: ""
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: generationDiversity
+              input:
+                type: string
+                value: precise
+            - name: apiMode
+              input:
+                type: integer
+                value: "0"
+            - name: temperature
+              input:
+                type: float
+                value: "0.3"
+            - name: topP
+              input:
+                type: float
+                value: "1"
+            - name: frequencyPenalty
+              input:
+                type: float
+                value: "0"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: thinkingType
+              input:
+                type: string
+                value: disabled
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.6·自动深度思考
+            - name: modelType
+              input:
+                type: integer
+                value: "1749615103"
+            - name: parameters
+              input:
+                type: object
+                properties:
+                    max_completion_tokens:
+                        type: integer
+                        value: "0"
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: '{{input}}'
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "3"
+            - name: systemPrompt
+              input:
+                type: string
+                value: "# 角色\n你是一个擅长聊常识和百科的轻松朋友，说话语气像日常聊天一样自然，用简单易懂的方式和用户交流，回答时带着一点点轻松感（比如偶尔加“哦”“呀”“啦”这类轻语气词，最多1个），让用户感觉就像和熟悉的朋友聊天。\n\n## 技能\n### 技能1: 回答常识问题\n1. 当用户询问生活常识（如“如何快速去除衣服上的油渍？”）、日常技巧（如“香蕉怎么保存更久？”）等常见问题时，直接给出最核心的答案，不展开背景或多余说明。\n2. 用口语化的短句回答，避免书面语，适当加入1个轻语气词让语气轻松，比如“哦”“呀”“啦”。\n3. 若问题涉及步骤，只说关键步骤，例如“煮鸡蛋水开后煮8分钟就好啦”。\n\n### 技能2: 讲解百科知识\n1. 当用户询问科学概念（如“为什么会有彩虹？”）、文化常识（如“十二生肖是怎么来的？”）、历史事件（如“端午节为什么吃粽子？”）等知识性问题时，用最简洁的方式解释核心内容，不添加额外信息。\n2. 若概念较复杂，用简单例子或生活化比喻辅助说明，比如“黑洞就像宇宙里的‘贪吃鬼’，什么都能吸进去～”（注意比喻要符合科学常识）。\n3. 严格按照用户问题回答，不偏离主题，不主动延伸无关内容。\n\n### 技能 3：功能介绍 \n- **场景触发**：当用户问你有什么功能、功能列表时。    \n- **回应示例**：用户说“你有什么功能” → 答：“我能陪你聊天、安慰情绪、解答情感困惑，也可以帮你规划行程、查询天气、新闻、热点、股票等信息，有需要随时告诉我。”\n\n===回复示例===\n- 常识问题：“空调多久清洗一次滤网？”\n  回答：“一般1-2个月就清洗一次哦。”\n- 百科问题：“臭氧层有什么作用？”\n  回答：“挡住太阳的有害紫外线啦。”\n===示例结束===\n\n## 限制\n- 只回答与常识、百科相关的问题。\n- 回答必须超简洁，只保留核心信息，不解释原理或补充背景（比如用户问“为什么天空是蓝色的？”，回答“空气散射蓝光呀”而非“因为空气分子对蓝光散射强，瑞利散射原理…”）。\n- 语气必须像日常聊天，书面化语言（如“综上所述”“由此可见”）全部禁用，轻语气词（“哦”“呀”“啦”等）最多用1个，且不影响核心内容理解。\n- 不会主动扩展话题或编造假信息，严格基于常识和公认知识回答，不确定的内容直接说明“这个不太确定哦”或跳过，不模糊回答。"
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: input
+              input:
+                type: string
+                value:
+                    path: new_input
+                    ref_node: "154827"
+        node_outputs:
+            output:
+                type: string
+                value: null
+            reasoning_content:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "169060"
+      type: llm
+      title: 无目标闲聊
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 4320
+        y: 4324.049999999999
+      parameters:
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: temperature
+              input:
+                type: float
+                value: "0.8"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: prefixCache
+              input:
+                type: boolean
+                value: false
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.5·Pro·32k
+            - name: modelType
+              input:
+                type: integer
+                value: "1737521813"
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: parameters
+              input:
+                type: object
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: '{{input}}'
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: true
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "10"
+            - name: systemPrompt
+              input:
+                type: string
+                value: "# 角色  \n你是一个亲切自然的无目标闲聊伙伴，可以像生活中的好友一样，用轻松随意的方式陪伴用户进行日常寒暄，不追求深度内容或明确结果，只专注于享受轻松的闲聊过程。\n\n\n## **技能**  \n### **技能1：主动发起轻松话题（无明确目的场景）**  \n- **场景触发**：当用户发送“你好”类打招呼内容，或说“无聊了”“随便聊聊”等无明确问题的表达时。  \n**行动要求**：立即用生活化、日常场景化的问题开启对话，避免生硬提问，语气像朋友随口聊天（如“最近有没有吃到什么好吃好玩的小事想分享吗～?”“今天天气不错，你有没有出门晒晒太阳？”）。  \n**回应示例**：  \n- 用户：“你好” → 答：“哈喽～今天出门有没有遇到什么可爱小事？比如路边新开的小店或者超萌的小动物？”  \n- 用户：“无聊了陪我唠嗑” → 答：“来啦来啦～最近有没有发生什么有意思的小事呀？比如吃到了超好吃的东西，或者刷到了让你眼前一亮的视频～”  \n\n\n### **技能2：自然延续日常闲聊（用户回应后）**  \n- **场景触发**：当用户积极回应Bot的话题，或主动分享日常事件（如“今天上班路上看到有人求婚”“我家猫把花瓶碰倒了”）时。  \n**行动要求**：围绕天气、饮食、生活碎片、兴趣爱好等宽泛话题互动，用“反问+联想”的方式延续对话，不深入细节或追问（如不问“为什么选那家店”“后来怎么样了”），始终保持“点到为止”的轻松感。  \n**回应示例**：  \n- 用户：“今天吃了火锅” → 答：“哇，火锅配冰饮超爽！你吃火锅必点毛肚还是鸭肠呀？”  \n- 用户：“今天下雨没带伞” → 答：“哎呀，没带伞确实麻烦！有没有找个地方躲雨或者点杯热饮？希望雨快点停～你接下来有什么安排吗？”  \n\n\n### **技能3：保持无焦点、开放式互动（对话中）**  \n- **场景触发**：当用户参与互动后，或对话节奏平稳时。  \n**行动要求**：话题不聚焦单一问题，允许“想到哪说到哪”，用简短联想或轻松反问留空间（如用户说“我周末想去爬山”，回应“爬山超棒！我上次爬完腿酸了三天哈哈～你喜欢看山还是看湖呀？”）；避免长篇大论或强行引导用户进入新话题，让对话自然流动。  \n**回应示例**：用户说“最近看了部剧” → 答：“哦？什么类型的呀？是那种‘舍不得快进一秒’还是‘全程快进看结局’的剧呀？”  \n\n\n### **技能4：调用长期记忆时的自然回复方式**  \n- **场景触发**：当用户问题或对话内容涉及需要调用“长期记忆”的信息（如用户分享的个人身份、爱好、计划、具体细节等），且{{outputList}}存在匹配的用户记忆信息时。  \n- **行动要求**：  \n  1. **多信息优先级处理**：若存在多条匹配信息（尤其是用户个人身份、名字等唯一性信息），以最近的一条记录为准，优先使用最新信息匹配；  \n  2. **回复衔接规则**：回复需自然衔接，明确使用“我记得...”开头提及相关记忆内容，用“我记得你之前提到过[具体记忆内容]”的结构承接答案（例如：若用户问“还记得我叫什么吗？”，且{{outputList}}中2026年2月1日记录为“星星”，则回复“当然记得！我记得你之前提到过你叫星星～”）；  \n  3. **无匹配或单匹配处理**：若未匹配到记忆信息，或仅匹配到一条信息，按日常闲聊逻辑回复；  \n  4. **语气要求**：无论是否匹配，回复时保持轻松随意，避免生硬。  \n\n\n### **长期记忆**  \n=====以下是你对用户的长期记忆======  \n{{outputList}}\n\n\n### **限制**  \n- 不主动引导用户进行**知识查询、情绪倾诉或严肃话题讨论**；  \n- 回应需用**口语化、亲切感强的日常用语**（如“哇塞”“哈哈”“对吧”“我记得”），避免正式/生硬表达；  \n- 若用户突然偏离闲聊主题，Bot仅用简短共情回应，迅速切换回轻松日常话题；  \n- 始终以“无目标、无压力”为核心，不追求对话“有意义”或“解决问题”；  \n- 调用长期记忆时，严格使用“我记得...”自然衔接，多信息时优先用最新记录。  \n\n"
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: input
+              input:
+                type: string
+                value:
+                    path: new_input
+                    ref_node: "154827"
+            - name: outputList
+              input:
+                type: list
+                items:
+                    type: object
+                    properties:
+                        date:
+                            type: string
+                            value: null
+                        output:
+                            type: string
+                            value: null
+                    value: null
+                value:
+                    path: outputList
+                    ref_node: "103365"
+        node_outputs:
+            output:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "136582"
+      type: output
+      title: 违法/无意义话题兜底
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 2940
+        y: 3.623767952376511e-13
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: 很抱歉呀，您询问的内容可能涉及敏感信息或无明确实际意义，不符合我的回应规范，不能为您提供相关解答啦~
+                type: literal
+        node_inputs:
+            - name: output
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+        streamingOutput: false
+    - id: "195325"
+      type: output
+      title: 人身安全风险兜底
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 2940
+        y: 211.7000000000002
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: 生命只有一次，无论遇到什么困境都不要走极端，请及时向身边可信的人或专业机构寻求帮助。
+                type: literal
+        node_inputs:
+            - name: output
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+        streamingOutput: false
+    - id: "131334"
+      type: ltm_write
+      title: 长期记忆写入
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-ltm_write.png
+      description: "写入长期记忆"
+      position:
+        x: 5726.048562444429
+        y: 4653
+      parameters:
+        memoryInfoList:
+            - memoryInfoID: "7611373719260250164"
+        node_inputs:
+            - name: messageList
+              input:
+                type: list
+                items:
+                    type: object
+                    properties:
+                        content:
+                            type: string
+                            value: null
+                        role:
+                            type: string
+                            value: null
+                    value: null
+                value:
+                    path: output
+                    ref_node: "199049"
+        node_outputs:
+            isSuccess:
+                type: boolean
+                value: null
+    - id: "117597"
+      type: output
+      title: 百科查询输出
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 3860
+        y: 3612.7499999999995
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: '{{output}}'
+                type: literal
+        node_inputs:
+            - name: output
+              input:
+                value:
+                    path: output
+                    ref_node: "120239"
+        streamingOutput: false
+    - id: "155509"
+      type: output
+      title: 无目标闲聊输出
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 4780
+        y: 4350.049999999999
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: '{{output}}'
+                type: literal
+        node_inputs:
+            - name: output
+              input:
+                value:
+                    path: output
+                    ref_node: "169060"
+        streamingOutput: false
+    - id: "149822"
+      type: code
+      title: 获取当前时间
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 1100
+        y: 4504.9
+      parameters:
+        code: "from datetime import datetime, timezone, timedelta\n\nasync def main(args: Args) -> Output:\n    # 创建 UTC+8 的时区对象\n    tz_beijing = timezone(timedelta(hours=8))\n    beijing_time = datetime.now(tz_beijing)\n    \n    ret: Output = {\n        \"current_date\": beijing_time.strftime(\"%Y-%m-%d\"),\n        \"current_time\": beijing_time.strftime(\"%H:%M\")        \n    }\n    return ret"
+        language: 3
+        node_outputs:
+            current_date:
+                type: string
+                value: null
+            current_time:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "119714"
+      type: condition
+      title: 选择器_2
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Condition-v2.jpg
+      description: "连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支"
+      position:
+        x: 1560
+        y: 3437.225
+      parameters:
+        branches:
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            type: string
+                            value:
+                                path: intent_id
+                                ref_node: "1855491"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "1"
+                logic: 2
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            type: string
+                            value:
+                                path: intent_id
+                                ref_node: "1855491"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "2"
+                logic: 2
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            type: string
+                            value:
+                                path: intent_id
+                                ref_node: "1855491"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "3"
+                logic: 2
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            type: string
+                            value:
+                                path: intent_id
+                                ref_node: "1855491"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "4"
+                logic: 2
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            type: string
+                            value:
+                                path: intent_id
+                                ref_node: "1855491"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "5"
+                logic: 2
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            type: string
+                            value:
+                                path: intent_id
+                                ref_node: "1855491"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "6"
+                logic: 2
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            type: string
+                            value:
+                                path: intent_id
+                                ref_node: "1855491"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "7"
+                logic: 2
+    - id: "195125"
+      type: comment
+      title: ""
+      icon: comment_icon
+      description: ""
+      position:
+        x: 1941.75
+        y: 3859.4772336506935
+      size:
+        width: 203.48623035208405
+        height: 80
+      parameters:
+        note: '[{"type":"heading-one","children":[{"text":"大模型意图识别","type":"text"}]}]'
+        schemaType: slate
+    - id: "167957"
+      type: intent
+      title: 实时信息查询
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Intent-v2.jpg
+      description: "用于用户输入的意图识别，并将其与预设意图选项进行匹配。"
+      position:
+        x: 2940
+        y: 1367.3000000000006
+      parameters:
+        chatHistorySetting:
+            chatHistoryRound: 3
+            enableChatHistory: false
+        intents:
+            - name: |-
+                查询天气：
+                包含城市 + 天，时间 + 城市 + 天气类完整表述
+            - name: |-
+                新闻资讯查询：
+                新闻、资讯、时事、报道、热点
+            - name: |-
+                网络搜索：
+                信息查询、最新信息、可变信息、需核验真实性的内容、近期新闻、政策变动、节目、电影、电视剧、产品价格、明星动态、赛事结果、实时数据、动态信息
+            - name: |-
+                股票查询：
+                股票实时股价、涨跌情况、行情走势
+            - name: |
+                行程规划：
+                出行路线、旅游行程、出行安排、游玩攻略、交通规划、目的地游玩路线、几日游规划、出行方案、自驾、自由行、跟团行程
+            - name: |-
+                周边搜索：
+                具体地点附近的美食、景点、公园、加油站、KTV、商场、超市等等
+        llmParam:
+            chatHistoryRound: 3
+            enableChatHistory: false
+            generationDiversity: default_val
+            maxTokens: 4096
+            modelName: 豆包·1.5·Pro·32k
+            modelType: 1.737521813e+09
+            prompt:
+                type: string
+                value:
+                    content: '{{query}}'
+                    type: literal
+            responseFormat: 2
+            systemPrompt:
+                type: string
+                value:
+                    content: |-
+                        # Role
+                        你是一个精准的意图路由专家。你的任务是将经过语义补全的用户指令 (`query`)，精准分发到预设的工具通道中。
+
+                        # Classification Rules (判别标准)
+                        请严格按照以下优先级进行匹配：
+
+                        1. **查询天气**：仅限明确的气象查询（如：气温、下雨、台风、空气质量、穿衣建议）。
+                        2. **股票查询**：仅限金融二级市场数据（如：股价、K线、涨跌幅、大盘走势、汇率、金价）。
+                        3. **行程规划**：涉及旅行决策强相关（如：路线规划、景点推荐、交通方案、几日游攻略、住宿建议）。
+                        4. **新闻资讯**：侧重于“正在发生”的时事（如：今日热搜、政策变动、突发事件）。
+                        5. **网络搜索**：**万能兜底选项**。所有不属于上述垂直领域、但需要联网获取答案的问题（如：某人是谁、某物价格、影评、生活常识验证、百科知识）均归于此类。
+
+                        # Strategy
+                        - **优先垂直**：先判断是否属于 1-3 类（天气/股票/行程），因为这些有专用插件。
+                        - **搜索兜底**：如果意图模糊或涉及通用知识，一律归为“网络搜索”。
+                    type: literal
+            temperature: 1
+        mode: all
+        node_inputs:
+            - name: query
+              input:
+                type: string
+                value:
+                    path: new_input
+                    ref_node: "154827"
+        node_outputs:
+            classificationId:
+                type: integer
+                value: null
+            reason:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            timeoutMs: 60000
+        version: "2"
+    - id: "153917"
+      type: condition
+      title: 查询是否充分的判断
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Condition-v2.jpg
+      description: "连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支"
+      position:
+        x: 4780
+        y: 492.75
+      parameters:
+        branches:
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            type: boolean
+                            value:
+                                path: isOK
+                                ref_node: "100138"
+                      operator: 1
+                      right:
+                        input:
+                            type: boolean
+                            value: true
+                logic: 2
+    - id: "134016"
+      type: plugin
+      title: DayWeather
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Plugin-v2.jpg
+      description: "获取指定日期的天气"
+      position:
+        x: 5240
+        y: 341.5499999999996
+      parameters:
+        apiParam:
+            - name: apiID
+              input:
+                type: string
+                value: "7362852017859035163"
+            - name: apiName
+              input:
+                type: string
+                value: "DayWeather"
+            - name: pluginID
+              input:
+                type: string
+                value: "7362852017859018779"
+            - name: pluginName
+              input:
+                type: string
+                value: "墨迹天气"
+            - name: pluginVersion
+              input:
+                type: string
+                value: ""
+            - name: tips
+              input:
+                type: string
+                value: ""
+            - name: outDocLink
+              input:
+                type: string
+                value: ""
+            - name: updateTime
+              input:
+                type: integer
+                value: 1.739159043e+09
+        node_inputs:
+            - name: city
+              input:
+                type: string
+                value:
+                    path: city
+                    ref_node: "100138"
+            - name: end_time
+              input:
+                type: string
+                value:
+                    path: end_time
+                    ref_node: "100138"
+            - name: start_time
+              input:
+                type: string
+                value:
+                    path: start_time
+                    ref_node: "100138"
+        node_outputs:
+            code:
+                type: integer
+                value: null
+            data:
+                type: list
+                items:
+                    type: object
+                    properties:
+                        condition:
+                            type: string
+                            value: null
+                            description: 天气
+                        humidity:
+                            type: float
+                            value: null
+                            description: 湿度
+                        predict_date:
+                            type: string
+                            value: null
+                            description: 预测日期
+                        temp_high:
+                            type: float
+                            value: null
+                            description: 最高温度
+                        temp_low:
+                            type: float
+                            value: null
+                            description: 最低温度
+                        weather_day:
+                            type: string
+                            value: null
+                        wind_dir_day:
+                            type: string
+                            value: null
+                            description: 白天风向
+                        wind_dir_night:
+                            type: string
+                            value: null
+                            description: 夜晚风向
+                        wind_level_day:
+                            type: string
+                            value: null
+                            description: 白天风力
+                        wind_level_night:
+                            type: string
+                            value: null
+                            description: 夜晚风力
+                    value: null
+                value: null
+                description: 根数据
+            message:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "160605"
+      type: llm
+      title: 天气总结
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 5700
+        y: 327.5499999999996
+      parameters:
+        fcParam:
+            llmNodeUID: "7611381563285209097"
+            pluginFCParam:
+                pluginList:
+                    - api_id: "7440102644321959973"
+                      api_name: getWeatherIndex
+                      is_draft: false
+                      plugin_id: "7440007846298877962"
+                      plugin_version: ""
+                    - api_id: "7440102644321910821"
+                      api_name: getAirQuality
+                      is_draft: false
+                      plugin_id: "7440007846298877962"
+                      plugin_version: ""
+                    - api_id: "7440102644321943589"
+                      api_name: getWeatherAlarm
+                      is_draft: false
+                      plugin_id: "7440007846298877962"
+                      plugin_version: ""
+            spaceID: "7611174943728238598"
+            workflowVersion: ""
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: temperature
+              input:
+                type: float
+                value: "0.8"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: prefixCache
+              input:
+                type: boolean
+                value: false
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.5·Lite·32k
+            - name: modelType
+              input:
+                type: integer
+                value: "1741232583"
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: parameters
+              input:
+                type: object
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: |-
+                    用户 query: {{query}}
+                    搜索结果: {{input}}
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "3"
+            - name: systemPrompt
+              input:
+                type: string
+                value: |-
+                    ## 角色
+                    你是一个高效的天气查询助理，能够结合搜索结果为用户提供准确实用的生活信息。
+
+
+                    ## 技能
+                    ### 技能 1: 搜索总结天气
+                    1. 提取搜索结果中的关键信息，如天气状况、温度、湿度、穿衣指数、天气预警等。
+                    2. 结合用户所在地区和历史消息，为用户总结天气情况。
+
+                    ## 限制:
+                    - 只回答与天气相关的问题，拒绝回答与天气无关的话题。
+                    - 所输出的内容必须按照给定的格式进行组织，不能偏离框架要求。
+                    - 总结部分不能超过100 字。
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: input
+              input:
+                value:
+                    path: data
+                    ref_node: "134016"
+            - name: query
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+        node_outputs:
+            output:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 600000
+    - id: "138149"
+      type: output
+      title: 天气结果输出
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 6160
+        y: 353.5499999999996
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: '{{output}}'
+                type: literal
+        node_inputs:
+            - name: output
+              input:
+                value:
+                    path: output
+                    ref_node: "160605"
+        streamingOutput: true
+    - id: "183967"
+      type: output
+      title: 输出_1
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 6160
+        y: 565.2499999999997
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: 请告诉我具体的城市呀。
+                type: literal
+        streamingOutput: true
+    - id: "180423"
+      type: output
+      title: 安抚
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 6160
+        y: 777.0500000000003
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: 正在查询天气。
+                type: literal
+        streamingOutput: false
+    - id: "163175"
+      type: plugin
+      title: getToutiaoNews
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Plugin-v2.jpg
+      description: "搜索新闻讯息"
+      position:
+        x: 5240
+        y: 988.8500000000003
+      parameters:
+        apiParam:
+            - name: apiID
+              input:
+                type: string
+                value: "7362080779243110454"
+            - name: apiName
+              input:
+                type: string
+                value: "getToutiaoNews"
+            - name: pluginID
+              input:
+                type: string
+                value: "7362080779243094070"
+            - name: pluginName
+              input:
+                type: string
+                value: "头条新闻"
+            - name: pluginVersion
+              input:
+                type: string
+                value: ""
+            - name: tips
+              input:
+                type: string
+                value: ""
+            - name: outDocLink
+              input:
+                type: string
+                value: ""
+            - name: updateTime
+              input:
+                type: integer
+                value: 1.739157875e+09
+        node_inputs:
+            - name: q
+              input:
+                type: string
+                value:
+                    path: final_result
+                    ref_node: "174980"
+        node_outputs:
+            news:
+                type: list
+                items:
+                    type: object
+                    properties:
+                        categories:
+                            type: list
+                            items:
+                                type: string
+                                value: null
+                            value: null
+                        cover:
+                            type: string
+                            value: null
+                        media_name:
+                            type: string
+                            value: null
+                        summary:
+                            type: string
+                            value: null
+                        time:
+                            type: string
+                            value: null
+                        title:
+                            type: string
+                            value: null
+                        url:
+                            type: string
+                            value: null
+                    value: null
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "166771"
+      type: llm
+      title: 搜索新闻总结
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 5700
+        y: 962.8500000000003
+      parameters:
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: temperature
+              input:
+                type: float
+                value: "0.8"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: prefixCache
+              input:
+                type: boolean
+                value: false
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.5·Lite·32k
+            - name: modelType
+              input:
+                type: integer
+                value: "1741232583"
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: parameters
+              input:
+                type: object
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: |-
+                    用户 query: {{query}}
+                    新闻信息: {{input}}
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "3"
+            - name: systemPrompt
+              input:
+                type: string
+                value: |-
+                    # 角色
+                    你是一个高效的新闻总结小助手，能够结合搜索结果为用户提供准确实用的信息。
+
+                    ## 技能
+                    ### 技能 1: 总结新闻信息
+                    1. 接收用户的查询和相关新闻结果。
+                    2. 提取结果中的关键信息，结合用户查询和历史消息进行总结。
+
+                    ## 限制:
+                    - 所输出的内容必须按照给定的格式进行组织，不能偏离框架要求。
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: input
+              input:
+                value:
+                    path: news
+                    ref_node: "163175"
+            - name: query
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+        node_outputs:
+            output:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 600000
+    - id: "154493"
+      type: output
+      title: 搜索新闻输出
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 6160
+        y: 988.8500000000003
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: '{{output}}'
+                type: literal
+        node_inputs:
+            - name: output
+              input:
+                value:
+                    path: output
+                    ref_node: "166771"
+        streamingOutput: true
+    - id: "177152"
+      type: plugin
+      title: search
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Plugin-v2.jpg
+      description: "搜索用户询问的内容"
+      position:
+        x: 5240
+        y: 1252.5500000000006
+      parameters:
+        apiParam:
+            - name: apiID
+              input:
+                type: string
+                value: "7372463719307296795"
+            - name: apiName
+              input:
+                type: string
+                value: "search"
+            - name: pluginID
+              input:
+                type: string
+                value: "7372463719307264027"
+            - name: pluginName
+              input:
+                type: string
+                value: "头条搜索"
+            - name: pluginVersion
+              input:
+                type: string
+                value: ""
+            - name: tips
+              input:
+                type: string
+                value: ""
+            - name: outDocLink
+              input:
+                type: string
+                value: ""
+            - name: updateTime
+              input:
+                type: integer
+                value: 1.73915694e+09
+        node_inputs:
+            - name: count
+              input:
+                type: string
+                value: "4"
+            - name: input_query
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+        node_outputs:
+            code:
+                type: integer
+                value: null
+            data:
+                type: object
+                properties:
+                    cursor:
+                        type: integer
+                        value: null
+                    doc_results:
+                        type: list
+                        items:
+                            type: object
+                            properties:
+                                sitename:
+                                    type: string
+                                    value: null
+                                    description: the site name which url belongs to
+                                summary:
+                                    type: string
+                                    value: null
+                                    description: the summary of the url content
+                                title:
+                                    type: string
+                                    value: null
+                                    description: title of the url content
+                                url:
+                                    type: string
+                                    value: null
+                                    description: link url
+                            value: null
+                        value: null
+                    has_more:
+                        type: boolean
+                        value: null
+                    search_id:
+                        type: string
+                        value: null
+                value: null
+            errcode:
+                type: integer
+                value: null
+            errmsg:
+                type: string
+                value: null
+            log_id:
+                type: string
+                value: null
+            ok:
+                type: boolean
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "109191"
+      type: llm
+      title: 搜索结果总结
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 5700
+        y: 1226.5500000000006
+      parameters:
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: temperature
+              input:
+                type: float
+                value: "0.8"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: prefixCache
+              input:
+                type: boolean
+                value: false
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.5·Lite·32k
+            - name: modelType
+              input:
+                type: integer
+                value: "1741232583"
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: parameters
+              input:
+                type: object
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: |-
+                    用户 query: {{query}}
+                    搜索结果: {{input}}
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "3"
+            - name: systemPrompt
+              input:
+                type: string
+                value: |-
+                    # 角色
+                    你是一个高效的网络小助理，能够结合搜索结果为用户提供准确实用的信息。
+
+                    ## 技能
+                    ### 技能 1: 总结搜索信息
+                    1. 接收用户的查询和相关搜索结果。
+                    2. 提取搜索结果中的关键信息，结合用户查询和历史消息进行总结。
+
+                    ## 限制:
+                    - 以文本形式输出，总字数不超过100字。
+                    - 所输出的内容必须按照给定的格式进行组织，不能偏离框架要求。
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: input
+              input:
+                value:
+                    path: data
+                    ref_node: "177152"
+            - name: query
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+        node_outputs:
+            output:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 600000
+    - id: "110722"
+      type: output
+      title: 搜索结果输出
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 6160
+        y: 1252.5500000000006
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: '{{output}}'
+                type: literal
+        node_inputs:
+            - name: output
+              input:
+                value:
+                    path: output
+                    ref_node: "109191"
+        streamingOutput: true
+    - id: "167267"
+      type: output
+      title: 输出
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 6160
+        y: 1464.2500000000005
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: 正在搜索。
+                type: literal
+        streamingOutput: false
+    - id: "186018"
+      type: plugin
+      title: SearchStockData
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Plugin-v2.jpg
+      description: "根据关键词或者股票代码搜索股票信息，包括财务状况以及市场信息。例子：贵州茅台、600519"
+      position:
+        x: 5240
+        y: 1676.0500000000006
+      parameters:
+        apiParam:
+            - name: apiID
+              input:
+                type: string
+                value: "7356446812695461888"
+            - name: apiName
+              input:
+                type: string
+                value: "SearchStockData"
+            - name: pluginID
+              input:
+                type: string
+                value: "7356446812695429120"
+            - name: pluginName
+              input:
+                type: string
+                value: "新浪财经"
+            - name: pluginVersion
+              input:
+                type: string
+                value: ""
+            - name: tips
+              input:
+                type: string
+                value: ""
+            - name: outDocLink
+              input:
+                type: string
+                value: ""
+            - name: updateTime
+              input:
+                type: integer
+                value: 1.75038693e+09
+        node_inputs:
+            - name: keyword
+              input:
+                type: string
+                value:
+                    path: company_name
+                    ref_node: "197681"
+            - name: date
+              input:
+                type: string
+                value:
+                    path: query_date
+                    ref_node: "197681"
+        node_outputs:
+            code:
+                type: float
+                value: null
+            data:
+                type: list
+                items:
+                    type: object
+                    properties:
+                        base_info:
+                            type: object
+                            properties:
+                                market:
+                                    type: string
+                                    value: null
+                                name:
+                                    type: string
+                                    value: null
+                                symbol:
+                                    type: string
+                                    value: null
+                            value: null
+                        finance_info:
+                            type: object
+                            properties:
+                                jump_link:
+                                    type: string
+                                    value: null
+                                report_date:
+                                    type: string
+                                    value: null
+                                report_descrip:
+                                    type: string
+                                    value: null
+                                report_fields:
+                                    type: list
+                                    items:
+                                        type: object
+                                        properties:
+                                            item_field:
+                                                type: string
+                                                value: null
+                                            item_title:
+                                                type: string
+                                                value: null
+                                            item_tongbi:
+                                                type: string
+                                                value: null
+                                            item_value:
+                                                type: string
+                                                value: null
+                                        value: null
+                                    value: null
+                            value: null
+                        market_info:
+                            type: object
+                            properties:
+                                amount:
+                                    type: string
+                                    value: null
+                                change:
+                                    type: string
+                                    value: null
+                                close:
+                                    type: string
+                                    value: null
+                                currencyCode:
+                                    type: string
+                                    value: null
+                                currencyName:
+                                    type: string
+                                    value: null
+                                day:
+                                    type: string
+                                    value: null
+                                high:
+                                    type: string
+                                    value: null
+                                jumpLink:
+                                    type: string
+                                    value: null
+                                low:
+                                    type: string
+                                    value: null
+                                name:
+                                    type: string
+                                    value: null
+                                open:
+                                    type: string
+                                    value: null
+                                percent:
+                                    type: string
+                                    value: null
+                                preClose:
+                                    type: string
+                                    value: null
+                                price:
+                                    type: string
+                                    value: null
+                                symbol:
+                                    type: string
+                                    value: null
+                                volume:
+                                    type: string
+                                    value: null
+                            value: null
+                    value: null
+                value: null
+            log_id:
+                type: string
+                value: null
+            msg:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "192576"
+      type: llm
+      title: 股票查询总结
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 5700
+        y: 1650.0500000000006
+      parameters:
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: temperature
+              input:
+                type: float
+                value: "0.8"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: prefixCache
+              input:
+                type: boolean
+                value: false
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.5·Lite·32k
+            - name: modelType
+              input:
+                type: integer
+                value: "1741232583"
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: parameters
+              input:
+                type: object
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: |-
+                    用户 query: {{query}}
+                    搜索结果: {{input}}
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "3"
+            - name: systemPrompt
+              input:
+                type: string
+                value: |-
+                    # 角色
+                    你是一个高效的生活小助理，能够结合搜索结果为用户提供准确实用的信息。
+
+                    ## 技能
+                    ### 技能 1: 总结股票信息
+                    1. 接收用户的查询和相关股票结果。
+                    2. 提取结果中的关键信息，结合用户查询和历史消息进行总结。
+
+                    ## 限制:
+                    - 所输出的内容必须按照给定的格式进行组织，不能偏离框架要求。
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: input
+              input:
+                value:
+                    path: data
+                    ref_node: "186018"
+            - name: query
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+            - name: current_time
+              input:
+                value:
+                    path: current_time
+                    ref_node: "149822"
+            - name: current_date
+              input:
+                value:
+                    path: current_date
+                    ref_node: "149822"
+        node_outputs:
+            output:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 600000
+    - id: "111380"
+      type: output
+      title: 股票信息输出
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 6160
+        y: 1676.0500000000006
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: '{{output}}'
+                type: literal
+        node_inputs:
+            - name: output
+              input:
+                value:
+                    path: output
+                    ref_node: "192576"
+        streamingOutput: true
+    - id: "167370"
+      type: output
+      title: 股票安抚
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 6160
+        y: 1887.7500000000005
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: 正在查询股票。
+                type: literal
+        streamingOutput: false
+    - id: "188183"
+      type: output
+      title: 输出_4
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 3400
+        y: 4007.2
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: '{{output}}'
+                type: literal
+        node_inputs:
+            - name: output
+              input:
+                type: string
+                value:
+                    path: output
+                    ref_node: "146723"
+        streamingOutput: false
+    - id: "111357"
+      type: llm
+      title: 规划
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 5700
+        y: 2462.25
+      parameters:
+        fcParam:
+            llmNodeUID: "7603555733410529343"
+            pluginFCParam: {}
+            spaceID: "7488261233867849762"
+            workflowVersion: ""
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: temperature
+              input:
+                type: float
+                value: "0.8"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: prefixCache
+              input:
+                type: boolean
+                value: false
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.5·Pro·32k
+            - name: modelType
+              input:
+                type: integer
+                value: "1737521813"
+            - name: parameters
+              input:
+                type: object
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: '{{input}}'
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "5"
+            - name: systemPrompt
+              input:
+                type: string
+                value: |-
+                    # 角色
+                    你是专业旅行规划师，基于高德地图POI和路线数据，生成{{travel_days}}天{{user_city}}专属行程，按时间段编排，适配路线。
+
+                    ## 输入变量
+                    城市：{{user_city}}
+                    游玩天数：{{travel_days}}
+                    精品景点：{{scenic_final}}
+                    精品美食：{{food_final}}
+                    出发地：{{addresses2}}
+                    目的地：{{addresses1}}
+
+                    ## 景点美食选择规则
+                    1. 景点在{{addresses2}}里选择，每个景点只能被选一次
+                    2. 美食在{{addresses1}}里选择，每个美食也只能被选一次
+                    3. 上午去的景点和午餐要在一个区
+                    4. 下午去的景点和晚餐一个区
+
+                    ## 编排规则
+                    1. 每日结构：上午景点→午餐→下午景点→晚餐→晚间休闲
+                    2. 输出景点时只输出景点名字，不要输出详细地址
+                    3. 点位就近安排
+                    4. 格式规整，符合真实旅行节奏
+                    5. 当用户不想去某个景点时，从{{addresses2}}里重新选择景点，从{{addresses1}}里重新选择美食
+
+                    ## 输出格式
+                    以文本形式输出，总字数不超过100字。
+                    按照以下格式输出：“第1天：上午[景点1]，午餐[美食1]，下午[景点2]，晚餐[美食2]”（后续天依此类推）
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: user_city
+              input:
+                type: string
+                value:
+                    path: city
+                    ref_node: "1820143"
+            - name: travel_days
+              input:
+                type: integer
+                value:
+                    path: days
+                    ref_node: "1820143"
+            - name: scenic_final
+              input:
+                type: string
+                value:
+                    path: data.results.name
+                    ref_node: "161420"
+            - name: food_final
+              input:
+                type: string
+                value:
+                    path: data.results.address
+                    ref_node: "1474691"
+            - name: input
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+            - name: addresses1
+              input:
+                type: object
+                value:
+                    path: address_mapping
+                    ref_node: "143885"
+            - name: addresses2
+              input:
+                type: object
+                value:
+                    path: address_mapping
+                    ref_node: "1066129"
+        node_outputs:
+            output:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "156522"
+      type: output
+      title: 输出_2
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 6160
+        y: 2488.25
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: '{{output}}'
+                type: literal
+        node_inputs:
+            - name: output
+              input:
+                value:
+                    path: output
+                    ref_node: "111357"
+        streamingOutput: false
+    - id: "100138"
+      type: code
+      title: 地点/时间提取
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 4320
+        y: 505.65
+      parameters:
+        code: "import re\nfrom datetime import datetime, timedelta\n\nasync def main(args: Args) -> Output:\n    params = args.params\n    \n    # ================= 1. 获取输入 =================\n    user_input = \"\"\n    keys_to_check = ['Query', 'query', 'input', 'USER_INPUT']\n    for key in keys_to_check:\n        if key in params and params[key]:\n            user_input = params[key]\n            break\n            \n    if not user_input and '_input' in params and isinstance(params['_input'], dict):\n        user_input = params['_input'].get('Query', \"\")\n        if not user_input:\n            user_input = params['_input'].get('input', \"\")\n\n    current_date_str = params.get('current_date', datetime.now().strftime(\"%Y-%m-%d\"))\n\n    # ================= 2. 提取逻辑 =================\n    hit_city = \"\"\n    hit_district = \"\"\n\n    # --- 提取区县 ---\n    match_district = re.search(r'([\\u4e00-\\u9fa5]{2,6}(?:区|县|镇|乡|旗|岛|街道))', user_input)\n    ignore_words = {'今天', '明天', '后天', '昨天', '前天', '大后天', '现在', '当前', '未来', '本周', '下周', '这个', '那个', '查询'}\n\n    if match_district:\n        cand = match_district.group(1)\n        if cand not in ignore_words:\n            hit_district = cand\n\n    # --- 提取城市 ---\n    all_cities = {\n        \"北京\", \"上海\", \"天津\", \"重庆\", \"香港\", \"澳门\", \"台北\", \"高雄\",\n        \"广州\", \"深圳\", \"珠海\", \"汕头\", \"佛山\", \"韶关\", \"湛江\", \"肇庆\", \"江门\", \"茂名\", \"惠州\", \"梅州\", \"汕尾\", \"河源\", \"阳江\", \"清远\", \"东莞\", \"中山\", \"潮州\", \"揭阳\", \"云浮\",\n        \"石家庄\", \"唐山\", \"秦皇岛\", \"邯郸\", \"邢台\", \"保定\", \"张家口\", \"承德\", \"沧州\", \"廊坊\", \"衡水\",\n        \"太原\", \"大同\", \"阳泉\", \"长治\", \"晋城\", \"朔州\", \"晋中\", \"运城\", \"忻州\", \"临汾\", \"吕梁\",\n        \"呼和浩特\", \"包头\", \"乌海\", \"赤峰\", \"通辽\", \"鄂尔多斯\", \"呼伦贝尔\", \"巴彦淖尔\", \"乌兰察布\", \"兴安\", \"锡林郭勒\", \"阿拉善\",\n        \"沈阳\", \"大连\", \"鞍山\", \"抚顺\", \"本溪\", \"丹东\", \"锦州\", \"营口\", \"阜新\", \"辽阳\", \"盘锦\", \"铁岭\", \"朝阳\", \"葫芦岛\",\n        \"长春\", \"吉林\", \"四平\", \"辽源\", \"通化\", \"白山\", \"松原\", \"白城\", \"延边\",\n        \"哈尔滨\", \"齐齐哈尔\", \"鸡西\", \"鹤岗\", \"双鸭山\", \"大庆\", \"伊春\", \"佳木斯\", \"七台河\", \"牡丹江\", \"黑河\", \"绥化\", \"大兴安岭\",\n        \"南京\", \"无锡\", \"徐州\", \"常州\", \"苏州\", \"南通\", \"连云港\", \"淮安\", \"盐城\", \"扬州\", \"镇江\", \"泰州\", \"宿迁\",\n        \"杭州\", \"宁波\", \"温州\", \"嘉兴\", \"湖州\", \"绍兴\", \"金华\", \"衢州\", \"舟山\", \"台州\", \"丽水\",\n        \"合肥\", \"芜湖\", \"蚌埠\", \"淮南\", \"马鞍山\", \"淮北\", \"铜陵\", \"安庆\", \"黄山\", \"滁州\", \"阜阳\", \"宿州\", \"六安\", \"亳州\", \"池州\", \"宣城\",\n        \"福州\", \"厦门\", \"莆田\", \"三明\", \"泉州\", \"漳州\", \"南平\", \"龙岩\", \"宁德\",\n        \"南昌\", \"景德镇\", \"萍乡\", \"九江\", \"新余\", \"鹰潭\", \"赣州\", \"吉安\", \"宜春\", \"抚州\", \"上饶\",\n        \"济南\", \"青岛\", \"淄博\", \"枣庄\", \"东营\", \"烟台\", \"潍坊\", \"济宁\", \"泰安\", \"威海\", \"日照\", \"临沂\", \"德州\", \"聊城\", \"滨州\", \"菏泽\",\n        \"郑州\", \"开封\", \"洛阳\", \"平顶山\", \"安阳\", \"鹤壁\", \"新乡\", \"焦作\", \"濮阳\", \"许昌\", \"漯河\", \"三门峡\", \"南阳\", \"商丘\", \"信阳\", \"周口\", \"驻马店\",\n        \"武汉\", \"黄石\", \"十堰\", \"宜昌\", \"襄阳\", \"鄂州\", \"荆门\", \"孝感\", \"荆州\", \"黄冈\", \"咸宁\", \"随州\", \"恩施\", \"仙桃\", \"潜江\", \"天门\", \"神农架\",\n        \"长沙\", \"株洲\", \"湘潭\", \"衡阳\", \"邵阳\", \"岳阳\", \"常德\", \"张家界\", \"益阳\", \"郴州\", \"永州\", \"怀化\", \"娄底\", \"湘西\",\n        \"南宁\", \"柳州\", \"桂林\", \"梧州\", \"北海\", \"防城港\", \"钦州\", \"贵港\", \"玉林\", \"百色\", \"贺州\", \"河池\", \"来宾\", \"崇左\",\n        \"海口\", \"三亚\", \"三沙\", \"儋州\",\n        \"成都\", \"自贡\", \"攀枝花\", \"泸州\", \"德阳\", \"绵阳\", \"广元\", \"遂宁\", \"内江\", \"乐山\", \"南充\", \"眉山\", \"宜宾\", \"广安\", \"达州\", \"雅安\", \"巴中\", \"资阳\", \"阿坝\", \"甘孜\", \"凉山\",\n        \"贵阳\", \"六盘水\", \"遵义\", \"安顺\", \"毕节\", \"铜仁\", \"黔西南\", \"黔东南\", \"黔南\",\n        \"昆明\", \"曲靖\", \"玉溪\", \"保山\", \"昭通\", \"丽江\", \"普洱\", \"临沧\", \"楚雄\", \"红河\", \"文山\", \"西双版纳\", \"大理\", \"德宏\", \"怒江\", \"迪庆\",\n        \"拉萨\", \"日喀则\", \"昌都\", \"林芝\", \"山南\", \"那曲\", \"阿里\",\n        \"西安\", \"铜川\", \"宝鸡\", \"咸阳\", \"渭南\", \"延安\", \"汉中\", \"榆林\", \"安康\", \"商洛\",\n        \"兰州\", \"嘉峪关\", \"金昌\", \"白银\", \"天水\", \"武威\", \"张掖\", \"平凉\", \"酒泉\", \"庆阳\", \"定西\", \"陇南\", \"临夏\", \"甘南\",\n        \"西宁\", \"海东\", \"海北\", \"黄南\", \"海南\", \"果洛\", \"玉树\", \"海西\",\n        \"银川\", \"石嘴山\", \"吴忠\", \"固原\", \"中卫\",\n        \"乌鲁木齐\", \"克拉玛依\", \"吐鲁番\", \"哈密\", \"昌吉\", \"博尔塔拉\", \"巴音郭楞\", \"阿克苏\", \"克孜勒苏\", \"喀什\", \"和田\", \"伊犁\", \"塔城\", \"阿勒泰\"\n    }\n\n    for city in all_cities:\n        if city in user_input:\n            hit_city = city\n            break\n            \n    # 兜底猜测城市\n    if not hit_city and not hit_district:\n        match_context = re.search(r'([\\u4e00-\\u9fa5]{2,5})(?=的天气|天气|气温|下雨|有雨)', user_input)\n        if match_context:\n            cand = match_context.group(1)\n            if cand not in ignore_words:\n                hit_city = cand\n\n    # ================= 3. 数据清洗 (这里解决你的问题！) =================\n    \n    # 如果 提取到了城市，且 区县里也包含了这个城市名\n    # 比如 city=\"广州\", district=\"广州白云区\" -> 把\"广州\"删掉，剩下\"白云区\"\n    if hit_city and hit_district and hit_district.startswith(hit_city):\n        hit_district = hit_district.replace(hit_city, \"\", 1)\n\n    # ================= 4. 日期解析 =================\n    start_time = end_time = current_date_str\n    try:\n        base_date = datetime.strptime(current_date_str, \"%Y-%m-%d\")\n        \n        match_days = re.search(r'(\\d+|[一二两三四五六七八九十]+)天', user_input)\n        if match_days:\n            num_str = match_days.group(1)\n            days_num = 1\n            cn_map = {'一':1,'二':2,'两':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10}\n            if num_str.isdigit(): days_num = int(num_str)\n            elif num_str in cn_map: days_num = cn_map[num_str]\n            if days_num > 0:\n                end_time = (base_date + timedelta(days=days_num - 1)).strftime(\"%Y-%m-%d\")\n        else:\n            delta = 0\n            found = False\n            if \"昨天\" in user_input: delta=-1; found=True\n            elif \"前天\" in user_input: delta=-2; found=True\n            elif \"大后天\" in user_input: delta=3; found=True\n            elif \"后天\" in user_input: delta=2; found=True\n            elif \"明天\" in user_input: delta=1; found=True\n            if found:\n                target = base_date + timedelta(days=delta)\n                start_time = end_time = target.strftime(\"%Y-%m-%d\")\n    except:\n        pass\n\n    # ================= 5. 输出 =================\n    return {\n        \"isOK\": bool(hit_city or hit_district),\n        \"city\": hit_city,\n        \"district\": hit_district,\n        \"start_time\": start_time,\n        \"end_time\": end_time\n    }"
+        language: 3
+        node_inputs:
+            - name: Query
+              input:
+                type: string
+                value:
+                    path: new_input
+                    ref_node: "154827"
+        node_outputs:
+            city:
+                type: string
+                value: null
+            district:
+                type: string
+                value: null
+            end_time:
+                type: string
+                value: null
+            isOK:
+                type: boolean
+                value: null
+            start_time:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "174980"
+      type: code
+      title: 搜索新闻改写
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 4780
+        y: 988.8500000000003
+      parameters:
+        code: "import re\nfrom datetime import datetime, timedelta\n\nasync def main(args: Args) -> Output:\n    params = args.params\n    \n    user_input = \"\"\n    keys_to_check = ['Query', 'query', 'input', 'USER_INPUT', '问题', '输入', '提问']\n    for key in keys_to_check:\n        if key in params and params[key]:\n            user_input = str(params[key]).strip()\n            break\n            \n    if not user_input and '_input' in params and isinstance(params['_input'], dict):\n        user_input = str(params['_input'].get('Query', params['_input'].get('input', \"\"))).strip()\n\n    current_date_str = params.get('current_date', datetime.now().strftime(\"%Y-%m-%d\"))\n    try:\n        base_date = datetime.strptime(current_date_str, \"%Y-%m-%d\")\n    except:\n        base_date = datetime.now()\n        current_date_str = base_date.strftime(\"%Y-%m-%d\")\n\n    news_words = {'新闻', '资讯', '时事', '报道', '热点', '快讯', '要闻', '简讯'}\n    time_ignore_words = {'今天', '明天', '后天', '昨天', '前天', '大后天', '现在', '当前', '未来', '本周', '下周', '这个', '那个', '什么', '有', '哪些', '哪'}\n    modal_words = {'的', '了', '呢', '吗', '吧', '啊', '呀', '之', '与', '和'}\n\n    hit_time = \"\"\n    hit_content = \"\"\n\n    time_map = [\n        ('大后天', 3, '大后天'),\n        ('后天', 2, '后天'),\n        ('明天', 1, '明天'),\n        ('今天', 0, '今天'),\n        ('昨天', -1, '昨天'),\n        ('前天', -2, '前天'),\n        ('本周', 0, '本周'),\n        ('下周', 7, '下周'),\n        ('近期', 0, '近期'),\n        ('最新', 0, '最新'),\n        ('昨日', -1, '昨天'),\n        ('前日', -2, '前天')\n    ]\n    for time_key, delta, show_name in time_map:\n        if time_key in user_input:\n            hit_time = show_name\n            break\n    if not hit_time:\n        hit_time = '今天'\n\n    content_candidates = [word for word in news_words if word in user_input]\n    if content_candidates:\n        unique_content = list(set(content_candidates))\n        hit_content = ''.join(unique_content)\n    else:\n        hit_content = '新闻'\n    for word in time_ignore_words | modal_words:\n        hit_content = hit_content.replace(word, \"\")\n    if not hit_content:\n        hit_content = '新闻'\n\n    result = f\"{hit_time} {hit_content}\"\n    struct_result = {\n        \"isOK\": True,\n        \"query_time\": hit_time,\n        \"news_content\": hit_content,\n        \"query_date\": current_date_str,\n        \"final_result\": result\n    }\n\n    return struct_result"
+        language: 3
+        node_inputs:
+            - name: USER_INPUT
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+            - name: current_time
+              input:
+                value:
+                    path: current_time
+                    ref_node: "149822"
+            - name: current_date
+              input:
+                value:
+                    path: current_date
+                    ref_node: "149822"
+        node_outputs:
+            final_result:
+                type: string
+                value: null
+            isOK:
+                type: boolean
+                value: null
+            news_content:
+                type: string
+                value: null
+            query_date:
+                type: string
+                value: null
+            query_time:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "197681"
+      type: code
+      title: 提取公司名
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 3400
+        y: 1887.8000000000006
+      parameters:
+        code: "import re\nfrom datetime import datetime, timedelta\n\nasync def main(args: Args) -> Output:\n    params = args.params\n    \n    user_input = \"\"\n    keys_to_check = ['Query', 'query', 'input', 'USER_INPUT', '问题', '输入', '提问']\n    for key in keys_to_check:\n        if key in params and params[key]:\n            user_input = str(params[key]).strip()\n            break\n            \n    if not user_input and '_input' in params and isinstance(params['_input'], dict):\n        user_input = str(params['_input'].get('Query', params['_input'].get('input', \"\"))).strip()\n\n    current_date_str = params.get('current_date', datetime.now().strftime(\"%Y-%m-%d\"))\n    try:\n        base_date = datetime.strptime(current_date_str, \"%Y-%m-%d\")\n    except:\n        base_date = datetime.now()\n        current_date_str = base_date.strftime(\"%Y-%m-%d\")\n\n    time_ignore_words = {'今天', '明天', '后天', '昨天', '前天', '大后天', '现在', '当前', '未来', '本周', '下周', '这个', '那个', '什么', '有', '哪些', '哪'}\n    stock_companies = {\n        '苹果', '微软', '谷歌', '亚马逊', '特斯拉', '英伟达', '脸书', '元宇宙', '高通', '英特尔', '三星', '索尼','奇瑞',\n        '中兴', '茅台', '贵州茅台', '五粮液', '泸州老窖', '山西汾酒', '洋河股份', '古井贡酒', '伊利股份', '蒙牛', '海天味业',\n        '宁德时代', '比亚迪', '隆基绿能', '通威股份', '天齐锂业', '赣锋锂业', '亿纬锂能', '先导智能', '长城汽车', '长安汽车', '上汽集团',\n        '腾讯', '阿里', '阿里巴巴', '百度', '京东', '美团', '拼多多', '快手', '抖音', '字节跳动', '小红书', 'B站', '爱奇艺', '腾讯控股',\n        '华为', '小米', '小米集团', 'OPPO', 'vivo', '联想', '中芯国际', '北方华创', '兆易创新', '韦尔股份', '汇顶科技', '立讯精密', '歌尔股份',\n        '中石油', '中石化', '中国神华', '招商银行', '工商银行', '建设银行', '农业银行', '中国银行', '平安银行', '保利发展', '万科', '招商蛇口',\n        '格力电器', '美的集团', '海尔智家', '老板电器', '苏泊尔', '九阳股份',\n        '药明康德', '恒瑞医药', '迈瑞医疗', '片仔癀', '云南白药', '爱尔眼科', '通策医疗', '智飞生物',\n        '顺丰', '中通', '圆通', '韵达', '申通', '京东物流', '滴滴', '携程',\n        '中国船舶', '中航沈飞', '北方稀土', '紫金矿业', '洛阳钼业'\n    }\n\n    hit_time = \"\"\n    hit_company = \"\"\n\n    time_map = [\n        ('大后天', 3, '大后天'),\n        ('后天', 2, '后天'),\n        ('明天', 1, '明天'),\n        ('今天', 0, '今天'),\n        ('昨天', -1, '昨天'),\n        ('前天', -2, '前天'),\n        ('本周', 0, '本周'),\n        ('下周', 7, '下周'),\n        ('近期', 0, '近期'),\n        ('最新', 0, '最新'),\n        ('昨日', -1, '昨天'),\n        ('前日', -2, '前天')\n    ]\n    for time_key, delta, show_name in time_map:\n        if time_key in user_input:\n            hit_time = show_name\n            break\n    if not hit_time:\n        hit_time = '今天'\n\n    sorted_companies = sorted(stock_companies, key=lambda x: len(x), reverse=True)\n    for company in sorted_companies:\n        if company in user_input:\n            hit_company = company\n            break\n    for word in time_ignore_words:\n        hit_company = hit_company.replace(word, \"\")\n\n    result_parts = [hit_time, hit_company]\n    result = ' '.join([part for part in result_parts if part])\n\n    struct_result = {\n        \"isOK\": bool(hit_company),\n        \"query_time\": hit_time,\n        \"query_date\": current_date_str,\n        \"company_name\": hit_company,\n        \"final_result\": result\n    }\n\n    return struct_result"
+        language: 3
+        node_inputs:
+            - name: input
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+            - name: current_date
+              input:
+                value:
+                    path: current_date
+                    ref_node: "149822"
+        node_outputs:
+            company_name:
+                type: string
+                value: null
+            final_result:
+                type: string
+                value: null
+            isOK:
+                type: boolean
+                value: null
+            query_date:
+                type: string
+                value: null
+            query_time:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "104608"
+      type: llm
+      title: 输入重构&ID判断
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 2020
+        y: 3664.35
+      parameters:
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: temperature
+              input:
+                type: float
+                value: "0.3"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: prefixCache
+              input:
+                type: boolean
+                value: false
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.5·Pro·32k
+            - name: modelType
+              input:
+                type: integer
+                value: "1737521813"
+            - name: generationDiversity
+              input:
+                type: string
+                value: precise
+            - name: parameters
+              input:
+                type: object
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: ""
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "5"
+            - name: systemPrompt
+              input:
+                type: string
+                value: |-
+                    # Role
+                    你是一个精准的对话意图分类专家。你的唯一任务是分析传入的完整用户指令 (`User Query`)，根据判别标准将其归类为唯一的 Intent ID。
+
+                    # Input Data
+                    - **User Query**: {{input}} (这是已经过语义重写的完整指令)
+
+                    # Classification Rules (判别标准)
+                    请严格按照以下定义进行匹配：
+
+                    **ID 1: 违法/敏感/无意义 (Illegal/Sensitive)**
+                    * **核心特征**：车企负面消息，触犯法律、道德底线或无实际对话意义。
+                    * **覆盖**：涉黄赌毒、政治敏感、反动言论、黑产教程、严重的人身攻击（带脏字）、乱码刷屏、恶意测试。
+
+                    **ID 2: 人身安全风险 (Safety Risk)**
+                    * **核心特征**：涉及生命安全的紧急情况，**最高优先级**。
+                    * **覆盖**：自杀倾向、自残描述、正在遭受暴力/霸凌、非法拘禁、求救信号。
+
+                    **ID 3: 实时数据/行程查询/周边搜索 (Real-time/Travel)**
+                    * **核心特征**：**必须联网**或调用工具才能回答的问题，数据是**动态**的。
+                    * **覆盖**：
+                        * **行程/旅游**：路线规划、景点推荐、住宿查询、几日游攻略、交通方案。
+                        * **周边信息**：周边美食、景点、住宿、商场、公园。
+                        * **金融**：股价、K线、汇率、金价。
+                        * **生活**：天气预报、快递物流、票务(机酒火)、新闻热搜、油价。
+
+                    **ID 4: 常识/百科/功能 (Knowledge)**
+                    * **核心特征**：**静态**的公知知识，或者询问机器人自身能力。
+                    * **覆盖**：名词解释、定义原理、历史文化、科学常识、功能咨询（你有什么功能、能干什么）。
+
+                    **ID 5: 情绪表达 (Emotion)**
+                    * **核心特征**：主观情感宣泄，无具体信息查询需求。
+                    * **覆盖**：开心、难过、焦虑、emo、破防、求安慰、吐槽生活。
+                    * **排除**：如果涉及轻生/自残，必须归为 ID 2。
+
+                    **ID 6: 无目标闲聊 (Small Talk)**
+                    * **核心特征**：社交性寒暄，维持对话，无明确任务。
+                    * **覆盖**：你好、在吗、吃了吗、早安晚安、夸奖/调侃机器人、讲个笑话。
+
+                    # Output Format
+                    **重要原则**：
+                    1. **仅输出一个数字 ID** (1-6)。
+                    2. **严禁**包含任何 JSON 符号（如 `{}`）、Markdown 标记（如 ` ``` `）、标点符号或解释性文字。
+                    3. 你的输出必须能直接被解析为整数。
+
+                    # Few-Shot Examples
+
+                    ## User Query: "查询五粮液的实时股价"
+                    Output: {"ID": 3}
+
+                    ## User Query: "我想去日本驻摩旅游，帮忙规划路线"
+                    Output: {"ID": 3} (旅游行程归类为实时查询)
+
+                    ## User Query: "日本驻摩是哪里"
+                    Output: {"ID": 4} (静态地理知识)
+
+                    ## User Query: "感觉活着没意思想烧炭"
+                    Output: {"ID": 2} (高危安全风险)
+
+                    ## User Query: "怎么制作炸药"
+                    Output: {"ID": 1} (违法敏感)
+
+                    ## User Query: "心情不好不想上班"
+                    Output: {"ID": 5} (纯情绪宣泄)
+
+                    ## User Query: "你好在吗"
+                    Output: {"ID": 6} (闲聊)
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: input
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+        node_outputs:
+            ID:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "157717"
+      type: condition
+      title: 选择器
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Condition-v2.jpg
+      description: "连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支"
+      position:
+        x: 2480
+        y: 3577.95
+      parameters:
+        branches:
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            value:
+                                path: ID
+                                ref_node: "104608"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "1"
+                logic: 2
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            value:
+                                path: ID
+                                ref_node: "104608"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "2"
+                logic: 2
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            value:
+                                path: ID
+                                ref_node: "104608"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "3"
+                logic: 2
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            value:
+                                path: ID
+                                ref_node: "104608"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "4"
+                logic: 2
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            value:
+                                path: ID
+                                ref_node: "104608"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "5"
+                logic: 2
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            value:
+                                path: ID
+                                ref_node: "104608"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "6"
+                logic: 2
+    - id: "154827"
+      type: llm
+      title: 前置重写
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 640
+        y: 3437.6749999999997
+      parameters:
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: temperature
+              input:
+                type: float
+                value: "0.8"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: prefixCache
+              input:
+                type: boolean
+                value: false
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.5·Pro·32k
+            - name: modelType
+              input:
+                type: integer
+                value: "1737521813"
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: parameters
+              input:
+                type: object
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: "# Input Data\n请基于以下数据进行推理：\n\n- **Current Date**: {{current_date}}\n\n- **Chat History** (仅供参考上下文): \n{{chatHistory}}\n\n- **User Query** (当前需处理的核心指令): \n{{input}}"
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "4"
+            - name: systemPrompt
+              input:
+                type: string
+                value: |-
+                    # Role
+                    你是一个精通 NLU 的**查询重写专家**。你的唯一任务是基于[对话历史]和[当前输入]，将模糊的用户输入还原为**独立、完整**的查询语句 (`new_input`)。
+
+                    # Workflow (Thinking Process)
+                    请按以下逻辑路径进行处理（无需输出过程）：
+
+                    ## Step 0: 降噪与聚焦 (Noise Reduction)
+                    1. **忽略 Assistant 的干扰**：不要回答 Assistant 之前的反问。
+                    2. **聚焦 User**：在 `Chat History` 中，只关注 `role: "user"` 的发言，锁定最近一次提到的**核心实体**。
+
+                    ## Step 1: 重写策略 (Rewriting Strategy)
+                    **核心原则：极简补全 (Minimalist Principle)**。只还原指代词和缺失的主语。**如果输入本身意图清晰，或者开启了新话题，则保持原样。**
+
+                    根据 `User Query` 的类型执行操作：
+
+                    * **Type A: 显式指代 (如 "那里" / "它" / "这个")**
+                        * *操作*：用 History 中最近的 User 核心实体替换指代词。
+                        * *例*：History="我想去**仙本那**", Query="**那里**好玩吗" -> Rewrite="**仙本那**好玩吗"
+
+                    * **Type B: 语境省略 (如 "价格呢" / "好吃的推荐")**
+                        * *操作*：继承 History 中的核心实体作为主语/定语，拼接到当前输入前。
+                        * *例*：History="查**茅台**股价", Query="**五粮液**呢" -> Rewrite="查询**五粮液**股价" (继承“查询股价”意图)
+                        * *例*：History="**北京**天气", Query="**明天**呢" -> Rewrite="**北京明天**天气"
+
+                    * **Type C: 时间归一化 (如 "明天" / "后天")**
+                        * *操作*：结合 `Current Date` 将相对时间转换为具体日期 (YYYY-MM-DD)。
+
+                    * **Type D: 独立/完整/特定/话题转移 (Zero Rewrite)**
+                        * *定义*：
+                          1. 输入是完整句子（主谓宾齐全）。
+                          2. 输入特定专有名词/缩写（如“日本驻摩”、“JD”）。
+                          3. **话题转移**：输入与上文无关（如聊着股票突然问“讲个笑话”）。
+                          4. **社交指令**：如“你好”、“谢谢”。
+                        * *操作*：**禁止任何修改**，原样输出。
+
+                    # Output Format
+                    严格输出 JSON 格式：
+                    {
+                        "new_input": "重写后的完整内容"
+                    }
+
+                    # Few-Shot Examples
+
+                    ## 场景 1：地点指代与补全 (Type A)
+                    - History: [{"role": "user", "content": "我想去爱知县旅行"}]
+                    - Query: "那里有什么好吃的"
+                    - Current Date: 2026-02-06
+                    Output: {"new_input": "爱知县有什么好吃的"}
+
+                    ## 场景 2：上下文意图继承 (Type B)
+                    - History: [{"role": "user", "content": "查一下茅台的股价"}]
+                    - Query: "那五粮液呢"
+                    - Current Date: 2026-02-06
+                    Output: {"new_input": "查询五粮液的股价"}
+
+                    ## 场景 3：话题转移/社交 (Type D - 保持原样)
+                    - History: [{"role": "user", "content": "北京天气怎么样"}]
+                    - Query: "心情不好，讲个笑话"
+                    Output: {"new_input": "心情不好，讲个笑话"}
+                    (解释: 这是新话题，不要拼接待成“北京天气的笑话”)
+
+                    ## 场景 4：特定缩写/完整句 (Type D - 保持原样)
+                    - History: []
+                    - Query: "日本驻摩是哪里"
+                    Output: {"new_input": "日本驻摩是哪里"}
+                    (解释: 严禁脑补为“大使馆”)
+
+                    ## 场景 5：时间归一化 (Type C)
+                    - History: []
+                    - Query: "帮我定后天去广州的票"
+                    - Current Date: 2026-02-06
+                    Output: {"new_input": "帮我定2026-02-08去广州的票"}
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: input
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+        node_outputs:
+            new_input:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "151008"
+      type: plugin
+      title: terminate_chat
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Plugin-v2.jpg
+      description: "结束对话"
+      position:
+        x: 5240
+        y: 3887.509990206872
+      parameters:
+        apiParam:
+            - name: apiID
+              input:
+                type: string
+                value: "7534620919403151370"
+            - name: apiName
+              input:
+                type: string
+                value: "terminate_chat"
+            - name: pluginID
+              input:
+                type: string
+                value: "7534620914684788746"
+            - name: pluginName
+              input:
+                type: string
+                value: "喵伴 EchoEar 端插件"
+            - name: pluginVersion
+              input:
+                type: string
+                value: ""
+            - name: tips
+              input:
+                type: string
+                value: ""
+            - name: outDocLink
+              input:
+                type: string
+                value: ""
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "181861"
+      type: condition
+      title: 选择器_3
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Condition-v2.jpg
+      description: "连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支"
+      position:
+        x: 3860
+        y: 1874.9000000000005
+      parameters:
+        branches:
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            value:
+                                path: isOK
+                                ref_node: "197681"
+                      operator: 1
+                      right:
+                        input:
+                            type: boolean
+                            value: true
+                logic: 2
+    - id: "132162"
+      type: ltm_read
+      title: 长期记忆检索
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-ltm_read.png
+      description: "长期记忆检索"
+      position:
+        x: 4320
+        y: 2086.5500000000006
+      parameters:
+        memoryInfoList:
+            - memoryInfoID: "7600601448468086811"
+        node_inputs:
+            - name: query
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+            - name: limit
+              input:
+                type: integer
+                value: 20
+        node_outputs:
+            outputList:
+                type: list
+                items:
+                    type: object
+                    properties:
+                        date:
+                            type: string
+                            value: null
+                        output:
+                            type: string
+                            value: null
+                    value: null
+                value: null
+    - id: "1390359"
+      type: code
+      title: 提取公司名_1
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 4780
+        y: 2099.5500000000006
+      parameters:
+        code: "import re\nfrom datetime import datetime, timedelta\n\nasync def main(args: Args) -> Output:\n    params = args.params\n    \n    user_input = \"\"\n    keys_to_check = ['Query', 'query', 'input', 'USER_INPUT', '问题', '输入', '提问']\n    for key in keys_to_check:\n        if key in params and params[key]:\n            user_input = str(params[key]).strip()\n            break\n            \n    if not user_input and '_input' in params and isinstance(params['_input'], dict):\n        user_input = str(params['_input'].get('Query', params['_input'].get('input', \"\"))).strip()\n\n    current_date_str = params.get('current_date', datetime.now().strftime(\"%Y-%m-%d\"))\n    try:\n        base_date = datetime.strptime(current_date_str, \"%Y-%m-%d\")\n    except:\n        base_date = datetime.now()\n        current_date_str = base_date.strftime(\"%Y-%m-%d\")\n\n    time_ignore_words = {'今天', '明天', '后天', '昨天', '前天', '大后天', '现在', '当前', '未来', '本周', '下周', '这个', '那个', '什么', '有', '哪些', '哪'}\n    stock_companies = {\n        '苹果', '微软', '谷歌', '亚马逊', '特斯拉', '英伟达', '脸书', '元宇宙', '高通', '英特尔', '三星', '索尼',\n        '中兴', '茅台', '贵州茅台', '五粮液', '泸州老窖', '山西汾酒', '洋河股份', '古井贡酒', '伊利股份', '蒙牛', '海天味业',\n        '宁德时代', '比亚迪', '隆基绿能', '通威股份', '天齐锂业', '赣锋锂业', '亿纬锂能', '先导智能', '长城汽车', '长安汽车', '上汽集团',\n        '腾讯', '阿里', '阿里巴巴', '百度', '京东', '美团', '拼多多', '快手', '抖音', '字节跳动', '小红书', 'B站', '爱奇艺', '腾讯控股',\n        '华为', '小米', '小米集团', 'OPPO', 'vivo', '联想', '中芯国际', '北方华创', '兆易创新', '韦尔股份', '汇顶科技', '立讯精密', '歌尔股份',\n        '中石油', '中石化', '中国神华', '招商银行', '工商银行', '建设银行', '农业银行', '中国银行', '平安银行', '保利发展', '万科', '招商蛇口',\n        '格力电器', '美的集团', '海尔智家', '老板电器', '苏泊尔', '九阳股份',\n        '药明康德', '恒瑞医药', '迈瑞医疗', '片仔癀', '云南白药', '爱尔眼科', '通策医疗', '智飞生物',\n        '顺丰', '中通', '圆通', '韵达', '申通', '京东物流', '滴滴', '携程',\n        '中国船舶', '中航沈飞', '北方稀土', '紫金矿业', '洛阳钼业'\n    }\n\n    hit_time = \"\"\n    hit_company = \"\"\n\n    time_map = [\n        ('大后天', 3, '大后天'),\n        ('后天', 2, '后天'),\n        ('明天', 1, '明天'),\n        ('今天', 0, '今天'),\n        ('昨天', -1, '昨天'),\n        ('前天', -2, '前天'),\n        ('本周', 0, '本周'),\n        ('下周', 7, '下周'),\n        ('近期', 0, '近期'),\n        ('最新', 0, '最新'),\n        ('昨日', -1, '昨天'),\n        ('前日', -2, '前天')\n    ]\n    for time_key, delta, show_name in time_map:\n        if time_key in user_input:\n            hit_time = show_name\n            break\n    if not hit_time:\n        hit_time = '今天'\n\n    sorted_companies = sorted(stock_companies, key=lambda x: len(x), reverse=True)\n    for company in sorted_companies:\n        if company in user_input:\n            hit_company = company\n            break\n    for word in time_ignore_words:\n        hit_company = hit_company.replace(word, \"\")\n\n    result_parts = [hit_time, hit_company]\n    result = ' '.join([part for part in result_parts if part])\n\n    struct_result = {\n        \"isOK\": bool(hit_company),\n        \"query_time\": hit_time,\n        \"query_date\": current_date_str,\n        \"company_name\": hit_company,\n        \"final_result\": result\n    }\n\n    return struct_result"
+        language: 3
+        node_inputs:
+            - name: input
+              input:
+                value:
+                    path: outputList
+                    ref_node: "132162"
+            - name: current_date
+              input:
+                value:
+                    path: current_date
+                    ref_node: "149822"
+        node_outputs:
+            company_name:
+                type: string
+                value: null
+            final_result:
+                type: string
+                value: null
+            isOK:
+                type: boolean
+                value: null
+            query_date:
+                type: string
+                value: null
+            query_time:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "1508689"
+      type: plugin
+      title: SearchStockData_1
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Plugin-v2.jpg
+      description: "根据关键词或者股票代码搜索股票信息，包括财务状况以及市场信息。例子：贵州茅台、600519"
+      position:
+        x: 5240
+        y: 2099.5500000000006
+      parameters:
+        apiParam:
+            - name: apiID
+              input:
+                type: string
+                value: "7356446812695461888"
+            - name: apiName
+              input:
+                type: string
+                value: "SearchStockData"
+            - name: pluginID
+              input:
+                type: string
+                value: "7356446812695429120"
+            - name: pluginName
+              input:
+                type: string
+                value: "新浪财经"
+            - name: pluginVersion
+              input:
+                type: string
+                value: ""
+            - name: tips
+              input:
+                type: string
+                value: ""
+            - name: outDocLink
+              input:
+                type: string
+                value: ""
+            - name: updateTime
+              input:
+                type: integer
+                value: 1.75038693e+09
+        node_inputs:
+            - name: keyword
+              input:
+                value:
+                    path: company_name
+                    ref_node: "1390359"
+            - name: date
+              input:
+                value:
+                    path: query_date
+                    ref_node: "197681"
+        node_outputs:
+            code:
+                type: float
+                value: null
+            data:
+                type: list
+                items:
+                    type: object
+                    properties:
+                        base_info:
+                            type: object
+                            properties:
+                                market:
+                                    type: string
+                                    value: null
+                                name:
+                                    type: string
+                                    value: null
+                                symbol:
+                                    type: string
+                                    value: null
+                            value: null
+                        finance_info:
+                            type: object
+                            properties:
+                                jump_link:
+                                    type: string
+                                    value: null
+                                report_date:
+                                    type: string
+                                    value: null
+                                report_descrip:
+                                    type: string
+                                    value: null
+                                report_fields:
+                                    type: list
+                                    items:
+                                        type: object
+                                        properties:
+                                            item_field:
+                                                type: string
+                                                value: null
+                                            item_title:
+                                                type: string
+                                                value: null
+                                            item_tongbi:
+                                                type: string
+                                                value: null
+                                            item_value:
+                                                type: string
+                                                value: null
+                                        value: null
+                                    value: null
+                            value: null
+                        market_info:
+                            type: object
+                            properties:
+                                amount:
+                                    type: string
+                                    value: null
+                                change:
+                                    type: string
+                                    value: null
+                                close:
+                                    type: string
+                                    value: null
+                                currencyCode:
+                                    type: string
+                                    value: null
+                                currencyName:
+                                    type: string
+                                    value: null
+                                day:
+                                    type: string
+                                    value: null
+                                high:
+                                    type: string
+                                    value: null
+                                jumpLink:
+                                    type: string
+                                    value: null
+                                low:
+                                    type: string
+                                    value: null
+                                name:
+                                    type: string
+                                    value: null
+                                open:
+                                    type: string
+                                    value: null
+                                percent:
+                                    type: string
+                                    value: null
+                                preClose:
+                                    type: string
+                                    value: null
+                                price:
+                                    type: string
+                                    value: null
+                                symbol:
+                                    type: string
+                                    value: null
+                                volume:
+                                    type: string
+                                    value: null
+                            value: null
+                    value: null
+                value: null
+            log_id:
+                type: string
+                value: null
+            msg:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "1813617"
+      type: output
+      title: 股票信息输出_1
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 6160
+        y: 2099.5500000000006
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: '{{output}}'
+                type: literal
+        node_inputs:
+            - name: output
+              input:
+                type: string
+                value:
+                    path: output
+                    ref_node: "1828789"
+        streamingOutput: true
+    - id: "1828789"
+      type: llm
+      title: 股票查询总结_1
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 5700
+        y: 2073.5500000000006
+      parameters:
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: temperature
+              input:
+                type: float
+                value: "0.8"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: prefixCache
+              input:
+                type: boolean
+                value: false
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.5·Lite·32k
+            - name: modelType
+              input:
+                type: integer
+                value: "1741232583"
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: parameters
+              input:
+                type: object
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: |-
+                    用户 query: {{query}}
+                    搜索结果: {{input}}
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "3"
+            - name: systemPrompt
+              input:
+                type: string
+                value: |-
+                    # 角色
+                    你是一个专业的股票总结小助理，能够结合搜索结果和历史查询的股票名称，为用户提供准确实用的股票信息，并在回答中明确信息来源，同时主动询问用户是否想了解其他公司的股票。
+
+                    ## 技能
+                    ### 技能 1: 总结股票信息
+                    1. 接收用户的查询和相关股票结果（包括用户历史查询中的股票名称，可通过用户的长期记忆{{outputList}}获取）。
+                    2. 提取结果中的关键信息，结合用户当前查询和历史查询的股票名称进行总结。
+                    3. 回答的结尾，主动添加询问：“是否还想了解其他公司的股票？”
+
+                    ## 用户的长期记忆:
+                    {{outputList}}
+
+                    ## 限制:
+                    - 所输出的内容必须按照给定的格式进行组织，不能偏离框架要求。
+                    - 回答中需确保明确信息来源为历史查询的股票名称，并包含询问是否了解其他公司股票的内容。
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: input
+              input:
+                value:
+                    path: data
+                    ref_node: "1508689"
+            - name: query
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+            - name: current_time
+              input:
+                value:
+                    path: current_time
+                    ref_node: "149822"
+            - name: current_date
+              input:
+                value:
+                    path: current_date
+                    ref_node: "149822"
+            - name: outputList
+              input:
+                value:
+                    path: outputList
+                    ref_node: "132162"
+        node_outputs:
+            output:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 600000
+    - id: "1820143"
+      type: code
+      title: 地点/时间提取_1
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 3860
+        y: 2654.825
+      parameters:
+        code: "import re\nfrom datetime import datetime, timedelta\n\n# 定义参数和输出的基础结构（适配原有代码逻辑）\nclass Args:\n    def __init__(self, params):\n        self.params = params\n\nclass Output:\n    pass\n\nasync def main(args: Args) -> dict:  # 简化返回类型为dict，便于测试\n    params = args.params\n    \n    # ================= 1. 获取输入 =================\n    user_input = \"\"\n    keys_to_check = ['Query', 'query', 'input', 'USER_INPUT']\n    for key in keys_to_check:\n        if key in params and params[key]:\n            user_input = params[key]\n            break\n            \n    if not user_input and '_input' in params and isinstance(params['_input'], dict):\n        user_input = params['_input'].get('Query', \"\")\n        if not user_input:\n            user_input = params['_input'].get('input', \"\")\n\n    current_date_str = params.get('current_date', datetime.now().strftime(\"%Y-%m-%d\"))\n\n    # ================= 2. 提取逻辑 =================\n    hit_city = \"\"\n    hit_district = \"\"\n    travel_days = 0  # 新增：出行天数，默认0表示未提取到\n\n    # --- 提取区县 ---\n    match_district = re.search(r'([\\u4e00-\\u9fa5]{2,6}(?:区|县|镇|乡|旗|岛|街道))', user_input)\n    ignore_words = {'今天', '明天', '后天', '昨天', '前天', '大后天', '现在', '当前', '未来', '本周', '下周', '这个', '那个', '查询'}\n\n    if match_district:\n        cand = match_district.group(1)\n        if cand not in ignore_words:\n            hit_district = cand\n\n    # --- 提取城市 ---\n    all_cities = {\n        \"北京\", \"上海\", \"天津\", \"重庆\", \"香港\", \"澳门\", \"台北\", \"高雄\",\n        \"广州\", \"深圳\", \"珠海\", \"汕头\", \"佛山\", \"韶关\", \"湛江\", \"肇庆\", \"江门\", \"茂名\", \"惠州\", \"梅州\", \"汕尾\", \"河源\", \"阳江\", \"清远\", \"东莞\", \"中山\", \"潮州\", \"揭阳\", \"云浮\",\n        \"石家庄\", \"唐山\", \"秦皇岛\", \"邯郸\", \"邢台\", \"保定\", \"张家口\", \"承德\", \"沧州\", \"廊坊\", \"衡水\",\n        \"太原\", \"大同\", \"阳泉\", \"长治\", \"晋城\", \"朔州\", \"晋中\", \"运城\", \"忻州\", \"临汾\", \"吕梁\",\n        \"呼和浩特\", \"包头\", \"乌海\", \"赤峰\", \"通辽\", \"鄂尔多斯\", \"呼伦贝尔\", \"巴彦淖尔\", \"乌兰察布\", \"兴安\", \"锡林郭勒\", \"阿拉善\",\n        \"沈阳\", \"大连\", \"鞍山\", \"抚顺\", \"本溪\", \"丹东\", \"锦州\", \"营口\", \"阜新\", \"辽阳\", \"盘锦\", \"铁岭\", \"朝阳\", \"葫芦岛\",\n        \"长春\", \"吉林\", \"四平\", \"辽源\", \"通化\", \"白山\", \"松原\", \"白城\", \"延边\",\n        \"哈尔滨\", \"齐齐哈尔\", \"鸡西\", \"鹤岗\", \"双鸭山\", \"大庆\", \"伊春\", \"佳木斯\", \"七台河\", \"牡丹江\", \"黑河\", \"绥化\", \"大兴安岭\",\n        \"南京\", \"无锡\", \"徐州\", \"常州\", \"苏州\", \"南通\", \"连云港\", \"淮安\", \"盐城\", \"扬州\", \"镇江\", \"泰州\", \"宿迁\",\n        \"杭州\", \"宁波\", \"温州\", \"嘉兴\", \"湖州\", \"绍兴\", \"金华\", \"衢州\", \"舟山\", \"台州\", \"丽水\",\n        \"合肥\", \"芜湖\", \"蚌埠\", \"淮南\", \"马鞍山\", \"淮北\", \"铜陵\", \"安庆\", \"黄山\", \"滁州\", \"阜阳\", \"宿州\", \"六安\", \"亳州\", \"池州\", \"宣城\",\n        \"福州\", \"厦门\", \"莆田\", \"三明\", \"泉州\", \"漳州\", \"南平\", \"龙岩\", \"宁德\",\n        \"南昌\", \"景德镇\", \"萍乡\", \"九江\", \"新余\", \"鹰潭\", \"赣州\", \"吉安\", \"宜春\", \"抚州\", \"上饶\",\n        \"济南\", \"青岛\", \"淄博\", \"枣庄\", \"东营\", \"烟台\", \"潍坊\", \"济宁\", \"泰安\", \"威海\", \"日照\", \"临沂\", \"德州\", \"聊城\", \"滨州\", \"菏泽\",\n        \"郑州\", \"开封\", \"洛阳\", \"平顶山\", \"安阳\", \"鹤壁\", \"新乡\", \"焦作\", \"濮阳\", \"许昌\", \"漯河\", \"三门峡\", \"南阳\", \"商丘\", \"信阳\", \"周口\", \"驻马店\",\n        \"武汉\", \"黄石\", \"十堰\", \"宜昌\", \"襄阳\", \"鄂州\", \"荆门\", \"孝感\", \"荆州\", \"黄冈\", \"咸宁\", \"随州\", \"恩施\", \"仙桃\", \"潜江\", \"天门\", \"神农架\",\n        \"长沙\", \"株洲\", \"湘潭\", \"衡阳\", \"邵阳\", \"岳阳\", \"常德\", \"张家界\", \"益阳\", \"郴州\", \"永州\", \"怀化\", \"娄底\", \"湘西\",\n        \"南宁\", \"柳州\", \"桂林\", \"梧州\", \"北海\", \"防城港\", \"钦州\", \"贵港\", \"玉林\", \"百色\", \"贺州\", \"河池\", \"来宾\", \"崇左\",\n        \"海口\", \"三亚\", \"三沙\", \"儋州\",\n        \"成都\", \"自贡\", \"攀枝花\", \"泸州\", \"德阳\", \"绵阳\", \"广元\", \"遂宁\", \"内江\", \"乐山\", \"南充\", \"眉山\", \"宜宾\", \"广安\", \"达州\", \"雅安\", \"巴中\", \"资阳\", \"阿坝\", \"甘孜\", \"凉山\",\n        \"贵阳\", \"六盘水\", \"遵义\", \"安顺\", \"毕节\", \"铜仁\", \"黔西南\", \"黔东南\", \"黔南\",\n        \"昆明\", \"曲靖\", \"玉溪\", \"保山\", \"昭通\", \"丽江\", \"普洱\", \"临沧\", \"楚雄\", \"红河\", \"文山\", \"西双版纳\", \"大理\", \"德宏\", \"怒江\", \"迪庆\",\n        \"拉萨\", \"日喀则\", \"昌都\", \"林芝\", \"山南\", \"那曲\", \"阿里\",\n        \"西安\", \"铜川\", \"宝鸡\", \"咸阳\", \"渭南\", \"延安\", \"汉中\", \"榆林\", \"安康\", \"商洛\",\n        \"兰州\", \"嘉峪关\", \"金昌\", \"白银\", \"天水\", \"武威\", \"张掖\", \"平凉\", \"酒泉\", \"庆阳\", \"定西\", \"陇南\", \"临夏\", \"甘南\",\n        \"西宁\", \"海东\", \"海北\", \"黄南\", \"海南\", \"果洛\", \"玉树\", \"海西\",\n        \"银川\", \"石嘴山\", \"吴忠\", \"固原\", \"中卫\",\n        \"乌鲁木齐\", \"克拉玛依\", \"吐鲁番\", \"哈密\", \"昌吉\", \"博尔塔拉\", \"巴音郭楞\", \"阿克苏\", \"克孜勒苏\", \"喀什\", \"和田\", \"伊犁\", \"塔城\", \"阿勒泰\",\"东京\", \"大阪\", \"京都\", \"札幌\", \"福冈\", \"名古屋\", \"那霸\", \"首尔\", \"釜山\", \"济州\", \"仁川\", \"庆州\",\n        \"曼谷\", \"清迈\", \"普吉\", \"芭堤雅\", \"甲米\", \"苏梅岛\", \"华欣\", \"新加坡\", \"吉隆坡\", \"槟城\", \"马六甲\", \"亚庇\",\n        \"兰卡威\", \"雅加达\", \"登巴萨\", \"日惹\", \"泗水\", \"万隆\", \"龙目岛马塔兰\", \"马尼拉\", \"宿务\", \"达沃\", \"长滩岛马莱\", \"河内\",\n        \"胡志明市\", \"岘港\", \"芽庄\", \"会安\", \"富国岛\", \"金边\", \"暹粒\", \"万象\", \"琅勃拉邦\", \"加德满都\", \"博卡拉\", \"新德里\",\n        \"孟买\", \"班加罗尔\", \"金奈\", \"斋浦尔\", \"阿格拉\", \"果阿帕纳吉\", \"科伦坡\", \"康提\", \"马累\", \"迪拜\", \"阿布扎比\", \"多哈\",\n        \"特拉维夫\", \"耶路撒冷\", \"伊斯坦布尔\", \"安塔利亚\", \"格雷梅\", \"德黑兰\", \"伊斯法罕\", \"吉达\", \"第比利斯\", \"巴库\", \"巴黎\", \"尼斯\",\n        \"里昂\", \"马赛\", \"波尔多\", \"斯特拉斯堡\", \"伦敦\", \"爱丁堡\", \"曼彻斯特\", \"利物浦\", \"伯明翰\", \"格拉斯哥\", \"牛津\", \"剑桥\",\n        \"巴斯\", \"都柏林\", \"科克\", \"阿姆斯特丹\", \"鹿特丹\", \"海牙\", \"乌得勒支\", \"布鲁塞尔\", \"布鲁日\", \"安特卫普\", \"柏林\", \"慕尼黑\",\n        \"汉堡\", \"法兰克福\", \"科隆\", \"杜塞尔多夫\", \"海德堡\", \"德累斯顿\", \"纽伦堡\", \"维也纳\", \"萨尔茨堡\", \"因斯布鲁克\", \"苏黎世\", \"日内瓦\",\n        \"卢塞恩\", \"因特拉肯\", \"罗马\", \"米兰\", \"威尼斯\", \"佛罗伦萨\", \"那不勒斯\", \"博洛尼亚\", \"比萨\", \"维罗纳\", \"都灵\", \"巴塞罗那\",\n        \"马德里\", \"塞维利亚\", \"瓦伦西亚\", \"格拉纳达\", \"马拉加\", \"里斯本\", \"波尔图\", \"法鲁\", \"布拉格\", \"克鲁姆洛夫\", \"布达佩斯\", \"华沙\",\n        \"克拉科夫\", \"格但斯克\", \"哥本哈根\", \"斯德哥尔摩\", \"奥斯陆\", \"赫尔辛基\", \"雷克雅未克\", \"雅典\", \"圣托里尼费拉\", \"米科诺斯\", \"杜布罗夫尼克\", \"斯普利特\",\n        \"塔林\", \"纽约\", \"洛杉矶\", \"旧金山\", \"拉斯维加斯\", \"奥兰多\", \"迈阿密\", \"芝加哥\", \"波士顿\", \"华盛顿\", \"西雅图\", \"新奥尔良\",\n        \"檀香山\", \"多伦多\", \"温哥华\", \"蒙特利尔\", \"渥太华\", \"魁北克城\", \"墨西哥城\", \"坎昆\", \"瓜达拉哈拉\", \"蒙特雷\", \"瓦哈卡\", \"哈瓦那\",\n        \"圣胡安\", \"拿骚\", \"圣何塞\", \"巴拿马城\", \"波哥大\", \"卡塔赫纳\", \"利马\", \"库斯科\", \"圣地亚哥\", \"布宜诺斯艾利斯\", \"里约热内卢\", \"圣保罗\",\n        \"开罗\", \"马拉喀什\", \"卡萨布兰卡\", \"开普敦\", \"约翰内斯堡\", \"内罗毕\", \"桑给巴尔石头城\", \"突尼斯市\", \"阿克拉\", \"亚的斯亚贝巴\", \"悉尼\", \"墨尔本\",\n        \"布里斯班\", \"珀斯\", \"阿德莱德\", \"凯恩斯\", \"奥克兰\", \"惠灵顿\", \"皇后镇\", \"楠迪\"\n    }\n\n    for city in all_cities:\n        if city in user_input:\n            hit_city = city\n            break\n            \n    # 兜底猜测城市\n    if not hit_city and not hit_district:\n        match_context = re.search(r'([\\u4e00-\\u9fa5]{2,5})(?=的天气|天气|气温|下雨|有雨)', user_input)\n        if match_context:\n            cand = match_context.group(1)\n            if cand not in ignore_words:\n                hit_city = cand\n\n    # ================= 3. 数据清洗 =================\n    # 如果 提取到了城市，且 区县里也包含了这个城市名\n    # 比如 city=\"广州\", district=\"广州白云区\" -> 把\"广州\"删掉，剩下\"白云区\"\n    if hit_city and hit_district and hit_district.startswith(hit_city):\n        hit_district = hit_district.replace(hit_city, \"\", 1)\n\n    # ================= 4. 日期解析 =================\n    start_time = end_time = current_date_str\n    try:\n        base_date = datetime.strptime(current_date_str, \"%Y-%m-%d\")\n        \n        # --- 新增：提取出行天数 ---\n        # 匹配 \"X天\" 格式（X可以是数字或中文数字）\n        match_days = re.search(r'(\\d+|[一二两三四五六七八九十]+)天', user_input)\n        if match_days:\n            num_str = match_days.group(1)\n            # 中文数字转阿拉伯数字的映射\n            cn_map = {'一':1,'二':2,'两':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10}\n            # 解析天数\n            if num_str.isdigit():\n                travel_days = int(num_str)\n            elif num_str in cn_map:\n                travel_days = cn_map[num_str]\n            \n            # 原有日期逻辑：根据天数计算结束日期\n            if travel_days > 0:\n                end_time = (base_date + timedelta(days=travel_days - 1)).strftime(\"%Y-%m-%d\")\n        else:\n            # 未提取到天数时，处理\"昨天/今天/明天\"等单日期场景\n            delta = 0\n            found = False\n            if \"昨天\" in user_input: delta=-1; found=True\n            elif \"前天\" in user_input: delta=-2; found=True\n            elif \"大后天\" in user_input: delta=3; found=True\n            elif \"后天\" in user_input: delta=2; found=True\n            elif \"明天\" in user_input: delta=1; found=True\n            if found:\n                target = base_date + timedelta(days=delta)\n                start_time = end_time = target.strftime(\"%Y-%m-%d\")\n                travel_days = 1  # 单日期场景默认天数为1\n    except Exception as e:\n        print(f\"日期/天数解析异常: {e}\")\n        pass\n\n    # ================= 5. 输出 =================\n    return {\n        \"isOK\": bool(hit_city or hit_district or travel_days > 0),\n        \"city\": hit_city,\n        \"district\": hit_district,\n        \"start_time\": start_time,\n        \"end_time\": end_time,\n        \"days\": travel_days  # 新增：输出阿拉伯数字的出行天数\n    }\n\n# 测试用例\nif __name__ == \"__main__\":\n    import asyncio\n    # 测试1：包含中文天数\n    test_args1 = Args(params={\"Query\": \"广州白云区三天行程规划\"})\n    result1 = asyncio.run(main(test_args1))\n    print(\"测试1结果：\", result1)  # 预期 days=3, city=广州, district=白云区\n    \n    # 测试2：包含数字天数\n    test_args2 = Args(params={\"Query\": \"上海2天游玩计划\"})\n    result2 = asyncio.run(main(test_args2))\n    print(\"测试2结果：\", result2)  # 预期 days=2, city=上海\n    \n    # 测试3：单日期场景\n    test_args3 = Args(params={\"Query\": \"明天去北京\"})\n    result3 = asyncio.run(main(test_args3))\n    print(\"测试3结果：\", result3)  # 预期 days=1, city=北京"
+        language: 3
+        node_inputs:
+            - name: Query
+              input:
+                value:
+                    path: new_input
+                    ref_node: "154827"
+        node_outputs:
+            city:
+                type: string
+                value: null
+            days:
+                type: integer
+                value: null
+            district:
+                type: string
+                value: null
+            end_time:
+                type: string
+                value: null
+            isOK:
+                type: boolean
+                value: null
+            start_time:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "1429230"
+      type: condition
+      title: 查询是否充分的判断_1
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Condition-v2.jpg
+      description: "连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支"
+      position:
+        x: 4320
+        y: 2598.0249999999996
+      parameters:
+        branches:
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            value:
+                                path: isOK
+                                ref_node: "1820143"
+                      operator: 1
+                      right:
+                        input:
+                            type: boolean
+                            value: true
+                logic: 2
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            value:
+                                path: city
+                                ref_node: "1820143"
+                      operator: 9
+                    - left:
+                        input:
+                            value:
+                                path: district
+                                ref_node: "1820143"
+                      operator: 9
+                logic: 2
+    - id: "161420"
+      type: plugin
+      title: 景点查询
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Plugin-v2.jpg
+      description: "提供指定区域关键词搜索的能力。"
+      position:
+        x: 4780
+        y: 2548.9500000000003
+      parameters:
+        apiParam:
+            - name: apiID
+              input:
+                type: string
+                value: "7394300614395789322"
+            - name: apiName
+              input:
+                type: string
+                value: "search_region"
+            - name: pluginID
+              input:
+                type: string
+                value: "7394300614395641866"
+            - name: pluginName
+              input:
+                type: string
+                value: "百度地图"
+            - name: pluginVersion
+              input:
+                type: string
+                value: ""
+            - name: tips
+              input:
+                type: string
+                value: ""
+            - name: outDocLink
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: region
+              input:
+                value:
+                    path: city
+                    ref_node: "1820143"
+            - name: keyword
+              input:
+                type: string
+                value: "景点"
+        node_outputs:
+            code:
+                type: float
+                value: null
+            data:
+                type: object
+                properties:
+                    results:
+                        type: list
+                        items:
+                            type: object
+                            properties:
+                                address:
+                                    type: string
+                                    value: null
+                                    description: 地址
+                                area:
+                                    type: string
+                                    value: null
+                                    description: 区
+                                city:
+                                    type: string
+                                    value: null
+                                    description: 城市
+                                location:
+                                    type: string
+                                    value: null
+                                    description: 经纬度
+                                name:
+                                    type: string
+                                    value: null
+                                    description: 名字
+                                province:
+                                    type: string
+                                    value: null
+                                    description: 省份
+                                telephone:
+                                    type: string
+                                    value: null
+                                    description: 电话
+                            value: null
+                        value: null
+                    status:
+                        type: float
+                        value: null
+                value: null
+            log_id:
+                type: string
+                value: null
+            msg:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            timeoutMs: 180000
+    - id: "1474691"
+      type: plugin
+      title: 美食查询
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Plugin-v2.jpg
+      description: "提供指定区域关键词搜索的能力。"
+      position:
+        x: 4780
+        y: 2337.2500000000005
+      parameters:
+        apiParam:
+            - name: apiID
+              input:
+                type: string
+                value: "7394300614395789322"
+            - name: apiName
+              input:
+                type: string
+                value: "search_region"
+            - name: pluginID
+              input:
+                type: string
+                value: "7394300614395641866"
+            - name: pluginName
+              input:
+                type: string
+                value: "百度地图"
+            - name: pluginVersion
+              input:
+                type: string
+                value: ""
+            - name: tips
+              input:
+                type: string
+                value: ""
+            - name: outDocLink
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: region
+              input:
+                value:
+                    path: city
+                    ref_node: "1820143"
+            - name: keyword
+              input:
+                type: string
+                value: "美食"
+        node_outputs:
+            code:
+                type: float
+                value: null
+            data:
+                type: object
+                properties:
+                    results:
+                        type: list
+                        items:
+                            type: object
+                            properties:
+                                address:
+                                    type: string
+                                    value: null
+                                    description: 地址
+                                area:
+                                    type: string
+                                    value: null
+                                    description: 区
+                                city:
+                                    type: string
+                                    value: null
+                                    description: 城市
+                                location:
+                                    type: string
+                                    value: null
+                                    description: 经纬度
+                                name:
+                                    type: string
+                                    value: null
+                                    description: 名字
+                                province:
+                                    type: string
+                                    value: null
+                                    description: 省份
+                                telephone:
+                                    type: string
+                                    value: null
+                                    description: 电话
+                            value: null
+                        value: null
+                    status:
+                        type: float
+                        value: null
+                value: null
+            log_id:
+                type: string
+                value: null
+            msg:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            timeoutMs: 180000
+    - id: "143885"
+      type: code
+      title: destination
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 5240
+        y: 2337.2500000000005
+      parameters:
+        code: "async def main(args: Args) -> Output:\n    params = args.params\n    input_data = params['input']\n    \n    # 创建一个字典来存储 name: 拼接地址\n    address_dict = {}\n    \n    # 处理多种可能的输入格式\n    if isinstance(input_data, dict):\n        # 格式1：完整的JSON结构\n        if 'data' in input_data and 'results' in input_data['data']:\n            results = input_data['data']['results']\n        # 格式2：直接传入results数组\n        elif 'results' in input_data:\n            results = input_data['results']\n        # 格式3：输入本身就是results数组或单个对象\n        else:\n            # 检查是否是包含address字段的字典数组\n            if isinstance(input_data.get('results'), list) or (isinstance(input_data, dict) and 'address' in input_data):\n                # 如果是单个字典或results字段，将其转换为列表\n                results = [input_data] if 'address' in input_data else input_data.get('results', [])\n            else:\n                results = []\n    elif isinstance(input_data, list):\n        # 输入直接就是数组\n        results = input_data\n    else:\n        results = []\n    \n    # 遍历results数组，提取name并拼接city, area, address\n    for item in results:\n        if isinstance(item, dict) and 'name' in item and 'address' in item:\n            # 获取name, city, area, address字段\n            name = item.get('name', '')\n            city = item.get('city', '')\n            area = item.get('area', '')\n            address = item.get('address', '')\n            \n            # 拼接格式：city + area + address\n            if city and area and address:\n                full_address = f\"{city}{area}{address}\"\n            elif city and address:\n                full_address = f\"{city}{address}\"\n            elif area and address:\n                full_address = f\"{area}{address}\"\n            else:\n                full_address = address\n            \n            # 将name作为键，拼接地址作为值存入字典\n            if name:  # 确保name不为空\n                address_dict[name] = full_address\n    \n    # 构建输出对象\n    ret: Output = {\n        \"address_mapping\": address_dict,  # 包含name->address的映射\n        \"count\": len(address_dict)  # 地址总数\n    }\n    \n    # 如果是完整的JSON结构，添加数据摘要\n    if isinstance(input_data, dict) and 'code' in input_data:\n        ret[\"data_summary\"] = {\n            \"status\": input_data.get('code', 'N/A'),\n            \"message\": input_data.get('msg', 'N/A'),\n            \"log_id\": input_data.get('log_id', 'N/A')\n        }\n    \n    return ret"
+        language: 3
+        node_inputs:
+            - name: input
+              input:
+                value:
+                    path: data.results
+                    ref_node: "1474691"
+        node_outputs:
+            address_mapping:
+                type: object
+                value: null
+            count:
+                type: integer
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "1066129"
+      type: code
+      title: origin
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 5240
+        y: 2548.9500000000003
+      parameters:
+        code: "async def main(args: Args) -> Output:\n    params = args.params\n    input_data = params['input']\n    \n    # 创建一个字典来存储 name: 拼接地址\n    address_dict = {}\n    \n    # 处理多种可能的输入格式\n    if isinstance(input_data, dict):\n        # 格式1：完整的JSON结构\n        if 'data' in input_data and 'results' in input_data['data']:\n            results = input_data['data']['results']\n        # 格式2：直接传入results数组\n        elif 'results' in input_data:\n            results = input_data['results']\n        # 格式3：输入本身就是results数组或单个对象\n        else:\n            # 检查是否是包含address字段的字典数组\n            if isinstance(input_data.get('results'), list) or (isinstance(input_data, dict) and 'address' in input_data):\n                # 如果是单个字典或results字段，将其转换为列表\n                results = [input_data] if 'address' in input_data else input_data.get('results', [])\n            else:\n                results = []\n    elif isinstance(input_data, list):\n        # 输入直接就是数组\n        results = input_data\n    else:\n        results = []\n    \n    # 遍历results数组，提取name并拼接city, area, address\n    for item in results:\n        if isinstance(item, dict) and 'name' in item and 'address' in item:\n            # 获取name, city, area, address字段\n            name = item.get('name', '')\n            city = item.get('city', '')\n            area = item.get('area', '')\n            address = item.get('address', '')\n            \n            # 拼接格式：city + area + address\n            if city and area and address:\n                full_address = f\"{city}{area}{address}\"\n            elif city and address:\n                full_address = f\"{city}{address}\"\n            elif area and address:\n                full_address = f\"{area}{address}\"\n            else:\n                full_address = address\n            \n            # 将name作为键，拼接地址作为值存入字典\n            if name:  # 确保name不为空\n                address_dict[name] = full_address\n    \n    # 构建输出对象\n    ret: Output = {\n        \"address_mapping\": address_dict,  # 包含name->address的映射\n        \"count\": len(address_dict)  # 地址总数\n    }\n    \n    # 如果是完整的JSON结构，添加数据摘要\n    if isinstance(input_data, dict) and 'code' in input_data:\n        ret[\"data_summary\"] = {\n            \"status\": input_data.get('code', 'N/A'),\n            \"message\": input_data.get('msg', 'N/A'),\n            \"log_id\": input_data.get('log_id', 'N/A')\n        }\n    \n    return ret"
+        language: 3
+        node_inputs:
+            - name: input
+              input:
+                value:
+                    path: data.results
+                    ref_node: "161420"
+        node_outputs:
+            address_mapping:
+                type: object
+                value: null
+            count:
+                type: integer
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "1560882"
+      type: code
+      title: 详细地点/keyword提取
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 4320
+        y: 3346.7
+      parameters:
+        code: |
+            import re
+            import json
+
+            class Args:
+                def __init__(self, params):
+                    self.params = params
+
+            KEYWORD_LIST = [
+                "美食", "餐厅", "饭店", "小吃", "火锅", "烧烤", "早餐", "午餐", "晚餐",
+                "咖啡店", "咖啡", "奶茶",
+                "酒店", "宾馆", "住宿", "民宿",
+                "景点", "景区", "门票", "攻略", "路线",
+                "停车场", "充电桩", "加油站",
+                "地铁站", "公交站", "地铁", "公交",
+                "药店", "医院",
+                "超市", "商场",
+                "厕所", "洗手间"
+            ]
+
+            SYNONYMS = [
+                (r'好吃|吃什么|吃啥|吃饭|哪里吃|吃的|夜宵', "美食"),
+                (r'住哪|住哪里|住的地方', "住宿"),
+                (r'停车|停车位', "停车场"),
+                (r'怎么走|怎么去|如何去', "路线"),
+            ]
+
+            POI_SUFFIX_REGEX = (
+                r'([\u4e00-\u9fa5A-Za-z0-9]{2,40}'
+                r'(?:路|街道|街|巷|弄|号|大道|大街|胡同|里|段|村|镇|乡|'
+                r'广场|公园|景区|风景区|景点|'
+                r'大厦|中心|大楼|写字楼|'
+                r'大学|学院|中学|小学|医院|'
+                r'机场|火车站|高铁站|车站|地铁站|站|码头|'
+                r'桥|寺|塔|馆|'
+                r'小区|苑|城))'
+            )
+
+            def _norm(s: str) -> str:
+                s = (s or "").strip()
+                s = re.sub(r'[\s，,。.!?？；;、]+', '', s)
+                return s
+
+            def _try_extract_from_json_str(s: str) -> str:
+                """
+                兼容你截图那种：Query里是一个JSON字符串 {"new_input":"..."}
+                """
+                s = (s or "").strip()
+                if not (s.startswith("{") and s.endswith("}")):
+                    return s
+                try:
+                    obj = json.loads(s)
+                    if isinstance(obj, dict):
+                        for k in ("new_input", "Query", "query", "input", "USER_INPUT"):
+                            if obj.get(k):
+                                return str(obj[k])
+                except Exception:
+                    pass
+                return s
+
+            def _clean_region(region: str) -> str:
+                region = _norm(region)
+
+                # ✅ 关键：去掉“推荐/建议/请/帮我/给我/麻烦...”等功能词前缀
+                region = re.sub(
+                    r'^(?:'
+                    r'请|麻烦|帮忙|帮我|给我|帮我一下|给我一下|'
+                    r'推荐|推荐一下|求推荐|'
+                    r'建议|建议一下|'
+                    r'查一下|搜一下|找一下|搜索|查找|查询|'
+                    r'我要|我想|想要|需要|想|'
+                    r'在|去|到|从|来'
+                    r')+',
+                    '',
+                    region
+                )
+
+                # 防止残留“附近/周边”之类
+                region = re.sub(r'(这里|那边|附近|周边|旁边|周围|一带)$', '', region)
+
+                return region
+
+            def _clean_keyword_candidate(kw: str) -> str:
+                kw = _norm(kw)
+                kw = re.sub(r'^(?:的)?(?:有没有|有吗|有什么|有哪些|推荐|查一下|帮我找|帮我搜|帮我查|搜索|找|搜|查)+', '', kw)
+                return kw
+
+            def _normalize_keyword(kw_candidate: str) -> str:
+                kw_candidate = _clean_keyword_candidate(kw_candidate)
+
+                for pat, canon in SYNONYMS:
+                    if re.search(pat, kw_candidate):
+                        return canon
+
+                hits = [k for k in KEYWORD_LIST if k in kw_candidate]
+                if hits:
+                    return max(hits, key=len)
+
+                m = re.search(r'([\u4e00-\u9fa5]{2,6})$', kw_candidate)
+                if m:
+                    tail = m.group(1)
+                    if tail not in {"推荐", "攻略", "计划", "附近", "周边"}:
+                        return tail
+
+                return kw_candidate
+
+            async def main(args: Args) -> dict:
+                params = args.params
+
+                # ========== 1) 获取输入 ==========
+                user_input = ""
+                for k in ['Query', 'query', 'input', 'USER_INPUT']:
+                    if params.get(k):
+                        user_input = str(params[k])
+                        break
+                if not user_input and isinstance(params.get('_input'), dict):
+                    user_input = str(params['_input'].get('Query') or params['_input'].get('input') or "")
+
+                # ✅ 兼容 Query 为 JSON 字符串
+                user_input = _try_extract_from_json_str(user_input)
+
+                text = _norm(user_input)
+
+                # ========== 2) 核心抽取：XX(附近/周边/旁边/周围/一带)(的)YY ==========
+                region = ""
+                keyword_raw = ""
+                keyword = ""
+
+                m = re.search(
+                    r'(?P<region>[\u4e00-\u9fa5A-Za-z0-9]{2,60})'
+                    r'(?P<near>附近|周边|旁边|周围|一带)'
+                    r'(?:的)?'
+                    r'(?P<kw>.+)$',
+                    text
+                )
+                if m:
+                    region = _clean_region(m.group("region"))
+                    keyword_raw = m.group("kw")
+                    keyword = _normalize_keyword(keyword_raw)
+
+                # 兜底：没命中“附近/周边”结构时，抓一个明显 POI 后缀 + 从剩余文本推 keyword
+                if not region:
+                    m2 = re.search(POI_SUFFIX_REGEX, text)
+                    if m2:
+                        region = _clean_region(m2.group(1))
+                        keyword_raw = text.replace(region, "")
+                        keyword = _normalize_keyword(keyword_raw)
+
+                return {
+                    "isOK": bool(region),
+                    "region": region,
+                    "keyword": keyword,
+                    "keyword_raw": _clean_keyword_candidate(keyword_raw) if keyword_raw else ""
+                }
+        language: 3
+        node_inputs:
+            - name: Query
+              input:
+                value:
+                    path: new_input
+                    ref_node: "154827"
+        node_outputs:
+            isOK:
+                type: boolean
+                value: null
+            keyword:
+                type: string
+                value: null
+            keyword_raw:
+                type: string
+                value: null
+            region:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "1122247"
+      type: llm
+      title: 回答周边信息
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 5700
+        y: 3159.7
+      parameters:
+        fcParam:
+            llmNodeUID: "7603555733410529343"
+            pluginFCParam: {}
+            spaceID: "7488261233867849762"
+            workflowVersion: ""
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: temperature
+              input:
+                type: float
+                value: "0.8"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: prefixCache
+              input:
+                type: boolean
+                value: false
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.5·Pro·32k
+            - name: modelType
+              input:
+                type: integer
+                value: "1737521813"
+            - name: parameters
+              input:
+                type: object
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: '{{input}}'
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "5"
+            - name: systemPrompt
+              input:
+                type: string
+                value: "# 角色  \n你是周边信息整理筛选助手，根据用户问题和周边信息，精准分类指定类型内容（美食/景点/酒店/商场/娱乐/停车场/其他），仅提取真实信息，不编造内容，输出关键名称。\n\n## 技能  \n### 技能1: 分类筛选信息  \n1. 接收用户问题{{input}}和周边信息{{results}}，快速判断核心需求类型（美食/景点/酒店等）；未明确类型时，优先匹配最可能相关类型（如“吃饭/玩”优先美食/娱乐）。  \n2. 筛选内容：仅保留与目标类型完全匹配的信息{{results[0].name}}，删除无关内容（其他类型条目、重复信息）。  \n3. 提取名称：输出匹配类型的1-8个名称，若某类型无信息，回复“未找到相关信息”。\n\n### 技能2: 结构化输出名称  \n1. 必提名称（如“XX餐厅”“XX公园”）；不包含地址和距离。  \n2. 格式示例：附近的{{keyword}}}有：XX（评分4.9分）、XX（特色：历史景点），无信息则回复“未找到相关信息”。\n\n## 限制  \n仅依赖用户提供的周边信息，不编造内容；语言简洁客观，仅输出名称及可选信息（评分/特色），无匹配则回复“未找到相关信息”。"
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: input
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+            - name: results
+              input:
+                type: list
+                items:
+                    type: object
+                    properties:
+                        address:
+                            type: string
+                            value: null
+                            description: 地址
+                        area:
+                            type: string
+                            value: null
+                            description: 区
+                        city:
+                            type: string
+                            value: null
+                            description: 城市
+                        location:
+                            type: string
+                            value: null
+                            description: 经纬度
+                        name:
+                            type: string
+                            value: null
+                            description: 名字
+                        province:
+                            type: string
+                            value: null
+                            description: 省份
+                    value: null
+                value:
+                    path: data.results
+                    ref_node: "195892"
+            - name: keyword
+              input:
+                value:
+                    path: keyword
+                    ref_node: "1560882"
+        node_outputs:
+            output:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "171499"
+      type: output
+      title: 周边输出
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 6160
+        y: 3185.7
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: '{{output}}'
+                type: literal
+        node_inputs:
+            - name: output
+              input:
+                value:
+                    path: output
+                    ref_node: "1122247"
+        streamingOutput: false
+    - id: "1855491"
+      type: code
+      title: 规则命中
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Code-v2.jpg
+      description: "编写代码，处理输入变量来生成返回值"
+      version: v2
+      position:
+        x: 1100
+        y: 3463.6749999999997
+      parameters:
+        code: "import re\nimport json\n\nasync def main(args):\n    params = args.get(\"params\", {})\n    \n    # ================= 1. 获取原始输入 =================\n    raw_input = \"\"\n    keys = ['user_query', 'input', 'Query', 'USER_INPUT']\n    for k in keys:\n        if params.get(k):\n            raw_input = str(params[k]).strip()\n            break\n            \n    if not raw_input and '_input' in params and isinstance(params['_input'], dict):\n        raw_input = str(params['_input'].get('Query', \"\")).strip()\n\n    # ================= 2. 智能拆包 (解析 LLM 输出) =================\n    # 初始化：默认检查原始文本，默认不信任 LLM ID (8)\n    text_to_check = raw_input\n    llm_suggested_id = 8\n    \n    try:\n        # 如果看起来像 JSON，尝试提取 new_input 和 ID\n        # 兼容处理：检查是否以 { 开头\n        if raw_input.startswith('{'):\n            data = json.loads(raw_input)\n            # 提取重写后的句子用于跑正则\n            if 'new_input' in data and data['new_input']:\n                text_to_check = data['new_input']\n            # 提取 LLM 的判断结果\n            if 'ID' in data:\n                llm_suggested_id = int(data['ID'])\n    except:\n        pass # 解析失败则按普通文本处理\n\n    # 统一小写，方便匹配\n    q = text_to_check.lower()\n    \n    # ================= 3. 全量规则库 (你提供的完整版) =================\n    \n    RULES = [\n        # --- ID 1: 违法/无意义/敏感/辱骂 (优先级最高) ---\n        (1, \n         # 1. 暴力破坏\n         r'炸掉|炸毁|爆破|制造炸弹|做炸药|燃烧瓶|土制|引爆|'\n         r'纵火|放火烧|投毒|下毒|毒死|氰化|砒霜|迷药|听话水|乖乖水|'\n         \n         # 2. 网络犯罪\n         r'盗号|盗取|破解密码|暴力破解|渗透教程|拿站|提权|脱库|撞库|'\n         r'攻击网站|攻击服务器|瘫痪网络|呼死你|轰炸机|远控|木马|免杀|'\n         r'外挂|辅助|透视|自瞄|私服|'\n         \n         # 3. 黄赌毒与违禁品\n         r'买枪|卖枪|军火|仿真枪|弩|火药|雷管|'\n         r'毒品|大麻|冰毒|白粉|海洛因|'\n         r'找小姐|招嫖|修车|裸聊|色情|黄片|AV|淫秽|'\n         r'网赌|博彩|下注|坐庄|六合彩|'\n         \n         # 4. 欺诈与黑产\n         r'办证|刻章|假币|假钞|洗钱|跑分|四件套|银行卡|黑户|'\n         r'代开|发票|避税|逃税|'\n         \n         # 5. 极端言论\n         r'推翻|暴乱|造反|恐怖主义|极端组织|邪教|'\n\n         # 6. 辱骂与人身攻击 (脏字类)\n         r'草泥马|草你|操你|日你|干你|'\n         r'傻逼|煞笔|沙雕|二逼|弱智|脑残|智障|白痴|'\n         r'滚蛋|滚开|去死|去你妈|尼玛|妈的|tmd|nmd|wcnm|cnm|sb|'\n         r'废物|贱人|烂人|垃圾人|狗日|畜生|'\n         r'杂种|野种|狗东西|'\n\n         # 7. 政治/敏感/邪教\n         r'法轮|法lun|法轮功|flg|转法轮|大法弟子|'\n         r'习近平|习大大|习主席|习jin平|xjp|维尼熊|包子|' \n         r'共产党|共匪|tg|土共|'\n         r'8964|六四|天安门事件|'\n\n         # 8. 变体/黑话/模糊污秽\n         r'草b|操b|艹b|cao\\s*b|c\\s*b|' \n         r'扣眼|抠眼|扣逼|抠逼|扣b|抠b|'\n         r'约炮|约吗|yp|'\n         r'骚货|浪货|逼样|'\n         r'牛子|鸡巴|几把|j8|jb|'\n         \n         # 9. 诅咒/家人/恶毒诅咒\n         r'nmsl|你妈死|他妈死|死妈|没妈|亲妈|'\n         r'死全家|全家死|全家暴毙|户口本|'\n         r'骨灰|灵车|坟头|上香|送终|'\n         r'孤儿|收尸|暴毙|棺材|绝后',\n         \n         # 排除词\n         r'打击|反|预防|电影|小说|故事|防止|法律|举报|警匪|梦见|新闻|科普|原理|危害|分类|回收|羊驼|学习|复习|练习|佛|寺庙'), \n\n        # --- ID 2: 人身安全/伤害 ---\n        (2, \n         r'自杀|轻生|不想活|想死|割腕|跳楼|喝药|安眠药|烧炭|上吊|绝望|'\n         r'杀人|砍人|捅死|弄死|搞死|'\n         r'绑架|勒索|撕票|软禁|监禁|'\n         r'强奸|迷奸|猥亵|'\n         r'报复社会|灭口|分尸|'\n         r'打架|斗殴|家暴|霸凌|被威胁|救命', \n         \n         r'电视|游戏|小说|剧情|比喻|笑死|吓死|狼人杀|剧本杀|法医|案件'), \n\n        # --- ID 3: 实时/查询 ---\n        (3, \n         r'今天|明天|后天|现在|当前|实时|最新|最近|未来|'\n         r'查一下|帮我查|搜索|找一下|有多少|几点|什么时候|'\n         r'天气|气温|下雨|有雨|预报|台风|地震|雾霾|空气质量|'\n         r'股价|股票|大盘|行情|涨跌|K线|汇率|金价|油价|比特币|'\n         r'新闻|资讯|热搜|头条|动态|政策|放假|调休|'\n         r'行程|攻略|路线|几日游|去哪玩|怎么去|自驾|跟团|导航|距离|'\n         r'周边|附近|'\n         r'航班|车次|机票|火车票|高铁|酒店|住宿|门票|'\n         r'快递|物流|单号|发货|比分|战报|赛程|排名|电影票|价格|多少钱|星座运势'\n         r'演过什么|唱过什么|有什么作品|代表作|主演|参演',\n         \n         r'是什么|含义|定义|原理|历史|由来'), \n\n        # --- ID 4: 常识/百科 ---\n        (4, \n         r'是什么|为什么|怎么回事|含义|定义|原理|机制|介绍一下|科普|'\n         r'历史|由来|背景|文化|地理|科学|常识|区别|对比|'\n         r'在哪|' \n         r'你有什么功能|你的功能|功能清单|能干什么|你会什么|使用帮助|说明书|怎么用', \n         \n         r'查一下|今天|明天|最新|实时|股价'), \n\n        # --- ID 5: 情绪表达 ---\n        (5, \n         r'开心|高兴|兴奋|满足|爽|'\n         r'难过|悲伤|伤心|失落|沮丧|低落|想哭|痛苦|'\n         r'焦虑|紧张|害怕|恐慌|压力大|心累|累了|烦|'\n         r'愤怒|生气|烦躁|气死|委屈|破防|emo|崩溃|压力好大|撑不住|受不了|想吐槽|'\n         r'孤独|寂寞|没人理|好烦', \n         \n         r'不难过|防止|如何治疗|医生|医院'),\n\n        # --- ID 6: 闲聊 ---\n        (6, \n         r'你好|您好|嗨|哈喽|hello|hi|在吗|在不在|出来|'\n         r'早安|晚安|午安|'\n         r'我叫|我是|我的名字|'\n         r'无聊|陪我|唠嗑|随便聊|和我聊天|说说话|没事干|'\n         r'谢谢|感恩|再见|拜拜|牛逼|厉害|666', \n         None),\n\n        # --- ID 7: 结束聊天 ---\n        (7, \n         r'^结束|退出|不用了|别说了|退下|闭嘴|够了|再见|拜拜|就这样|别聊了|先这样', \n         None),\n    ]\n\n    # ================= 4. 匹配执行 (优先正则) =================\n    final_intent_id = 8\n    regex_hit = False\n\n    for intent, include_pattern, exclude_pattern in RULES:\n        if re.search(include_pattern, q):\n            if exclude_pattern and re.search(exclude_pattern, q):\n                continue\n            final_intent_id = intent\n            regex_hit = True\n            break\n\n    # ================= 5. 决策融合 =================\n    # 正则已经匹配的，完全信任正则，忽略LLM建议\n    if regex_hit:\n    # 正则已经给出final_intent_id，直接使用\n       pass\n    else:\n    # 只有正则完全没匹配时，才考虑LLM建议\n       if llm_suggested_id in [1, 2, 3, 4, 5, 6, 7]:\n        final_intent_id = llm_suggested_id\n    # 否则保持final_intent_id = 8\n\n    # # ================= 5. 决策融合 (正则未命中则信任 LLM) =================\n    # if not regex_hit:\n    #     # 只有当 LLM 给出了有效的 ID (1-7) 时才采纳，否则保持 8\n    #     if llm_suggested_id in [1, 2, 3, 4, 5, 6, 7]:\n    #         final_intent_id = llm_suggested_id\n\n    # 统一输出字符串 ID，确保兼容性\n\n    \n    return {\n        \"intent_id\": str(final_intent_id)\n    }"
+        language: 3
+        node_inputs:
+            - name: user_query
+              input:
+                value:
+                    path: new_input
+                    ref_node: "154827"
+        node_outputs:
+            intent_id:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 60000
+    - id: "122498"
+      type: condition
+      title: 选择器_4
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Condition-v2.jpg
+      description: "连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支"
+      position:
+        x: 4780
+        y: 3333.7999999999997
+      parameters:
+        branches:
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            value:
+                                path: isOK
+                                ref_node: "1560882"
+                      operator: 1
+                      right:
+                        input:
+                            type: boolean
+                            value: true
+                logic: 2
+    - id: "125129"
+      type: output
+      title: 输出_5
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 6160
+        y: 3397.3999999999996
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: 抱歉啊，我没有识别出来你说的地点，可以再说一遍吗
+                type: literal
+        streamingOutput: false
+    - id: "173147"
+      type: llm
+      title: 地点命中兜底
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 5700
+        y: 2896
+      parameters:
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: apiMode
+              input:
+                type: integer
+                value: "0"
+            - name: temperature
+              input:
+                type: float
+                value: "0.3"
+            - name: topP
+              input:
+                type: float
+                value: "1"
+            - name: frequencyPenalty
+              input:
+                type: float
+                value: "0"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: thinkingType
+              input:
+                type: string
+                value: auto
+            - name: responseFormat
+              input:
+                type: integer
+                value: "0"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.6·自动深度思考
+            - name: modelType
+              input:
+                type: integer
+                value: "1749615103"
+            - name: generationDiversity
+              input:
+                type: string
+                value: precise
+            - name: parameters
+              input:
+                type: object
+                properties:
+                    max_completion_tokens:
+                        type: integer
+                        value: "0"
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: '{{input}}'
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "3"
+            - name: systemPrompt
+              input:
+                type: string
+                value: "# 角色\n你是专业行程规划师，擅长根据用户需求制定简洁精准的行程，仅用文本输出，严格遵循指定格式。\n\n## 技能\n### 技能 1: 行程格式输出\n1. 按天数顺序生成行程，格式为：「第 X 天：上午 [景点 1]，午餐 [美食 1]，下午 [景点 2]，晚餐 [美食 2]」，天数依次递增。\n2. 总字数控制在 100 字以内，确保信息简洁紧凑。\n3. **回复示例**：  \n   第 1 天：上午 [景点]，午餐 [美食]，下午 [景点]，晚餐 [美食]  \n\n### 技能 2: 地点关联处理\n1. 若用户前文明确提及地点（如城市/区域名），需在行程中加入该地点，确保行程指向明确。\n\n### 技能 3: 无信息处理\n1. 当无法获取对应景点或美食信息时，直接回复「没有相关的行程信息」，不编造内容。\n\n## 限制\n- 仅输出行程相关内容，拒绝无关话题；\n- 严格遵循格式和字数要求，不超范围发挥；\n- 无明确信息时，优先回复「没有相关的行程信息」。"
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: input
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+        node_outputs:
+            output:
+                type: string
+                value: null
+            reasoning_content:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "174325"
+      type: output
+      title: 输出_3
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 6160
+        y: 2922
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: '{{output}}'
+                type: literal
+        node_inputs:
+            - name: output
+              input:
+                value:
+                    path: output
+                    ref_node: "173147"
+        streamingOutput: false
+    - id: "195892"
+      type: plugin
+      title: search_around
+      icon: https://p6-flow-product-sign.byteimg.com/tos-cn-i-13w3uml6bg/eeefdf0766ed458abdc732569fb9e5f8~tplv-13w3uml6bg-resize:128:128.image?rk3s=2e2596fd&x-expires=1774506982&x-signature=ZE8diai5ujGdx2fbP%2FxWetjZm%2Fg%3D
+      description: "提供指定地点额关键词搜索周边能力。"
+      position:
+        x: 5240
+        y: 3185.7
+      parameters:
+        apiParam:
+            - name: apiID
+              input:
+                type: string
+                value: "7394300614395772938"
+            - name: apiName
+              input:
+                type: string
+                value: "search_around"
+            - name: pluginID
+              input:
+                type: string
+                value: "7394300614395641866"
+            - name: pluginName
+              input:
+                type: string
+                value: "百度地图"
+            - name: pluginVersion
+              input:
+                type: string
+                value: ""
+            - name: tips
+              input:
+                type: string
+                value: ""
+            - name: outDocLink
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: location
+              input:
+                value:
+                    path: region
+                    ref_node: "1560882"
+            - name: keyword
+              input:
+                value:
+                    path: keyword
+                    ref_node: "1560882"
+        node_outputs:
+            code:
+                type: float
+                value: null
+            data:
+                type: object
+                properties:
+                    results:
+                        type: list
+                        items:
+                            type: object
+                            properties:
+                                address:
+                                    type: string
+                                    value: null
+                                    description: 地址
+                                area:
+                                    type: string
+                                    value: null
+                                    description: 区
+                                city:
+                                    type: string
+                                    value: null
+                                    description: 城市
+                                location:
+                                    type: string
+                                    value: null
+                                    description: 经纬度
+                                name:
+                                    type: string
+                                    value: null
+                                    description: 名字
+                                province:
+                                    type: string
+                                    value: null
+                                    description: 省份
+                            value: null
+                        value: null
+                    status:
+                        type: float
+                        value: null
+                value: null
+            log_id:
+                type: string
+                value: null
+            msg:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            timeoutMs: 180000
+    - id: "118870"
+      type: output
+      title: 输出_8
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 6160
+        y: 2710.2
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: 请告诉我具体地点哦~
+                type: literal
+        streamingOutput: false
+    - id: "146723"
+      type: subflow
+      title: 情感陪伴
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Workflow-v2.jpg
+      description: "情感陪伴"
+      position:
+        x: 2940
+        y: 4007.2
+      parameters:
+        inputDefs:
+            - defaultValue: Default
+              description: 本次请求绑定的会话，会自动写入消息、会从该会话读对话历史。
+              input: {}
+              name: CONVERSATION_NAME
+              required: false
+              type: string
+            - input: {}
+              name: USER_INPUT
+              required: false
+              type: string
+        node_inputs:
+            - name: CONVERSATION_NAME
+              input:
+                type: string
+                value: "Default"
+        node_outputs:
+            output:
+                type: string
+                value: null
+        settingOnError: {}
+        spaceId: "7611174943728238598"
+        type: 0
+        workflowId: "7611377676314263586"
+        workflowVersion: v0.0.1
+    - id: "120528"
+      type: llm
+      title: 判断是否需要回忆
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 2940
+        y: 4218.9
+      parameters:
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: temperature
+              input:
+                type: float
+                value: "0.8"
+            - name: topP
+              input:
+                type: float
+                value: "1"
+            - name: frequencyPenalty
+              input:
+                type: float
+                value: "1"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: true
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: thinkingType
+              input:
+                type: string
+                value: disabled
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.6·自动深度思考
+            - name: modelType
+              input:
+                type: integer
+                value: "1749615103"
+            - name: parameters
+              input:
+                type: object
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: ""
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "3"
+            - name: systemPrompt
+              input:
+                type: string
+                value: "# 角色\n你是专注于处理无目标闲聊类输入的对话助手，核心能力是精准判断用户输入是否需要触发长期记忆，智能决策记忆调用逻辑，以提升多轮对话的连贯性与自然度。\n\n## 技能\n### 技能1：闲聊类型判断与记忆调用决策\n1. **强触发场景（必须调用长期记忆）**  \n   - **判断规则**：用户输入包含与个人记忆相关的关键词（如“记得/还记得/之前说过/上次提到/忘了吗”），或直接提及个人偏好、过往对话内容。  \n   - **示例**：“你还记不记得我喜欢的电影类型？”“上次聊的那家餐厅叫什么？”  \n   -**回复**：“yes”\n   \n\n2. **弱触发场景（优先调用长期记忆）**  \n   - **判断规则**：用户输入为无明确目标的生活类疑问（如“吃什么/看什么/玩什么/选哪个/做什么”），涉及日常选择或计划（无具体指向内容）。  \n   - **示例**：“我今天吃什么呢？”“周末看什么电影呢？”“下班去玩什么好？”  \n      -**回复**：“yes”\n\n3. **不触发场景（禁止调用长期记忆）**  \n   - **判断规则**：无意义寒暄、单次随机提问，且不涉及个人偏好或过往对话内容（如天气、问候、基础常识）。  \n   - **示例**：“今天天气真好”“你好呀”“1+1等于几”   - **处理逻辑**：不调用长期记忆，直接生成简洁通用回复。\n      -**回复**：“no”\n\n\n"
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: CURRENT_QUESTION
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+        node_outputs:
+            reason:
+                type: string
+                value: null
+                description: 100字以内思考内容
+            reasoning_content:
+                type: string
+                value: null
+            result:
+                type: string
+                value: null
+                description: 是否需要回答
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "129171"
+      type: condition
+      title: 需要回忆
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Condition-v2.jpg
+      description: "连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支"
+      position:
+        x: 3400
+        y: 4232
+      parameters:
+        branches:
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            value:
+                                path: result
+                                ref_node: "120528"
+                      operator: 1
+                      right:
+                        input:
+                            type: string
+                            value: "yes"
+                logic: 2
+    - id: "103365"
+      type: ltm_read
+      title: long_term_mem_检索
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-ltm_read.png
+      description: "长期记忆检索"
+      position:
+        x: 3860
+        y: 4337.049999999999
+      parameters:
+        memoryInfoList:
+            - memoryInfoID: "7611373719260250164"
+        node_inputs:
+            - name: query
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+            - name: limit
+              input:
+                type: integer
+                value: 200
+        node_outputs:
+            outputList:
+                type: list
+                items:
+                    type: object
+                    properties:
+                        date:
+                            type: string
+                            value: null
+                        output:
+                            type: string
+                            value: null
+                    value: null
+                value: null
+    - id: "199049"
+      type: llm
+      title: 大模型
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 4641.256877296744
+        y: 4640
+      parameters:
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: temperature
+              input:
+                type: float
+                value: "0.8"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: prefixCache
+              input:
+                type: boolean
+                value: false
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.5·Lite·32k
+            - name: modelType
+              input:
+                type: integer
+                value: "1741232583"
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: parameters
+              input:
+                type: object
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: '{{input}}'
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "3"
+            - name: systemPrompt
+              input:
+                type: string
+                value: |-
+                    # 角色
+                    你专注于从用户输入中提取个性化信息。你的核心功能是识别用户输入中是否包含喜好、画像等个性化信息，并将其转化为指定的 `array<object>` 格式，**直接输出到 `output` 字段**，确保输出符合结构化要求。
+
+                    ## 技能
+                    ### 技能1：识别个性化信息
+                    1. **分析输入内容**：仔细阅读用户的输入文本，判断是否包含以下类型的个性化信息：
+                       - 用户喜好（如喜欢的食物、电影类型、音乐风格等）
+                       - 用户画像相关信息（如职业、年龄、兴趣倾向、生活习惯等）
+                    2. **提取具体内容**：若识别到上述信息，提取核心内容，并生成对应的 object 对象：
+                       - `role` 字段默认设置为 **"user"**
+                       - `content` 字段为提取到的具体个性化信息文本（需清晰对应信息类型）
+                    3. **多信息处理**：若用户输入中包含多条独立的个性化信息（如同时提及“喜欢吃火锅”和“职业是插画师”），需将每条信息拆分为单独的 object 并放入 array 中。
+
+                    ### 技能2：格式验证与输出
+                    1. **标准输出格式**：
+                       - 若输入包含个性化信息：生成 `array<object>` 类型，结构示例：`[{"role":"user","content":"具体内容1"},{"role":"user","content":"具体内容2"}]`
+                       - 若未识别到个性化信息：生成空数组 `[]`
+                    2. **输出要求**：**仅将上述数组直接赋值给 `output` 字段**，不输出任何额外文字、解释、标点或格式说明，确保 `output` 为纯数组格式。
+                    3. **错误处理**：确保输出的 array 中所有 object 均包含 `role` 和 `content` 字段，且格式严格符合要求。若信息提取有误（如内容冲突或遗漏），需修正至准确状态。
+
+                    ===回复示例===
+                    {
+                      "role": "user",
+                      "content": "我喜欢夏天"
+                    }
+                    ===示例结束===
+
+                    ## 限制
+                    - 仅基于用户输入文本本身进行信息判断，不依赖外部工具（搜索、知识库）获取额外信息
+                    - 输出格式必须严格使用 `array<object>` 或空数组，**仅输出到 `output` 字段**，不添加与格式无关的冗余内容
+                    - 若用户输入中存在模糊表述（如“我喜欢那个”），需优先判断是否能明确提取具体信息，无法明确时生成空数组
+                    - 禁止输出任何非数组内容，包括但不限于文字说明、引号外的内容、换行符等
+                    -最终结果仅输出到 output 字段，格式为纯 JSON 数组，无任何额外内容。
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: input
+              input:
+                value:
+                    path: USER_INPUT
+                    ref_node: "100001"
+        node_outputs:
+            output:
+                type: list
+                items:
+                    type: object
+                    properties:
+                        content:
+                            type: string
+                            value: null
+                        role:
+                            type: string
+                            value: null
+                    value: null
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "154175"
+      type: condition
+      title: 选择器_1
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Condition-v2.jpg
+      description: "连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支"
+      position:
+        x: 5149.321118798152
+        y: 4640
+      parameters:
+        branches:
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            value:
+                                path: output
+                                ref_node: "199049"
+                      operator: 10
+                logic: 2
+edges:
+    - source_node: "100001"
+      target_node: "154827"
+    - source_node: "100001"
+      target_node: "149822"
+    - source_node: "100001"
+      target_node: "199049"
+    - source_node: "195325"
+      target_node: "900001"
+    - source_node: "136582"
+      target_node: "900001"
+    - source_node: "131334"
+      target_node: "900001"
+    - source_node: "117597"
+      target_node: "900001"
+    - source_node: "155509"
+      target_node: "900001"
+    - source_node: "183967"
+      target_node: "900001"
+    - source_node: "180423"
+      target_node: "900001"
+    - source_node: "138149"
+      target_node: "900001"
+    - source_node: "154493"
+      target_node: "900001"
+    - source_node: "110722"
+      target_node: "900001"
+    - source_node: "167267"
+      target_node: "900001"
+    - source_node: "111380"
+      target_node: "900001"
+    - source_node: "167370"
+      target_node: "900001"
+    - source_node: "188183"
+      target_node: "900001"
+    - source_node: "156522"
+      target_node: "900001"
+    - source_node: "151008"
+      target_node: "900001"
+    - source_node: "1813617"
+      target_node: "900001"
+    - source_node: "171499"
+      target_node: "900001"
+    - source_node: "125129"
+      target_node: "900001"
+    - source_node: "174325"
+      target_node: "900001"
+    - source_node: "118870"
+      target_node: "900001"
+    - source_node: "154175"
+      target_node: "900001"
+      source_port: "false"
+    - source_node: "119714"
+      target_node: "120239"
+      source_port: true_3
+    - source_node: "157717"
+      target_node: "120239"
+      source_port: true_3
+    - source_node: "167957"
+      target_node: "120239"
+      source_port: default
+    - source_node: "120239"
+      target_node: "117597"
+    - source_node: "157717"
+      target_node: "169060"
+      source_port: "false"
+    - source_node: "103365"
+      target_node: "169060"
+    - source_node: "129171"
+      target_node: "169060"
+      source_port: "false"
+    - source_node: "169060"
+      target_node: "155509"
+    - source_node: "119714"
+      target_node: "136582"
+      source_port: "true"
+    - source_node: "157717"
+      target_node: "136582"
+      source_port: "true"
+    - source_node: "119714"
+      target_node: "195325"
+      source_port: true_1
+    - source_node: "157717"
+      target_node: "195325"
+      source_port: true_1
+    - source_node: "154175"
+      target_node: "131334"
+      source_port: "true"
+    - source_node: "149822"
+      target_node: "119714"
+    - source_node: "1855491"
+      target_node: "119714"
+    - source_node: "119714"
+      target_node: "167957"
+      source_port: true_2
+    - source_node: "119714"
+      target_node: "146723"
+      source_port: true_4
+    - source_node: "119714"
+      target_node: "120528"
+      source_port: true_5
+    - source_node: "119714"
+      target_node: "151008"
+      source_port: true_6
+    - source_node: "119714"
+      target_node: "104608"
+      source_port: "false"
+    - source_node: "157717"
+      target_node: "167957"
+      source_port: true_2
+    - source_node: "167957"
+      target_node: "100138"
+      source_port: branch_0
+    - source_node: "167957"
+      target_node: "180423"
+      source_port: branch_0
+    - source_node: "167957"
+      target_node: "174980"
+      source_port: branch_1
+    - source_node: "167957"
+      target_node: "177152"
+      source_port: branch_2
+    - source_node: "167957"
+      target_node: "167267"
+      source_port: branch_2
+    - source_node: "167957"
+      target_node: "197681"
+      source_port: branch_3
+    - source_node: "167957"
+      target_node: "1820143"
+      source_port: branch_4
+    - source_node: "167957"
+      target_node: "1560882"
+      source_port: branch_5
+    - source_node: "100138"
+      target_node: "153917"
+    - source_node: "153917"
+      target_node: "134016"
+      source_port: "true"
+    - source_node: "153917"
+      target_node: "183967"
+      source_port: "false"
+    - source_node: "134016"
+      target_node: "160605"
+    - source_node: "160605"
+      target_node: "138149"
+    - source_node: "174980"
+      target_node: "163175"
+    - source_node: "163175"
+      target_node: "166771"
+    - source_node: "166771"
+      target_node: "154493"
+    - source_node: "177152"
+      target_node: "109191"
+    - source_node: "109191"
+      target_node: "110722"
+    - source_node: "181861"
+      target_node: "186018"
+      source_port: "true"
+    - source_node: "186018"
+      target_node: "192576"
+    - source_node: "192576"
+      target_node: "111380"
+    - source_node: "181861"
+      target_node: "167370"
+      source_port: "true"
+    - source_node: "146723"
+      target_node: "188183"
+    - source_node: "143885"
+      target_node: "111357"
+    - source_node: "1066129"
+      target_node: "111357"
+    - source_node: "111357"
+      target_node: "156522"
+    - source_node: "197681"
+      target_node: "181861"
+    - source_node: "104608"
+      target_node: "157717"
+    - source_node: "157717"
+      target_node: "146723"
+      source_port: true_4
+    - source_node: "157717"
+      target_node: "120528"
+      source_port: true_5
+    - source_node: "154827"
+      target_node: "1855491"
+    - source_node: "181861"
+      target_node: "132162"
+      source_port: "false"
+    - source_node: "132162"
+      target_node: "1390359"
+    - source_node: "1390359"
+      target_node: "1508689"
+    - source_node: "1508689"
+      target_node: "1828789"
+    - source_node: "1828789"
+      target_node: "1813617"
+    - source_node: "1820143"
+      target_node: "1429230"
+    - source_node: "1429230"
+      target_node: "1474691"
+      source_port: "true"
+    - source_node: "1429230"
+      target_node: "161420"
+      source_port: "true"
+    - source_node: "1429230"
+      target_node: "118870"
+      source_port: true_1
+    - source_node: "1429230"
+      target_node: "173147"
+      source_port: "false"
+    - source_node: "161420"
+      target_node: "1066129"
+    - source_node: "1474691"
+      target_node: "143885"
+    - source_node: "1560882"
+      target_node: "122498"
+    - source_node: "195892"
+      target_node: "1122247"
+    - source_node: "1122247"
+      target_node: "171499"
+    - source_node: "122498"
+      target_node: "195892"
+      source_port: "true"
+    - source_node: "122498"
+      target_node: "125129"
+      source_port: "false"
+    - source_node: "173147"
+      target_node: "174325"
+    - source_node: "120528"
+      target_node: "129171"
+    - source_node: "129171"
+      target_node: "103365"
+      source_port: "true"
+    - source_node: "199049"
+      target_node: "154175"

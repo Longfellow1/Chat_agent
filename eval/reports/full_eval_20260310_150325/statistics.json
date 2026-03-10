@@ -1,0 +1,51 @@
+{
+  "total": 10,
+  "passed": 6,
+  "failed": 4,
+  "accuracy": 0.6,
+  "total_time_sec": 65.19,
+  "avg_time_per_case_sec": 6.52,
+  "category_stats": {
+    "拒识": {
+      "total": 5,
+      "passed": 1,
+      "accuracy": 0.2
+    },
+    "工具调用": {
+      "total": 4,
+      "passed": 4,
+      "accuracy": 1.0
+    },
+    "闲聊": {
+      "total": 1,
+      "passed": 1,
+      "accuracy": 1.0
+    }
+  },
+  "tool_stats": {
+    "search_nearby": {
+      "total": 2,
+      "passed": 2,
+      "accuracy": 1.0
+    },
+    "get_stock": {
+      "total": 1,
+      "passed": 1,
+      "accuracy": 1.0
+    },
+    "plan_trip": {
+      "total": 1,
+      "passed": 1,
+      "accuracy": 1.0
+    }
+  },
+  "latency": {
+    "avg_ms": 6506.8,
+    "p50_ms": 4468,
+    "p95_ms": 8517,
+    "p99_ms": 8517
+  },
+  "failure_reasons": {
+    "reject_failed": 4
+  }
+}
