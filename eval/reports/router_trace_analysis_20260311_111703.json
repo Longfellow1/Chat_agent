@@ -1,0 +1,979 @@
+{
+  "timestamp": "2026-03-11T11:17:03.255208",
+  "model": "qwen/qwen3-4b-2507",
+  "total_cases": 60,
+  "traces_by_tool": {
+    "plan_trip": [
+      {
+        "query": "北京3天旅游",
+        "tool": "plan_trip",
+        "params": {
+          "destination": "北京"
+        },
+        "confidence": 0.9,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.007152557373046875,
+        "error": null,
+        "expected_source": "rule",
+        "note": "目的地+时间",
+        "case_id": "plan_trip_1"
+      },
+      {
+        "query": "上海旅行5天",
+        "tool": "plan_trip",
+        "params": {
+          "destination": "上海"
+        },
+        "confidence": 0.9,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.003814697265625,
+        "error": null,
+        "expected_source": "rule",
+        "note": "目的地+时间",
+        "case_id": "plan_trip_2"
+      },
+      {
+        "query": "广州旅游",
+        "tool": "plan_trip",
+        "params": {
+          "destination": "广州"
+        },
+        "confidence": 0.9,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.00095367431640625,
+        "error": null,
+        "expected_source": "rule",
+        "note": "旅游关键词",
+        "case_id": "plan_trip_3"
+      },
+      {
+        "query": "出去转转",
+        "tool": "plan_trip",
+        "params": {},
+        "confidence": 0.9,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.0019073486328125,
+        "error": null,
+        "expected_source": "rule",
+        "note": "口语化旅游",
+        "case_id": "plan_trip_4"
+      },
+      {
+        "query": "避暑",
+        "tool": "plan_trip",
+        "params": {},
+        "confidence": 0.9,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.0011920928955078125,
+        "error": null,
+        "expected_source": "rule",
+        "note": "季节性旅游",
+        "case_id": "plan_trip_5"
+      },
+      {
+        "query": "我想去一个有山有水的地方",
+        "tool": "plan_trip",
+        "params": {
+          "destination": "有山有水的地方"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 1064.3811225891113,
+        "error": null,
+        "expected_source": "llm",
+        "note": "描述性目的地",
+        "case_id": "plan_trip_6"
+      },
+      {
+        "query": "周末想出去走走",
+        "tool": "plan_trip",
+        "params": {},
+        "confidence": 0.9,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.009059906005859375,
+        "error": null,
+        "expected_source": "llm",
+        "note": "隐含旅游意图",
+        "case_id": "plan_trip_7"
+      },
+      {
+        "query": "帮我安排一下行程",
+        "tool": "plan_trip",
+        "params": {
+          "destination": "北京"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 359.7676753997803,
+        "error": null,
+        "expected_source": "llm",
+        "note": "缺少所有参数",
+        "case_id": "plan_trip_8"
+      },
+      {
+        "query": "我想去旅游，但不知道去哪",
+        "tool": "plan_trip",
+        "params": {},
+        "confidence": 0.9,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.012159347534179688,
+        "error": null,
+        "expected_source": "llm",
+        "note": "意图明确但缺参数",
+        "case_id": "plan_trip_9"
+      },
+      {
+        "query": "国庆假期有什么推荐",
+        "tool": "web_search",
+        "params": {
+          "query": "国庆假期有什么推荐"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 412.5540256500244,
+        "error": null,
+        "expected_source": "llm",
+        "note": "隐含旅游+推荐",
+        "case_id": "plan_trip_10"
+      }
+    ],
+    "find_nearby": [
+      {
+        "query": "北京附近的餐厅",
+        "tool": "find_nearby",
+        "params": {
+          "city": "北京",
+          "category": "餐厅"
+        },
+        "confidence": 0.9,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.2810955047607422,
+        "error": null,
+        "expected_source": "rule",
+        "note": "位置+类别",
+        "case_id": "find_nearby_1"
+      },
+      {
+        "query": "上海好吃的",
+        "tool": "find_nearby",
+        "params": {
+          "city": "上海",
+          "category": "餐厅"
+        },
+        "confidence": 0.9,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.015020370483398438,
+        "error": null,
+        "expected_source": "rule",
+        "note": "位置+美食",
+        "case_id": "find_nearby_2"
+      },
+      {
+        "query": "广州酒店",
+        "tool": "find_nearby",
+        "params": {
+          "city": "广州",
+          "category": "酒店"
+        },
+        "confidence": 0.9,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.012874603271484375,
+        "error": null,
+        "expected_source": "rule",
+        "note": "位置+酒店",
+        "case_id": "find_nearby_3"
+      },
+      {
+        "query": "深圳景点",
+        "tool": "find_nearby",
+        "params": {
+          "city": "深圳",
+          "category": "景点"
+        },
+        "confidence": 0.9,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.011920928955078125,
+        "error": null,
+        "expected_source": "rule",
+        "note": "位置+景点",
+        "case_id": "find_nearby_4"
+      },
+      {
+        "query": "杭州哪里有银行",
+        "tool": "find_nearby",
+        "params": {
+          "city": "杭州",
+          "category": "银行"
+        },
+        "confidence": 0.9,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.01621246337890625,
+        "error": null,
+        "expected_source": "rule",
+        "note": "位置+银行",
+        "case_id": "find_nearby_5"
+      },
+      {
+        "query": "我想吃饭，但不知道在哪",
+        "tool": "find_nearby",
+        "params": {
+          "category": "餐厅"
+        },
+        "confidence": 0.5,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 379.71997261047363,
+        "error": "Low confidence (0.50)",
+        "expected_source": "llm",
+        "note": "隐含类别，缺位置",
+        "case_id": "find_nearby_6"
+      },
+      {
+        "query": "有什么好玩的地方吗",
+        "tool": "find_nearby",
+        "params": {
+          "category": "游玩地点"
+        },
+        "confidence": 0.5,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 373.8870620727539,
+        "error": "Low confidence (0.50)",
+        "expected_source": "llm",
+        "note": "隐含景点，缺位置",
+        "case_id": "find_nearby_7"
+      },
+      {
+        "query": "我想找个安静的地方",
+        "tool": "find_nearby",
+        "params": {
+          "city": "城市",
+          "category": "安静的地方"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 450.1359462738037,
+        "error": null,
+        "expected_source": "llm",
+        "note": "描述性类别",
+        "case_id": "find_nearby_8"
+      },
+      {
+        "query": "晚上去哪吃",
+        "tool": "find_nearby",
+        "params": {
+          "city": "这里",
+          "category": "餐厅"
+        },
+        "confidence": 0.65,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 443.35412979125977,
+        "error": "Low confidence (0.65)",
+        "expected_source": "llm",
+        "note": "隐含餐厅，缺位置",
+        "case_id": "find_nearby_9"
+      },
+      {
+        "query": "周围有什么",
+        "tool": "find_nearby",
+        "params": {
+          "city": "周围"
+        },
+        "confidence": 0.5,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 355.91697692871094,
+        "error": "Low confidence (0.50)",
+        "expected_source": "llm",
+        "note": "缺位置和类别",
+        "case_id": "find_nearby_10"
+      }
+    ],
+    "get_weather": [
+      {
+        "query": "北京天气",
+        "tool": "get_weather",
+        "params": {
+          "location": "北京"
+        },
+        "confidence": 0.85,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.03504753112792969,
+        "error": null,
+        "expected_source": "rule",
+        "note": "位置+天气",
+        "case_id": "get_weather_1"
+      },
+      {
+        "query": "上海温度",
+        "tool": "get_weather",
+        "params": {
+          "location": "上海"
+        },
+        "confidence": 0.85,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.014066696166992188,
+        "error": null,
+        "expected_source": "rule",
+        "note": "位置+温度",
+        "case_id": "get_weather_2"
+      },
+      {
+        "query": "广州下雨吗",
+        "tool": "get_weather",
+        "params": {
+          "location": "广州"
+        },
+        "confidence": 0.85,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.013113021850585938,
+        "error": null,
+        "expected_source": "rule",
+        "note": "位置+下雨",
+        "case_id": "get_weather_3"
+      },
+      {
+        "query": "深圳晴天",
+        "tool": "get_weather",
+        "params": {
+          "location": "深圳"
+        },
+        "confidence": 0.85,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.012159347534179688,
+        "error": null,
+        "expected_source": "rule",
+        "note": "位置+晴天",
+        "case_id": "get_weather_4"
+      },
+      {
+        "query": "杭州风大吗",
+        "tool": "get_weather",
+        "params": {
+          "location": "杭州"
+        },
+        "confidence": 0.85,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.011920928955078125,
+        "error": null,
+        "expected_source": "rule",
+        "note": "位置+风",
+        "case_id": "get_weather_5"
+      },
+      {
+        "query": "明天要不要带伞",
+        "tool": "get_weather",
+        "params": {
+          "location": "明天"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 350.88491439819336,
+        "error": null,
+        "expected_source": "llm",
+        "note": "隐含天气，缺位置",
+        "case_id": "get_weather_6"
+      },
+      {
+        "query": "冷不冷",
+        "tool": "get_weather",
+        "params": {
+          "location": "这里"
+        },
+        "confidence": 0.65,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 348.9222526550293,
+        "error": "Low confidence (0.65)",
+        "expected_source": "llm",
+        "note": "隐含天气，缺位置",
+        "case_id": "get_weather_7"
+      },
+      {
+        "query": "热不热",
+        "tool": "get_weather",
+        "params": {
+          "location": "这里"
+        },
+        "confidence": 0.65,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 338.64331245422363,
+        "error": "Low confidence (0.65)",
+        "expected_source": "llm",
+        "note": "隐含天气，缺位置",
+        "case_id": "get_weather_8"
+      },
+      {
+        "query": "需要穿什么",
+        "tool": "web_search",
+        "params": {
+          "query": "需要穿什么"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 378.8459300994873,
+        "error": null,
+        "expected_source": "llm",
+        "note": "穿衣→天气",
+        "case_id": "get_weather_9"
+      },
+      {
+        "query": "会不会下雨",
+        "tool": "get_weather",
+        "params": {
+          "location": "会下雨"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 357.8341007232666,
+        "error": null,
+        "expected_source": "llm",
+        "note": "隐含天气，缺位置",
+        "case_id": "get_weather_10"
+      }
+    ],
+    "web_search": [
+      {
+        "query": "什么是人工智能",
+        "tool": "web_search",
+        "params": {
+          "query": "什么是人工智能"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 351.3610363006592,
+        "error": null,
+        "expected_source": "llm",
+        "note": "知识查询",
+        "case_id": "web_search_1"
+      },
+      {
+        "query": "如何学习编程",
+        "tool": "web_search",
+        "params": {
+          "query": "如何学习编程"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 373.8970756530762,
+        "error": null,
+        "expected_source": "llm",
+        "note": "方法查询",
+        "case_id": "web_search_2"
+      },
+      {
+        "query": "Python教程",
+        "tool": "web_search",
+        "params": {
+          "query": "Python教程"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 349.30992126464844,
+        "error": null,
+        "expected_source": "llm",
+        "note": "教程查询",
+        "case_id": "web_search_3"
+      },
+      {
+        "query": "最新科技新闻",
+        "tool": "get_news",
+        "params": {
+          "query": "最新科技新闻"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 374.7141361236572,
+        "error": null,
+        "expected_source": "llm",
+        "note": "新闻查询",
+        "case_id": "web_search_4"
+      },
+      {
+        "query": "北京有什么好玩的",
+        "tool": "find_nearby",
+        "params": {
+          "city": "北京",
+          "category": "景点"
+        },
+        "confidence": 0.9,
+        "source": "rule",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 0.02574920654296875,
+        "error": null,
+        "expected_source": "llm",
+        "note": "推荐查询",
+        "case_id": "web_search_5"
+      },
+      {
+        "query": "帮我查一下",
+        "tool": "web_search",
+        "params": {
+          "query": "什么"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 354.2630672454834,
+        "error": null,
+        "expected_source": "llm",
+        "note": "极度模糊",
+        "case_id": "web_search_6"
+      },
+      {
+        "query": "查询一下",
+        "tool": "web_search",
+        "params": {
+          "query": "查询一下"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 351.102352142334,
+        "error": null,
+        "expected_source": "llm",
+        "note": "极度模糊",
+        "case_id": "web_search_7"
+      },
+      {
+        "query": "我想了解",
+        "tool": "web_search",
+        "params": {
+          "query": "什么是人工智能"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 365.7987117767334,
+        "error": null,
+        "expected_source": "llm",
+        "note": "缺了解内容",
+        "case_id": "web_search_8"
+      },
+      {
+        "query": "给我推荐一下",
+        "tool": "web_search",
+        "params": {
+          "query": "推荐"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 346.4832305908203,
+        "error": null,
+        "expected_source": "llm",
+        "note": "缺推荐内容",
+        "case_id": "web_search_9"
+      },
+      {
+        "query": "是什么",
+        "tool": "web_search",
+        "params": {
+          "query": "是什么"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 328.326940536499,
+        "error": null,
+        "expected_source": "llm",
+        "note": "缺主语",
+        "case_id": "web_search_10"
+      }
+    ],
+    "get_news": [
+      {
+        "query": "最近有什么大事",
+        "tool": "get_news",
+        "params": {
+          "query": "最近有什么大事"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 369.5039749145508,
+        "error": null,
+        "expected_source": "llm",
+        "note": "隐含新闻",
+        "case_id": "get_news_1"
+      },
+      {
+        "query": "今天发生了什么",
+        "tool": "get_news",
+        "params": {
+          "query": "今天发生了什么"
+        },
+        "confidence": 0.65,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 375.87594985961914,
+        "error": "Low confidence (0.65)",
+        "expected_source": "llm",
+        "note": "隐含新闻",
+        "case_id": "get_news_2"
+      },
+      {
+        "query": "有什么热点",
+        "tool": "get_news",
+        "params": {
+          "query": "热点"
+        },
+        "confidence": 0.65,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 335.97588539123535,
+        "error": "Low confidence (0.65)",
+        "expected_source": "llm",
+        "note": "隐含新闻",
+        "case_id": "get_news_3"
+      },
+      {
+        "query": "最新消息",
+        "tool": "get_news",
+        "params": {
+          "query": "最新消息"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 348.8268852233887,
+        "error": null,
+        "expected_source": "llm",
+        "note": "隐含新闻",
+        "case_id": "get_news_4"
+      },
+      {
+        "query": "科技新闻",
+        "tool": "get_news",
+        "params": {
+          "query": "科技新闻"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 352.95891761779785,
+        "error": null,
+        "expected_source": "llm",
+        "note": "明确新闻",
+        "case_id": "get_news_5"
+      },
+      {
+        "query": "新闻",
+        "tool": "get_news",
+        "params": {
+          "query": "新闻"
+        },
+        "confidence": 0.4,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 341.3987159729004,
+        "error": "Low confidence (0.40)",
+        "expected_source": "llm",
+        "note": "单字，缺主题",
+        "case_id": "get_news_6"
+      },
+      {
+        "query": "今天的新闻",
+        "tool": "get_news",
+        "params": {
+          "query": "今天的新闻"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 355.3447723388672,
+        "error": null,
+        "expected_source": "llm",
+        "note": "缺主题",
+        "case_id": "get_news_7"
+      },
+      {
+        "query": "国际新闻",
+        "tool": "get_news",
+        "params": {
+          "query": "国际新闻"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 358.17694664001465,
+        "error": null,
+        "expected_source": "llm",
+        "note": "明确类别",
+        "case_id": "get_news_8"
+      },
+      {
+        "query": "财经新闻",
+        "tool": "get_news",
+        "params": {
+          "query": "财经新闻"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 348.9539623260498,
+        "error": null,
+        "expected_source": "llm",
+        "note": "明确类别",
+        "case_id": "get_news_9"
+      },
+      {
+        "query": "体育新闻",
+        "tool": "get_news",
+        "params": {
+          "query": "体育新闻"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 357.35273361206055,
+        "error": null,
+        "expected_source": "llm",
+        "note": "明确类别",
+        "case_id": "get_news_10"
+      }
+    ],
+    "get_stock": [
+      {
+        "query": "科技公司的表现",
+        "tool": "get_stock",
+        "params": {
+          "symbol": "TSLA"
+        },
+        "confidence": 0.65,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 362.3528480529785,
+        "error": "Low confidence (0.65)",
+        "expected_source": "llm",
+        "note": "隐含股票",
+        "case_id": "get_stock_1"
+      },
+      {
+        "query": "最近股市怎么样",
+        "tool": "get_stock",
+        "params": {
+          "symbol": "股市"
+        },
+        "confidence": 0.65,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 354.931116104126,
+        "error": "Low confidence (0.65)",
+        "expected_source": "llm",
+        "note": "隐含股票",
+        "case_id": "get_stock_2"
+      },
+      {
+        "query": "市场行情",
+        "tool": "get_stock",
+        "params": {
+          "query": "市场行情"
+        },
+        "confidence": 0.5,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 357.4559688568115,
+        "error": "Low confidence (0.50)",
+        "expected_source": "llm",
+        "note": "隐含股票",
+        "case_id": "get_stock_3"
+      },
+      {
+        "query": "苹果股价",
+        "tool": "get_stock",
+        "params": {
+          "symbol": "AAPL"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 350.64125061035156,
+        "error": null,
+        "expected_source": "llm",
+        "note": "明确股票",
+        "case_id": "get_stock_4"
+      },
+      {
+        "query": "特斯拉股票",
+        "tool": "get_stock",
+        "params": {
+          "symbol": "TSLA"
+        },
+        "confidence": 0.85,
+        "source": "llm",
+        "needs_clarification": false,
+        "success": true,
+        "latency_ms": 364.0308380126953,
+        "error": null,
+        "expected_source": "llm",
+        "note": "明确股票",
+        "case_id": "get_stock_5"
+      },
+      {
+        "query": "股票",
+        "tool": "get_stock",
+        "params": {
+          "symbol": "AAPL"
+        },
+        "confidence": 0.4,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 347.6390838623047,
+        "error": "Low confidence (0.40)",
+        "expected_source": "llm",
+        "note": "单字，缺代码",
+        "case_id": "get_stock_6"
+      },
+      {
+        "query": "股价",
+        "tool": "get_stock",
+        "params": {
+          "symbol": "股价"
+        },
+        "confidence": 0.4,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 335.4482650756836,
+        "error": "Low confidence (0.40)",
+        "expected_source": "llm",
+        "note": "缺代码",
+        "case_id": "get_stock_7"
+      },
+      {
+        "query": "A股",
+        "tool": "get_stock",
+        "params": {
+          "symbol": "A股"
+        },
+        "confidence": 0.4,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 359.9200248718262,
+        "error": "Low confidence (0.40)",
+        "expected_source": "llm",
+        "note": "缺具体股票",
+        "case_id": "get_stock_8"
+      },
+      {
+        "query": "港股",
+        "tool": "get_stock",
+        "params": {
+          "symbol": "HK"
+        },
+        "confidence": 0.4,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 337.871789932251,
+        "error": "Low confidence (0.40)",
+        "expected_source": "llm",
+        "note": "缺具体股票",
+        "case_id": "get_stock_9"
+      },
+      {
+        "query": "美股",
+        "tool": "get_stock",
+        "params": {
+          "symbol": "US"
+        },
+        "confidence": 0.4,
+        "source": "llm_low_confidence",
+        "needs_clarification": true,
+        "success": false,
+        "latency_ms": 332.60202407836914,
+        "error": "Low confidence (0.40)",
+        "expected_source": "llm",
+        "note": "缺具体股票",
+        "case_id": "get_stock_10"
+      }
+    ]
+  }
+}

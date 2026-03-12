@@ -2,21 +2,26 @@
 
 ## 核心理念
 
-**80/20 原则**：规则解决 80% 高频场景，LLM 兜底 20% 长尾需求
+**设计理念**：规则优先处理高频场景，LLM 兜底长尾需求（动态决策，非固定比例）
 
 ### 设计哲学
 
 ```
-高频场景（80%）→ 规则处理 → 快速、准确、低成本
-复杂场景（15%）→ 规则 + LLM → 平衡性能和体验
-长尾场景（5%） → 纯 LLM → 保证覆盖率
+高频简单场景 → 规则处理 → 快速、准确、低成本
+复杂推荐场景 → 规则 + LLM → 平衡性能和体验
+长尾特殊场景 → 纯 LLM → 保证覆盖率
 ```
 
 ### 三大收益
 
-1. **性能**：规则处理延迟 < 100ms，LLM 需要 500-2000ms
+1. **性能**：规则处理延迟 < 100ms，LLM 需要 500-1500ms（单节点不超1500ms）
 2. **成本**：规则零成本，LLM 每次调用消耗 token
 3. **稳定性**：规则确定性输出，LLM 存在幻觉风险
+
+### 规则处理的质量要求
+
+1. **自然流畅**：使用多样化模板，避免机械感话术
+2. **结果优化**：对API返回的候选结果进行排序rerank
 
 ---
 
@@ -33,7 +38,7 @@
     ↓
 [3] 工具调用与结果获取（Tool Execution）
     ↓
-[4] 结果后处理（Post-Processing）
+[4] 结果后处理（Post-Processing: Rerank + Template）
     ↓
 最终响应
 ```
@@ -43,7 +48,7 @@
 **目标**：从自然语言提取结构化字段
 
 **策略**：
-- 规则优先：正则表达式 + 词典匹配（覆盖 80% 高频 pattern）
+- 规则优先：正则表达式 + 词典匹配（覆盖高频 pattern）
 - LLM 兜底：规则提取不完整时，LLM 补全缺失字段
 
 **通用模式**：
@@ -63,12 +68,6 @@ def parse_intent(query: str, tool_name: str) -> Intent:
     return intent
 ```
 
-**适用场景**：
-- Location：城市、地点、品牌、类别、排序
-- Stock：股票代码、公司名、指数
-- Weather：城市、日期、指标类型
-- Search：关键词、时间范围、来源
-
 ---
 
 ### 阶段 2：参数补全与验证
@@ -76,50 +75,9 @@ def parse_intent(query: str, tool_name: str) -> Intent:
 **目标**：确保工具调用参数完整且合法
 
 **策略**：
-- 别名映射：通俗名 → 标准名（鸟巢 → 国家体育场）
-- 默认值填充：缺失非必填字段时使用合理默认值
+- 必填字段验证：缺失时返回错误，要求用户补充
 - 格式标准化：统一日期、数字、枚举格式
-
-**通用模式**：
-```python
-def complete_and_validate(intent: Intent, tool_name: str) -> dict[str, Any]:
-    """通用参数补全与验证"""
-    # 1. 别名解析
-    params = resolve_aliases(intent, tool_name)
-    
-    # 2. 默认值填充
-    params = fill_defaults(params, tool_name)
-    
-    # 3. 格式标准化
-    params = normalize_format(params, tool_name)
-    
-    # 4. 必填字段验证
-    missing = validate_required(params, tool_name)
-    if missing:
-        raise MissingFieldsError(missing)
-    
-    return params
-```
-
-**词典管理**：
-```python
-# 通用别名词典结构
-ALIAS_DICTIONARIES = {
-    "location": {
-        "landmarks": {"鸟巢": "国家体育场", ...},
-        "brands": {"711": "7-11", ...},
-        "categories": {"便利店": "购物服务;便利店", ...}
-    },
-    "stock": {
-        "companies": {"茅台": "600519.SS", "京东": "JD", ...},
-        "indices": {"上证": "000001.SS", "深证": "399001.SZ", ...}
-    },
-    "weather": {
-        "cities": {"帝都": "北京", "魔都": "上海", ...},
-        "indicators": {"穿衣": "dressing_index", ...}
-    }
-}
-```
+- 注意：使用高德MCP接口，不直接调用高德Web API
 
 ---
 
@@ -130,7 +88,7 @@ ALIAS_DICTIONARIES = {
 **策略**：
 - 多跳检索：复杂查询拆分为多次 API 调用
 - 并行调用：独立查询并行执行
-- 降级策略：API 失败时使用 mock 或缓存
+- 错误透传：网络/API错误直接返回给用户，不隐藏
 
 **通用模式**：
 ```python
@@ -146,38 +104,34 @@ def execute_tool(tool_name: str, params: dict) -> ToolResult:
         
         return ToolResult(ok=True, data=result)
     
-    except NetworkError:
-        # 3. 降级策略
-        return fallback_strategy(tool_name, params)
-```
-
-**多跳检索示例（Location）**：
-```python
-def execute_multi_hop_location(params: dict) -> ToolResult:
-    """两跳检索：先定位锚点，再搜周边"""
-    # 跳 1：定位锚点 POI
-    anchor = search_anchor(params["anchor_poi"], params["city"])
+    except NetworkError as e:
+        # 3. 错误透传给用户
+        return ToolResult(
+            ok=False,
+            error=f"网络错误：{e.message}",
+            error_type="network_error"
+        )
     
-    # 跳 2：周边搜索目标
-    results = search_around(
-        location=anchor.location,
-        keyword=params["keyword"],
-        radius=1000
-    )
-    
-    return ToolResult(ok=True, data=results, anchor=anchor)
+    except APIError as e:
+        # 4. API错误透传
+        return ToolResult(
+            ok=False,
+            error=f"服务暂时不可用：{e.message}",
+            error_type="api_error"
+        )
 ```
 
 ---
 
-### 阶段 4：结果后处理
+### 阶段 4：结果后处理（Rerank + Template）
 
 **目标**：优化结果质量和用户体验
 
 **策略**：
 - 规则过滤：移除噪声数据
-- 规则排序：按用户意图重排序
+- 规则排序：按用户意图重排序（Rerank）
 - 规则聚合：多源结果合并去重
+- 模板输出：使用多样化模板，自然流畅
 - LLM 润色：复杂场景用 LLM 生成自然语言
 
 **通用模式**：
@@ -191,7 +145,7 @@ def post_process(
     # 1. 规则过滤（责任链模式）
     filtered = apply_filters(results, intent, tool_name)
     
-    # 2. 规则排序（策略模式）
+    # 2. 规则排序（策略模式 - Rerank）
     sorted_results = apply_sorting(filtered, intent, tool_name)
     
     # 3. 数量控制
@@ -201,12 +155,17 @@ def post_process(
     if should_use_llm_polish(intent, tool_name, final):
         text = llm_polish(final, intent, tool_name)
     else:
+        # 5. 模板填槽（多样化模板，避免机械感）
         text = format_by_template(final, intent, tool_name)
+        
+        # 6. 模板失败降级：直接返回API结果
+        if not text:
+            text = format_api_raw(final)
     
     return ProcessedResult(data=final, text=text)
 ```
 
-**责任链过滤器**：
+**责任链过滤器示例**：
 ```python
 class ResultProcessor(ABC):
     """结果处理器基类"""
@@ -216,7 +175,7 @@ class ResultProcessor(ABC):
     def process(self, results: list[dict], intent: Intent) -> list[dict]:
         pass
 
-# 具体过滤器示例
+# 具体过滤器
 class BrandFilter(ResultProcessor):
     """品牌过滤器"""
     priority = 10
@@ -227,13 +186,38 @@ class BrandFilter(ResultProcessor):
         return [r for r in results if intent.brand in r["name"]]
 
 class DistanceSorter(ResultProcessor):
-    """距离排序器"""
+    """距离排序器（Rerank）"""
     priority = 50
     
     def process(self, results: list[dict], intent: Intent) -> list[dict]:
         if intent.sort_by != "distance":
             return results
         return sorted(results, key=lambda r: r.get("distance", 999999))
+```
+
+**多样化模板示例**：
+```python
+def format_by_template(results: list[dict], intent: Intent, tool_name: str) -> str:
+    """使用随机模板填槽，避免机械感"""
+    templates = get_templates(tool_name, intent)
+    
+    # 随机选择一个模板
+    template = random.choice(templates)
+    
+    try:
+        # 尝试填槽
+        return template.format(**extract_fields(results, intent))
+    except KeyError:
+        # 填槽失败，返回空（触发降级）
+        return ""
+
+# 天气场景模板示例
+WEATHER_TEMPLATES = [
+    "{city}今天{weather}，气温{temp}",
+    "{city}当前{weather}，温度{temp}，{suggestion}",
+    "今天{city}{weather}，{temp}，{suggestion}",
+    "{city}的天气是{weather}，{temp}左右"
+]
 ```
 
 ---
@@ -249,9 +233,10 @@ query = "北京今天天气"
 intent = WeatherIntent(city="北京", date="今天")
 result = {"city": "北京", "temp": "15°C", "weather": "晴"}
 
-# 规则模板直出
-text = f"{result['city']}今天{result['weather']}，气温{result['temp']}"
-# 输出："北京今天晴，气温15°C"
+# 随机模板填槽
+templates = WEATHER_TEMPLATES
+text = random.choice(templates).format(**result)
+# 输出："北京今天晴，气温15°C" 或 "今天北京晴，15°C左右"
 ```
 
 **场景 2：单一结果 + 明确意图**
@@ -261,96 +246,66 @@ query = "茅台股价"
 intent = StockIntent(target="600519.SS")
 result = {"name": "贵州茅台", "price": "1680.50", "change": "+2.3%"}
 
-# 规则模板直出
-text = f"{result['name']}最新价{result['price']}，涨幅{result['change']}"
+# 随机模板填槽
+templates = STOCK_TEMPLATES
+text = random.choice(templates).format(**result)
 # 输出："贵州茅台最新价1680.50，涨幅+2.3%"
-```
-
-**判断条件**：
-```python
-def should_skip_llm(intent: Intent, results: list[dict], tool_name: str) -> bool:
-    """判断是否跳过 LLM 后处理"""
-    # 1. 结果为空或错误 → 需要 LLM 解释
-    if not results or results[0].get("error"):
-        return False
-    
-    # 2. 单一结果 + 简单意图 → 跳过 LLM
-    if len(results) == 1 and intent.is_simple():
-        return True
-    
-    # 3. 结果已足够简洁（< 200 字符）→ 跳过 LLM
-    text = format_by_template(results, intent, tool_name)
-    if len(text) < 200:
-        return True
-    
-    # 4. 高频工具 + 标准格式 → 跳过 LLM
-    if tool_name in {"get_weather", "get_stock"} and is_standard_format(results):
-        return True
-    
-    return False
 ```
 
 ### 何时使用 LLM（润色增强）
 
-**场景 1：多结果推荐**
+**场景 1：推荐类查询（主观判断）**
 ```python
 # 示例：附近餐厅推荐
-query = "鸟巢附近好吃的餐厅"
+query = "鸟巢附近推荐好吃的餐厅"
 results = [
     {"name": "左庭右院", "rating": 4.8, "price": 150},
     {"name": "海底捞", "rating": 4.6, "price": 120},
-    {"name": "外婆家", "rating": 4.5, "price": 80}
 ]
 
-# 需要 LLM 生成推荐语
-# 输出："在国家体育场附近，推荐您去左庭右院，评分4.8分，人均150元，
-#       口碑很好。如果想吃火锅，海底捞也是不错的选择。"
+# 必须使用 LLM（涉及主观推荐）
+# 输出："在国家体育场附近，推荐您去左庭右院，评分4.8分..."
 ```
 
-**场景 2：复杂对比**
+**场景 2：对比类查询**
 ```python
 # 示例：多股票对比
 query = "茅台和五粮液哪个更值得买"
-results = [
-    {"name": "贵州茅台", "price": 1680, "pe": 35, "roe": 28},
-    {"name": "五粮液", "price": 180, "pe": 28, "roe": 25}
-]
+results = [...]
 
-# 需要 LLM 生成对比分析
-# 输出："贵州茅台和五粮液都是白酒龙头，茅台估值较高但盈利能力更强，
-#       五粮液性价比更好。建议根据您的风险偏好选择。"
+# 必须使用 LLM（涉及对比分析）
 ```
 
-**场景 3：长文本摘要**
+**场景 3：解释类查询**
 ```python
-# 示例：新闻搜索
-query = "今天科技新闻"
-results = [
-    {"title": "...", "content": "500字新闻正文..."},
-    {"title": "...", "content": "600字新闻正文..."}
-]
+# 示例：为什么涨了
+query = "茅台为什么涨了"
 
-# 需要 LLM 提取关键信息并摘要
+# 必须使用 LLM（需要解释）
 ```
 
 **判断条件**：
 ```python
 def should_use_llm(intent: Intent, results: list[dict], tool_name: str) -> bool:
     """判断是否使用 LLM 后处理"""
-    # 1. 多结果需要推荐 → 使用 LLM
-    if len(results) > 3 and intent.requires_recommendation():
+    # 1. 涉及"推荐"等主观需求 → 必须使用 LLM
+    if intent.requires_recommendation():
         return True
     
     # 2. 对比类查询 → 使用 LLM
     if intent.query_type == "comparison":
         return True
     
-    # 3. 长文本需要摘要 → 使用 LLM
+    # 3. 解释类查询 → 使用 LLM
+    if intent.requires_explanation():
+        return True
+    
+    # 4. 长文本需要摘要 → 使用 LLM
     total_length = sum(len(str(r)) for r in results)
     if total_length > 1000:
         return True
     
-    # 4. 新闻/搜索类工具 → 使用 LLM
+    # 5. 新闻/搜索类工具 → 使用 LLM
     if tool_name in {"get_news", "web_search"}:
         return True
     
@@ -369,39 +324,46 @@ TOOL_OPTIMIZATION_CONFIG = {
         "use_intent_parsing": True,
         "use_multi_hop": True,
         "use_result_rerank": True,
-        "skip_llm_threshold": 0.8,  # 80% 场景跳过 LLM
+        "use_template_response": True,  # 优先使用模板
         "llm_timeout_sec": 10,
+        "max_llm_time_ms": 1500,  # 单节点不超1500ms
     },
     "get_weather": {
         "use_intent_parsing": True,
         "use_multi_hop": False,
         "use_result_rerank": False,
-        "skip_llm_threshold": 0.9,  # 90% 场景跳过 LLM
+        "use_template_response": True,  # 优先使用模板
         "llm_timeout_sec": 6,
+        "max_llm_time_ms": 1500,
     },
     "get_stock": {
         "use_intent_parsing": True,
         "use_multi_hop": False,
         "use_result_rerank": True,  # 需要按涨跌幅排序
-        "skip_llm_threshold": 0.85,
+        "use_template_response": True,  # 优先使用模板
         "llm_timeout_sec": 6,
+        "max_llm_time_ms": 1500,
     },
     "get_news": {
         "use_intent_parsing": True,
         "use_multi_hop": False,
         "use_result_rerank": True,
-        "skip_llm_threshold": 0.2,  # 80% 场景需要 LLM 摘要
-        "llm_timeout_sec": 16,
+        "use_template_response": False,  # 必须LLM摘要
+        "llm_timeout_sec": 15,
+        "max_llm_time_ms": 1500,
     },
     "web_search": {
         "use_intent_parsing": True,
         "use_multi_hop": False,
         "use_result_rerank": True,
-        "skip_llm_threshold": 0.3,
+        "use_template_response": False,  # 必须LLM处理
         "llm_timeout_sec": 10,
+        "max_llm_time_ms": 1500,
     },
 }
 ```
+
+**注意**：不再预设固定的"跳过LLM比例"，而是通过动态决策函数判断。
 
 ### 动态决策函数
 
@@ -411,276 +373,97 @@ def should_skip_post_llm(
     intent: Intent,
     results: list[dict]
 ) -> bool:
-    """通用 LLM 跳过决策"""
+    """通用 LLM 跳过决策 - 基于多维度判断"""
     config = TOOL_OPTIMIZATION_CONFIG.get(tool_name, {})
-    threshold = config.get("skip_llm_threshold", 0.5)
     
-    # 计算规则处理置信度
-    confidence = calculate_rule_confidence(intent, results, tool_name)
+    # 1. 工具级强制配置
+    if not config.get("use_template_response", True):
+        # 新闻/搜索类必须用LLM
+        return False
     
-    # 置信度高于阈值 → 跳过 LLM
-    return confidence >= threshold
-
-def calculate_rule_confidence(
-    intent: Intent,
-    results: list[dict],
-    tool_name: str
-) -> float:
-    """计算规则处理置信度"""
-    score = 0.0
+    # 2. 意图类型判断
+    if intent.requires_recommendation():
+        # 推荐类必须用LLM（主观判断）
+        return False
     
-    # 1. 意图完整性（0-0.3）
-    if intent.is_complete():
-        score += 0.3
+    if intent.query_type == "comparison":
+        # 对比类必须用LLM
+        return False
     
-    # 2. 结果质量（0-0.4）
-    if results and len(results) <= 3:
-        score += 0.2
-    if results and all(r.get("confidence", 0) > 0.8 for r in results):
-        score += 0.2
+    if intent.requires_explanation():
+        # 解释类必须用LLM
+        return False
     
-    # 3. 查询复杂度（0-0.3）
-    if intent.query_type == "simple":
-        score += 0.3
-    elif intent.query_type == "moderate":
-        score += 0.15
+    # 3. 结果质量判断
+    if not results or len(results) == 0:
+        # 无结果，需要LLM解释
+        return False
     
-    return min(score, 1.0)
-```
-
----
-
-## 各工具优化路线图
-
-### Location（已实现）
-
-- [x] Query 结构化：城市、地点、品牌、类别、排序
-- [x] 两跳检索：先定位锚点，再搜周边
-- [ ] 结果 Rerank：距离、评分、价格排序
-- [ ] LLM 决策：简单查询跳过，推荐场景使用
-
-### Weather（待优化）
-
-**高频场景**：
-- "北京今天天气" → 规则直出
-- "明天穿什么" → 规则 + 穿衣指数
-- "这周会下雨吗" → 规则 + 7 天预报
-
-**优化方向**：
-```python
-class WeatherIntent:
-    city: str
-    date: str  # 今天/明天/这周
-    indicator: str  # 穿衣/紫外线/空气质量
-    query_type: str  # simple/forecast/index
-```
-
-**Rerank 需求**：
-- 按日期排序（今天 → 明天 → 后天）
-- 过滤无关指数
-- 格式化温度范围
-
-### Stock（待优化）
-
-**高频场景**：
-- "茅台股价" → 规则直出
-- "上证指数" → 规则直出
-- "科技股涨幅榜" → 规则 Rerank + LLM 推荐
-
-**优化方向**：
-```python
-class StockIntent:
-    target: str  # 股票代码/公司名/指数
-    metric: str  # price/change/volume
-    sort_by: str  # change/volume/market_cap
-    query_type: str  # single/ranking/comparison
-```
-
-**Rerank 需求**：
-- 按涨跌幅排序
-- 按成交量排序
-- 过滤停牌股票
-
-### News（待优化）
-
-**高频场景**：
-- "今天新闻" → LLM 摘要（必须）
-- "科技新闻" → LLM 摘要（必须）
-- "某公司最新消息" → LLM 摘要（必须）
-
-**优化方向**：
-```python
-class NewsIntent:
-    topic: str
-    time_range: str  # today/week/month
-    source: str  # all/tech/finance
-    limit: int = 5
-```
-
-**Rerank 需求**：
-- 按时间排序（最新优先）
-- 按相关性排序
-- 去重相似新闻
-
-### Web Search（待优化）
-
-**高频场景**：
-- "某公司官网" → 规则直出第一条
-- "某技术教程" → LLM 摘要
-- "某产品对比" → LLM 对比分析
-
-**优化方向**：
-```python
-class SearchIntent:
-    query: str
-    intent_type: str  # official_site/tutorial/comparison/general
-    limit: int = 5
-```
-
-**Rerank 需求**：
-- 官网优先
-- 按相关性排序
-- 过滤低质量结果
-
----
-
-## 实施原则
-
-### 1. 渐进式优化
-
-```
-Phase 1: Location（已完成）
-    ↓
-Phase 2: Weather + Stock（高频工具）
-    ↓
-Phase 3: News + Search（长文本工具）
-    ↓
-Phase 4: 其他工具
-```
-
-### 2. 数据驱动
-
-- 收集真实用户 query 分布
-- 统计各场景占比
-- 优先优化 Top 20% 高频场景
-
-### 3. 可观测性
-
-```python
-# 记录每次决策
-@dataclass
-class OptimizationMetrics:
-    tool_name: str
-    intent_confidence: float
-    rule_applied: bool
-    llm_skipped: bool
-    latency_ms: int
-    user_satisfaction: float  # 用户反馈
-```
-
-### 4. A/B 测试
-
-- 规则版 vs LLM 版
-- 对比延迟、成本、满意度
-- 动态调整 `skip_llm_threshold`
-
----
-
-## 成功指标
-
-| 指标 | 当前 | 目标 | 备注 |
-|------|------|------|------|
-| 规则覆盖率 | 40% | 80% | 高频场景规则处理占比 |
-| LLM 调用率 | 60% | 20% | 降低 LLM 依赖 |
-| P95 延迟 | 2000ms | 800ms | 规则快速路径 |
-| 用户满意度 | 75% | 90% | 准确性 + 速度 |
-| 月度成本 | ¥5000 | ¥1500 | LLM token 成本 |
-
----
-
-## 附录：代码模板
-
-### 通用 Intent 基类
-
-```python
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Any
-
-@dataclass
-class BaseIntent(ABC):
-    """通用意图基类"""
-    raw_query: str = ""
-    confidence: float = 1.0
-    extraction_source: str = "rule"  # rule | llm | hybrid
-    
-    @abstractmethod
-    def is_complete(self) -> bool:
-        """判断意图是否完整"""
-        pass
-    
-    @abstractmethod
-    def to_tool_args(self) -> dict[str, Any]:
-        """转换为工具参数"""
-        pass
-    
-    def is_simple(self) -> bool:
-        """判断是否为简单查询"""
-        # 子类可重写
+    # 4. 模板可用性判断
+    if can_fill_template(results, intent, tool_name):
+        # 模板能填槽，跳过LLM
         return True
-```
+    
+    # 5. 默认：使用LLM
+    return False
 
-### 通用 Parser 模板
-
-```python
-def parse_intent_generic(
-    query: str,
-    tool_name: str,
-    intent_class: type[BaseIntent]
-) -> BaseIntent:
-    """通用意图解析模板"""
-    # 1. 规则提取
-    intent = extract_by_rules(query, tool_name, intent_class)
+def can_fill_template(results: list[dict], intent: Intent, tool_name: str) -> bool:
+    """判断模板是否能成功填槽"""
+    templates = get_templates(tool_name, intent)
+    if not templates:
+        return False
     
-    # 2. 完整性检查
-    if intent.is_complete() and intent.confidence > 0.8:
-        return intent
+    # 检查必填字段是否存在
+    required_fields = get_required_fields(tool_name)
+    for field in required_fields:
+        if not any(field in r for r in results):
+            return False
     
-    # 3. LLM 补全
-    intent = complete_by_llm(query, intent, tool_name)
-    intent.extraction_source = "hybrid"
-    
-    return intent
-```
-
-### 通用 Processor 链
-
-```python
-class ProcessorChain:
-    """结果处理器链"""
-    
-    def __init__(self):
-        self.processors: list[ResultProcessor] = []
-    
-    def register(self, processor: ResultProcessor):
-        """注册处理器"""
-        self.processors.append(processor)
-        self.processors.sort(key=lambda p: p.priority)
-    
-    def process(
-        self,
-        results: list[dict],
-        intent: BaseIntent
-    ) -> list[dict]:
-        """执行处理链"""
-        for processor in self.processors:
-            results = processor.process(results, intent)
-        return results
+    return True
 ```
 
 ---
 
-**文档版本**：v1.0  
+## 实施计划
+
+### Phase 1：Result Rerank 模块（当前任务）
+
+**目标**：实现结果后处理的 Rerank 功能
+
+**任务**：
+1. 创建 `agent_service/domain/location/result_processor.py`
+2. 实现 `ResultProcessor` 基类
+3. 实现具体策略：
+   - `DistanceSorter`：按距离排序
+   - `RatingSorter`：按评分排序
+   - `BrandFilter`：品牌过滤
+   - `TopNSelector`：数量控制
+4. 实现 `ResultProcessorChain` 责任链管理器
+5. 在 `mcp_gateway_v2.py` 中集成调用
+6. 编写测试用例
+
+### Phase 2：Template Response 模块
+
+**目标**：实现多样化模板输出
+
+**任务**：
+1. 创建模板管理模块
+2. 为每个工具定义多样化模板
+3. 实现随机模板选择和填槽
+4. 实现降级策略
+
+### Phase 3：LLM Decision 模块
+
+**目标**：实现动态 LLM 决策
+
+**任务**：
+1. 实现意图类型识别
+2. 实现 `should_skip_post_llm` 决策函数
+3. 集成到 `chat_flow.py`
+
+---
+
+**文档版本**：v2.0  
 **创建日期**：2026-03-03  
 **适用范围**：所有工具优化（Location, Weather, Stock, News, Search）  
 **维护者**：Kiro AI Assistant

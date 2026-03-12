@@ -33,7 +33,7 @@ else:
 from infra.tool_clients.provider_chain import ProviderChainManager
 from infra.tool_clients.provider_config import load_provider_configs
 from infra.tool_clients.providers.baidu_news_provider import BaiduNewsProvider
-from infra.tool_clients.providers.sina_news_provider import SinaNewsProvider
+from infra.tool_clients.providers.news_provider import SinaNewsProvider
 from infra.tool_clients.providers.tavily_provider import TavilyProvider
 
 

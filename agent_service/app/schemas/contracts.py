@@ -35,6 +35,7 @@ class ChatResponse:
     tool_provider: str | None = None
     tool_error: str | None = None
     fallback_chain: list[str] = field(default_factory=list)
+    result_quality: str = "none"  # "real" | "fallback_llm" | "fallback_search" | "rule" | "none"
     post_llm_applied: bool = False
     post_llm_timeout: bool = False
     missing_slots: list[str] = field(default_factory=list)

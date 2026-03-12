@@ -17,6 +17,7 @@ from app.policies.pre_rules import (
 from app.policies.boundary_response import get_boundary_reply
 from app.schemas.contracts import ChatRequest, ChatResponse
 from domain.intents.router import RouteDecision, route_query
+from domain.intents.router_4b_with_logprobs import Router4BWithLogprobs
 from domain.tools.executor import ToolExecutor
 from domain.tools.planner import (
     ToolPlan,
@@ -68,6 +69,18 @@ TOOL_POST_PROMPT_SEARCH = (
     "- 禁止编造搜索结果中没有的信息\n"
     "- 禁止添加未经验证的数据\n"
     "- 禁止输出超过150字的回复"
+)
+TOOL_POST_PROMPT_NEWS = (
+    "你是新闻播报助手。请将新闻结果转化为简洁的播报。\n\n"
+    "### 任务要求 ###\n"
+    "1. 列表展示：用序号列出3-5条新闻，每条1句话概括\n"
+    "2. 去重：如果多条新闻讲同一件事，只保留最新的一条\n"
+    "3. 精简：每条新闻不超过30字，总字数不超过150字\n"
+    "4. 时效性：优先展示最新的新闻\n\n"
+    "### 禁止行为 ###\n"
+    "- 禁止重复相同的新闻内容\n"
+    "- 禁止编造新闻\n"
+    "- 禁止输出超过150字"
 )
 
 ROUTER_PROMPT = (
@@ -174,13 +187,20 @@ class ChatFlow:
         self.tool_post_llm_timeout_sec = float(os.getenv("TOOL_POST_LLM_TIMEOUT_SEC", "18"))
         self.tool_post_llm_timeout_stock_sec = float(os.getenv("TOOL_POST_LLM_TIMEOUT_STOCK_SEC", "6"))
         self.tool_post_llm_timeout_weather_sec = float(os.getenv("TOOL_POST_LLM_TIMEOUT_WEATHER_SEC", "6"))
-        self.tool_post_llm_timeout_news_sec = float(os.getenv("TOOL_POST_LLM_TIMEOUT_NEWS_SEC", "16"))
+        self.tool_post_llm_timeout_news_sec = float(os.getenv("TOOL_POST_LLM_TIMEOUT_NEWS_SEC", "10"))  # 从30秒降到10秒
         self.tool_post_llm_timeout_search_sec = float(os.getenv("TOOL_POST_LLM_TIMEOUT_SEARCH_SEC", "5"))  # 从10秒降到5秒
         self.use_llm_router = os.getenv("USE_LLM_ROUTER", "true").strip().lower() == "true"
         self.route_timeout_sec = float(os.getenv("ROUTE_LLM_TIMEOUT_SEC", "8"))
         self.extract_timeout_sec = float(os.getenv("EXTRACT_LLM_TIMEOUT_SEC", "8"))
         self.fast_route_hint = os.getenv("FAST_ROUTE_HINT", "false").strip().lower() == "true"
         self.use_route_override = os.getenv("USE_ROUTE_OVERRIDE", "true").strip().lower() == "true"
+        self.use_4b_router = os.getenv("USE_4B_ROUTER", "true").strip().lower() == "true"
+        
+        # 初始化4B router（如果启用）
+        if self.use_4b_router:
+            self.router_4b = Router4BWithLogprobs(llm_client=llm_client)
+        else:
+            self.router_4b = None
 
     def run(self, req: ChatRequest) -> ChatResponse:
         t0 = time.perf_counter()
@@ -271,7 +291,30 @@ class ChatFlow:
         t_route = time.perf_counter()
         route_source = "rule"
         llm_tool_args: dict[str, object] = {}
-        if self.use_llm_router:
+        
+        # 使用4B router（如果启用）
+        if self.use_4b_router and self.router_4b:
+            router_result = self.router_4b.route(effective_query)
+            
+            # 转换为RouteDecision格式
+            if router_result.get("tool") is None:
+                # 纯闲聊，tool=None
+                route = RouteDecision("reply", _knowledge_probs(), tool_name=None)
+                route_source = "4b_casual_chat"
+            elif router_result.get("success"):
+                # 成功路由
+                route = RouteDecision(
+                    "tool_call",
+                    _realtime_probs(router_result["tool"]),
+                    tool_name=router_result["tool"]
+                )
+                llm_tool_args = router_result.get("params", {})
+                route_source = router_result.get("source", "4b_router")
+            else:
+                # 失败，降级到reply
+                route = RouteDecision("reply", _knowledge_probs(), tool_name=None)
+                route_source = "4b_fallback"
+        elif self.use_llm_router:
             fast_rule = route_query(effective_query)
             if self.fast_route_hint and fast_rule.decision_mode == "tool_call" and fast_rule.tool_name in ALLOWED_TOOLS:
                 route = fast_rule
@@ -287,6 +330,28 @@ class ChatFlow:
         else:
             route = route_query(effective_query)
         route_ms = int((time.perf_counter() - t_route) * 1000)
+
+        # 2.5) 纯闲聊检测：如果tool=None，直接用LLM回复
+        if route.tool_name is None:
+            t1 = time.perf_counter()
+            text = self.llm_client.generate(user_query=effective_query, system_prompt=SYSTEM_PROMPT)
+            llm_ms = int((time.perf_counter() - t1) * 1000)
+            
+            resp = ChatResponse(
+                query=req.query,
+                effective_query=effective_query,
+                rewritten=int(rw.rewritten),
+                rewrite_source=rw.source,
+                route_source=route_source,
+                intent_probs=route.intent_probs,
+                decision_mode="reply",
+                final_text=text,
+            )
+            resp.latency_ms.llm = llm_ms
+            resp.latency_ms.router = route_ms
+            resp.latency_ms.total = int((time.perf_counter() - t0) * 1000)
+            self._persist_context(req=req, resp=resp)
+            return resp
 
         # 3) tool path
         if route.decision_mode == "tool_call" and route.tool_name:
@@ -368,6 +433,7 @@ class ChatFlow:
                 tool_provider=_infer_tool_provider(tool_result.raw),
                 tool_error=tool_result.error,
                 fallback_chain=_infer_fallback_chain(tool_result.raw),
+                result_quality=_infer_result_quality(tool_result, route_source),
                 post_llm_applied=post_llm_applied,
                 post_llm_timeout=post_llm_timeout,
                 final_text=final_text,
@@ -510,7 +576,7 @@ def _tool_post_input(
     # M5.3: 对 get_news 使用 Content Rewriter 清理噪声
     if tool_name == "get_news":
         try:
-            from infra.tool_clients.content_rewriter import ContentRewriter, RewriteConfig
+            from agent_service.infra.tool_clients.content_rewriter import ContentRewriter, RewriteConfig
             rewriter = ContentRewriter(
                 llm_client=llm_client,  # 使用传入的LLM客户端
                 config=RewriteConfig(enable_llm=True, temperature=0.3, timeout_sec=5.0)
@@ -518,7 +584,8 @@ def _tool_post_input(
             tool_text = rewriter.rewrite_news(tool_text)
         except Exception as e:
             # 清理失败，使用原始内容
-            print(f"Content rewriter failed: {e}")
+            import sys
+            print(f"Content rewriter failed: {e}", file=sys.stderr)
     
     # 对 web_search 进行特殊优化：精简输入
     if tool_name == "web_search":
@@ -565,12 +632,34 @@ def _tool_post_input(
     )
 
 
-def _realtime_probs() -> dict[str, float]:
-    return {"1": 0.02, "2": 0.03, "3": 0.02, "4": 0.02, "5": 0.04, "6": 0.88, "7": 0.02}
+def _realtime_probs(tool_name: str | None = None) -> dict[str, float]:
+    """
+    意图概率分布（工具调用场景）
+    
+    意图ID映射：
+    1 = get_weather (天气查询)
+    2 = get_news (新闻查询)
+    3 = get_stock (股票查询)
+    4 = find_nearby (附近查询)
+    5 = plan_trip (旅游规划)
+    6 = web_search (网络搜索)
+    """
+    return {"1": 0.15, "2": 0.15, "3": 0.15, "4": 0.15, "5": 0.15, "6": 0.25}
 
 
 def _knowledge_probs() -> dict[str, float]:
-    return {"1": 0.05, "2": 0.25, "3": 0.45, "4": 0.1, "5": 0.05, "6": 0.05, "7": 0.05}
+    """
+    意图概率分布（纯闲聊/LLM回复场景）
+    
+    意图ID映射：
+    1 = get_weather (天气查询)
+    2 = get_news (新闻查询)
+    3 = get_stock (股票查询)
+    4 = find_nearby (附近查询)
+    5 = plan_trip (旅游规划)
+    6 = web_search (网络搜索)
+    """
+    return {"1": 0.1, "2": 0.1, "3": 0.1, "4": 0.1, "5": 0.1, "6": 0.5}
 
 
 def _extract_json_object(text: str) -> dict[str, object] | None:
@@ -615,6 +704,32 @@ def _infer_tool_provider(raw: dict[str, object]) -> str | None:
     return None
 
 
+def _infer_result_quality(tool_result: Any, route_source: str) -> str:
+    """
+    推断结果质量来源（从ToolResult透传或根据route_source判断）
+    
+    Returns:
+        "real" - 真实工具返回
+        "fallback_llm" - LLM 兜底
+        "fallback_search" - 搜索兜底
+        "rule" - 规则命中
+        "none" - 无法判断
+    """
+    # 优先从ToolResult读取（源头标记）
+    if hasattr(tool_result, 'result_quality'):
+        quality = tool_result.result_quality
+        # 如果是规则命中，覆盖为rule
+        if route_source == "rule" and quality == "real":
+            return "rule"
+        return quality
+    
+    # 兜底：根据route_source判断
+    if route_source == "rule":
+        return "rule"
+    
+    return "none"
+
+
 def _infer_fallback_chain(raw: dict[str, object]) -> list[str]:
     v = raw.get("fallback_chain")
     if not isinstance(v, list):
@@ -631,6 +746,8 @@ def _tool_post_system_prompt(tool_name: str) -> str:
         return TOOL_POST_PROMPT_STOCK
     if tool_name == "get_weather":
         return TOOL_POST_PROMPT_WEATHER
+    if tool_name == "get_news":
+        return TOOL_POST_PROMPT_NEWS
     if tool_name == "web_search":
         return TOOL_POST_PROMPT_SEARCH
     return TOOL_POST_PROMPT

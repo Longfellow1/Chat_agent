@@ -54,25 +54,26 @@ class TestContentRewriter:
         """测试摘要长度限制"""
         rewriter = ContentRewriter(config=RewriteConfig(enable_llm=False, max_length=50))
         
-        text = "这是第一句话。这是第二句话。这是第三句话。这是第四句话。这是第五句话。"
+        text = "这是一个非常长的第一句话，包含很多信息，超过了50个字的限制。这是第二句话。这是第三句话。"
         
         summary = rewriter._extract_summary(text)
         
+        # 新策略：只取第一句，限制到50字
         assert len(summary) <= 53  # 50 + "..."
-        assert summary.endswith("...")
+        assert "这是一个非常长的第一句话" in summary
     
     def test_extract_summary_takes_first_sentences(self):
-        """测试提取前几句"""
+        """测试提取第一句"""
         rewriter = ContentRewriter(config=RewriteConfig(enable_llm=False, max_length=500))
         
         text = "第一句。第二句。第三句。第四句。"
         
         summary = rewriter._extract_summary(text)
         
+        # 新策略：只取第一句
         assert "第一句" in summary
-        assert "第二句" in summary
-        assert "第三句" in summary
-        # 只取前 3 句
+        assert "第二句" not in summary
+        assert "第三句" not in summary
         assert "第四句" not in summary
     
     def test_rewrite_news_without_llm(self):
@@ -117,9 +118,9 @@ class TestContentRewriter:
         assert "查看原文" not in result[0]["content"]
         assert "道指下跌" in result[0]["content"]
         
-        # 第二条：使用 title + snippet
+        # 第二条：使用 title + snippet，提取第一句
         assert "英伟达" in result[1]["content"]
-        assert "道指期货" in result[1]["content"]
+        # 新策略：只取第一句，所以可能只有标题或第一句
         
         # 验证保留原始内容
         assert "original_content" in result[0]

@@ -3,6 +3,24 @@ from __future__ import annotations
 import os
 import time
 from contextvars import ContextVar
+from pathlib import Path
+
+# Load .env.agent file
+try:
+    from dotenv import load_dotenv
+    env_path = Path(__file__).parent.parent.parent.parent / ".env.agent"  # 4个parent到项目根目录
+    if env_path.exists():
+        load_dotenv(env_path)
+except ImportError:
+    # python-dotenv not installed, try manual load
+    env_path = Path(__file__).parent.parent.parent.parent / ".env.agent"  # 4个parent到项目根目录
+    if env_path.exists():
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, value = line.split("=", 1)
+                    os.environ[key.strip()] = value.strip()
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
@@ -18,7 +36,15 @@ from domain.intents.trip_router import route_trip_intent
 from infra.tool_clients.amap_mcp_client import AmapMCPClient
 
 _trace_id_ctx: ContextVar[str] = ContextVar("trace_id", default="")
-_flow = build_flow()
+_flow = None  # 延迟初始化
+
+
+def get_flow():
+    """获取ChatFlow实例（延迟初始化）"""
+    global _flow
+    if _flow is None:
+        _flow = build_flow()
+    return _flow
 
 
 def get_trace_id() -> str:
@@ -66,7 +92,7 @@ def chat(req: ChatRequestBody):
 
     start = time.perf_counter()
     try:
-        out = _flow.run(ChatRequest(query=query, session_id=req.session_id, user_id=req.user_id))
+        out = get_flow().run(ChatRequest(query=query, session_id=req.session_id, user_id=req.user_id))
     except RuntimeError as e:
         err = BACKEND_UNAVAILABLE
         write_trace(
@@ -165,7 +191,7 @@ async def chat_stream(req: ChatRequestBody):
                 })
             else:
                 # Non-plan_trip query: fall back to regular flow
-                out = _flow.run(ChatRequest(query=query, session_id=req.session_id, user_id=req.user_id))
+                out = get_flow().run(ChatRequest(query=query, session_id=req.session_id, user_id=req.user_id))
                 
                 # Send as single chunk
                 yield f"data: {json.dumps({'type': 'complete', 'text': out.final_text, 'data': out.to_dict()}, ensure_ascii=False)}\n\n"

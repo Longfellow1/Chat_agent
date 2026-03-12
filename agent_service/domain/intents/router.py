@@ -268,14 +268,30 @@ def _pick_best(scores: dict[str, int]) -> tuple[str, int]:
 
 
 def _realtime_probs(tool_name: str) -> dict[str, float]:
-    # Keep 7-class distribution but make realtime dominant.
-    base = {"1": 0.02, "2": 0.03, "3": 0.03, "4": 0.02, "5": 0.04, "6": 0.84, "7": 0.02}
-    # Slight lift for tool-call confidence marker by tool family (future use).
-    if tool_name in {"get_weather", "get_news", "get_stock", "find_nearby", "plan_trip", "web_search"}:
-        base["6"] = 0.88
-        base["3"] = 0.02
-    return base
+    """
+    意图概率分布（工具调用场景）
+    
+    意图ID映射：
+    1 = get_weather (天气查询)
+    2 = get_news (新闻查询)
+    3 = get_stock (股票查询)
+    4 = find_nearby (附近查询)
+    5 = plan_trip (旅游规划)
+    6 = web_search (网络搜索)
+    """
+    return {"1": 0.15, "2": 0.15, "3": 0.15, "4": 0.15, "5": 0.15, "6": 0.25}
 
 
 def _knowledge_probs() -> dict[str, float]:
-    return {"1": 0.05, "2": 0.25, "3": 0.45, "4": 0.1, "5": 0.05, "6": 0.05, "7": 0.05}
+    """
+    意图概率分布（纯闲聊/LLM回复场景）
+    
+    意图ID映射：
+    1 = get_weather (天气查询)
+    2 = get_news (新闻查询)
+    3 = get_stock (股票查询)
+    4 = find_nearby (附近查询)
+    5 = plan_trip (旅游规划)
+    6 = web_search (网络搜索)
+    """
+    return {"1": 0.1, "2": 0.1, "3": 0.1, "4": 0.1, "5": 0.1, "6": 0.5}

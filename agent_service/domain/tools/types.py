@@ -10,3 +10,4 @@ class ToolResult:
     text: str
     raw: dict[str, Any] = field(default_factory=dict)
     error: str | None = None
+    result_quality: str = "real"  # "real" | "fallback_llm" | "fallback_search" | "rule"

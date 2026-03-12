@@ -1,0 +1,73 @@
+{
+  "sources": {
+    "lm_studio_local": {
+      "provider": "lm_studio",
+      "base_url": "http://localhost:1234",
+      "model_name": "qwen2.5-7b-instruct-mlx",
+      "priority": 100,
+      "enabled": true,
+      "environment": "dev"
+    },
+    "ollama_local": {
+      "provider": "ollama",
+      "base_url": "http://localhost:11434",
+      "model_name": "qwen2.5:7b",
+      "priority": 90,
+      "enabled": true,
+      "environment": "dev"
+    },
+    "vllm_staging": {
+      "provider": "vllm",
+      "base_url": "http://vllm-staging:8000",
+      "model_name": "qwen2.5-7b-instruct",
+      "priority": 80,
+      "enabled": true,
+      "environment": "staging"
+    },
+    "vllm_prod_1": {
+      "provider": "vllm",
+      "base_url": "http://vllm-prod-1:8000",
+      "model_name": "qwen2.5-7b-instruct",
+      "priority": 100,
+      "enabled": true,
+      "environment": "prod"
+    },
+    "vllm_prod_2": {
+      "provider": "vllm",
+      "base_url": "http://vllm-prod-2:8000",
+      "model_name": "qwen2.5-7b-instruct",
+      "priority": 90,
+      "enabled": true,
+      "environment": "prod"
+    },
+    "vllm_prod_3": {
+      "provider": "vllm",
+      "base_url": "http://vllm-prod-3:8000",
+      "model_name": "qwen2.5-7b-instruct",
+      "priority": 80,
+      "enabled": true,
+      "environment": "prod"
+    },
+    "openai_api": {
+      "provider": "openai_compatible",
+      "base_url": "https://api.openai.com",
+      "model_name": "gpt-3.5-turbo",
+      "priority": 50,
+      "enabled": false,
+      "api_key": "${OPENAI_API_KEY}",
+      "environment": "prod"
+    },
+    "coze_bot": {
+      "provider": "coze",
+      "base_url": "https://api.coze.cn",
+      "model_name": "coze-bot",
+      "priority": 40,
+      "enabled": false,
+      "api_key": "${COZE_API_TOKEN}",
+      "environment": "prod"
+    }
+  },
+  "default_source": "lm_studio_local",
+  "failover_enabled": true,
+  "failover_strategy": "priority"
+}

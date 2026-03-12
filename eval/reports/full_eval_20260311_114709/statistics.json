@@ -1,0 +1,66 @@
+{
+  "total": 200,
+  "passed": 0,
+  "failed": 200,
+  "accuracy": 0.0,
+  "total_time_sec": 608.99,
+  "avg_time_per_case_sec": 3.04,
+  "category_stats": {
+    "工具调用": {
+      "total": 88,
+      "passed": 0,
+      "accuracy": 0.0
+    },
+    "闲聊": {
+      "total": 101,
+      "passed": 0,
+      "accuracy": 0.0
+    },
+    "拒识": {
+      "total": 11,
+      "passed": 0,
+      "accuracy": 0.0
+    }
+  },
+  "tool_stats": {
+    "search_nearby": {
+      "total": 28,
+      "passed": 0,
+      "accuracy": 0.0
+    },
+    "web_search": {
+      "total": 23,
+      "passed": 0,
+      "accuracy": 0.0
+    },
+    "plan_trip": {
+      "total": 11,
+      "passed": 0,
+      "accuracy": 0.0
+    },
+    "get_weather": {
+      "total": 11,
+      "passed": 0,
+      "accuracy": 0.0
+    },
+    "get_news": {
+      "total": 8,
+      "passed": 0,
+      "accuracy": 0.0
+    },
+    "get_stock": {
+      "total": 7,
+      "passed": 0,
+      "accuracy": 0.0
+    }
+  },
+  "latency": {
+    "avg_ms": null,
+    "p50_ms": null,
+    "p95_ms": null,
+    "p99_ms": null
+  },
+  "failure_reasons": {
+    "exception": 200
+  }
+}

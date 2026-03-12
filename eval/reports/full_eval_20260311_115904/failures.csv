@@ -1,0 +1,6 @@
+﻿sample_id,query,expected_tool,got_tool,got_mode,tool_status,error,trace
+H00001,帮我搜一下附近有没有好吃的日料,search_nearby,,,exception,HTTP Error 502: Bad Gateway,
+H00002,搜一下周边有什么停车场,search_nearby,,,exception,HTTP Error 502: Bad Gateway,
+H00003,查一下这附近有没有加油站,search_nearby,,,exception,HTTP Error 502: Bad Gateway,
+H00004,帮我找找成都有哪些火锅店,web_search,,,exception,HTTP Error 502: Bad Gateway,
+H00005,上海外滩周边哪家餐厅评分最高,search_nearby,,,exception,HTTP Error 502: Bad Gateway,

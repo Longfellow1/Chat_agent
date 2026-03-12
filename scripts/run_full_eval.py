@@ -100,17 +100,30 @@ def load_test_cases(csv_path: Path, limit: int) -> list[TestCase]:
     return cases
 
 
-def validate_result(case: TestCase, response: dict) -> bool:
-    """验证结果是否符合预期"""
-    data = response.get("data", {})
-    got_tool = data.get("tool_name")
-    got_mode = data.get("decision_mode")
-    tool_status = data.get("tool_status")
-    tool_provider = data.get("tool_provider", "")
+def detect_result_quality(data: dict) -> str:
+    """
+    检测结果来源质量
     
-    # CRITICAL: Reject any mock data
-    if tool_provider and "mock" in tool_provider.lower():
-        return False
+    Returns:
+        - "real": 真实工具返回
+        - "fallback_llm": LLM 兜底
+        - "fallback_search": 搜索兜底
+        - "mock": Mock 数据（不可信）
+    """
+    tool_provider = data.get("tool_provider", "").lower()
+    raw_result = str(data.get("raw", "")).lower()
+    
+    # 检查 Mock
+    if "mock" in tool_provider or "mock" in raw_result:
+        return "mock"
+    
+    # 检查 LLM 兜底
+    if "llm_fallback" in tool_provider or "llm兜底" in tool_provider:
+        return "fallback_llm"
+    
+    # 检查搜索兜底
+    if "fallback" in tool_provider:
+        return "fallba
     
     # 1. 工具调用类别验证
     if case.category == "工具调用":
@@ -224,19 +237,6 @@ def run_evaluation(
             print(
                 f"[{i:03d}/{len(cases)}] ❌ ERROR | "
                 f"{case.query[:40]} | {e}"
-            )
-    
-    total_time = time.time() - start_time
-    
-    # 生成统计
-    stats = generate_statistics(cases, results, total_time)
-    
-    # 保存报告
-    save_reports(out_dir, results, stats)
-    
-    return stats
-
-
 def generate_statistics(
     cases: list[TestCase],
     results: list[TestResult],
@@ -247,6 +247,36 @@ def generate_statistics(
     total = len(results)
     passed = sum(1 for r in results if r.passed)
     failed = total - passed
+    
+    # 分质量统计
+    quality_stats = {
+        "real": {"total": 0, "passed": 0},
+        "fallback_llm": {"total": 0, "passed": 0},
+        "fallback_search": {"total": 0, "passed": 0},
+        "rule": {"total": 0, "passed": 0},
+        "none": {"total": 0, "passed": 0},
+    }
+    
+    for case, result in zip(cases, results):
+        if result.trace:
+            quality = result.trace.get("result_quality", "none")
+            if quality not in quality_stats:
+                quality = "none"
+            quality_stats[quality]["total"] += 1
+            quality_stats[quality]["passed"] += int(result.passed)
+    
+    # 添加准确率
+    for quality, stat in quality_stats.items():
+        stat["accuracy"] = round(stat["passed"] / max(1, stat["total"]), 3)
+    
+    # 计算诚实准确率（只统计 real + rule）
+    real_total = quality_stats["real"]["total"] + quality_stats["rule"]["total"]
+    real_passed = quality_stats["real"]["passed"] + quality_stats["rule"]["passed"]
+    honest_accuracy = round(real_passed / max(1, real_total), 3) if real_total > 0 else 0.0
+    
+    # 计算降级率
+    fallback_total = quality_stats["fallback_llm"]["total"] + quality_stats["fallback_search"]["total"]
+    fallback_rate = round(fallback_total / max(1, total), 3)
     
     # 分类别统计
     category_stats = {}
@@ -314,6 +344,22 @@ def generate_statistics(
         "passed": passed,
         "failed": failed,
         "accuracy": round(passed / max(1, total), 3),
+        "honest_accuracy": honest_accuracy,
+        "fallback_rate": fallback_rate,
+        "total_time_sec": round(total_time, 2),
+        "avg_time_per_case_sec": round(total_time / max(1, total), 2),
+        "quality_breakdown": quality_stats,
+        "category_stats": category_stats,
+        "tool_stats": tool_stats,
+        "latency": {
+            "avg_ms": avg_latency,
+            "p50_ms": p50_latency,
+            "p95_ms": p95_latency,
+            "p99_ms": p99_latency,
+        },
+        "failure_reasons": failure_reasons,
+    }   "failed": failed,
+        "accuracy": round(passed / max(1, total), 3),
         "total_time_sec": round(total_time, 2),
         "avg_time_per_case_sec": round(total_time / max(1, total), 2),
         "category_stats": category_stats,
@@ -349,41 +395,47 @@ def save_reports(out_dir: Path, results: list[TestResult], stats: dict):
                 "expected_behavior": r.expected_behavior or "",
                 "got_tool": r.got_tool or "",
                 "got_mode": r.got_mode or "",
-                "tool_status": r.tool_status or "",
-                "tool_provider": r.tool_provider or "",
-                "fallback_chain": json.dumps(r.fallback_chain, ensure_ascii=False),
-                "latency_ms": r.latency_ms or "",
-                "passed": r.passed,
-                "error": r.error or "",
-                "trace": json.dumps(r.trace, ensure_ascii=False) if r.trace else "",
-            })
+def print_summary(stats: dict):
+    """打印摘要"""
+    print(f"\n{'='*60}")
+    print(f"EVALUATION SUMMARY")
+    print(f"{'='*60}\n")
     
-    # 2. 保存统计JSON
-    json_path = out_dir / "statistics.json"
-    json_path.write_text(
-        json.dumps(stats, ensure_ascii=False, indent=2),
-        encoding="utf-8"
-    )
+    print(f"Overall:")
+    print(f"  Total: {stats['total']}")
+    print(f"  Passed: {stats['passed']} ({stats['accuracy']*100:.1f}%)")
+    print(f"  Failed: {stats['failed']} ({(1-stats['accuracy'])*100:.1f}%)")
+    print(f"  Honest Accuracy (real+rule only): {stats['honest_accuracy']*100:.1f}%")
+    print(f"  Fallback Rate: {stats['fallback_rate']*100:.1f}%")
+    print(f"  Time: {stats['total_time_sec']:.1f}s ({stats['avg_time_per_case_sec']:.2f}s/case)")
     
-    # 3. 保存失败case
-    failures = [r for r in results if not r.passed]
-    if failures:
-        fail_csv = out_dir / "failures.csv"
-        with fail_csv.open("w", encoding="utf-8-sig", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=[
-                "sample_id", "query", "expected_tool", "got_tool", "got_mode",
-                "tool_status", "error", "trace"
-            ])
-            writer.writeheader()
-            for r in failures:
-                writer.writerow({
-                    "sample_id": r.sample_id,
-                    "query": r.query,
-                    "expected_tool": r.expected_tool or "",
-                    "got_tool": r.got_tool or "",
-                    "got_mode": r.got_mode or "",
-                    "tool_status": r.tool_status or "",
-                    "error": r.error or "",
+    print(f"\nResult Quality Breakdown:")
+    for quality, stat in stats["quality_breakdown"].items():
+        print(f"  {quality}: {stat['passed']}/{stat['total']} ({stat['accuracy']*100:.1f}%)")
+    
+    print(f"\nBy Category:")
+    for cat, stat in stats["category_stats"].items():
+        print(f"  {cat}: {stat['passed']}/{stat['total']} ({stat['accuracy']*100:.1f}%)")
+    
+    print(f"\nBy Tool:")
+    for tool, stat in sorted(stats["tool_stats"].items()):
+        print(f"  {tool}: {stat['passed']}/{stat['total']} ({stat['accuracy']*100:.1f}%)")
+    
+    lat = stats["latency"]
+    if lat["avg_ms"]:
+        print(f"\nLatency:")
+        print(f"  Avg: {lat['avg_ms']}ms")
+        print(f"  P50: {lat['p50_ms']}ms")
+        print(f"  P95: {lat['p95_ms']}ms")
+        print(f"  P99: {lat['p99_ms']}ms")
+    
+    if stats["failure_reasons"]:
+        print(f"\nFailure Reasons:")
+        for reason, count in sorted(stats["failure_reasons"].items(), key=lambda x: -x[1]):
+            pct = count / stats["failed"] * 100
+            print(f"  {reason}: {count} ({pct:.1f}%)")
+    
+    print(f"\n{'='*60}\n")": r.error or "",
                     "trace": json.dumps(r.trace, ensure_ascii=False) if r.trace else "",
                 })
     

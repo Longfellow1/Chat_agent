@@ -10,7 +10,7 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-from infra.llm_clients.base import LLMClient
+from agent_service.infra.llm_clients.base import LLMClient
 
 
 @dataclass
@@ -109,13 +109,15 @@ class ContentRewriter:
         sentences = re.split(r'[。！？；\n]', text)
         sentences = [s.strip() for s in sentences if s.strip()]
         
-        # 提取前 3 句作为摘要
-        summary_sentences = sentences[:3]
-        summary = '。'.join(summary_sentences)
+        # 提取第一句作为摘要
+        if sentences:
+            summary = sentences[0]
+        else:
+            summary = text
         
-        # 限制长度
-        if len(summary) > self.config.max_length:
-            summary = summary[:self.config.max_length] + '...'
+        # 限制长度到 50 字
+        if len(summary) > 50:
+            summary = summary[:50].rstrip() + "..."
         
         return summary
     
@@ -152,27 +154,27 @@ class ContentRewriter:
     
     def _build_news_prompt(self, text: str) -> str:
         """构建新闻重写提示词"""
-        return f"""请将以下财经新闻内容重写为简洁的摘要，要求：
-1. 提取核心信息（市场趋势、关键数据、重要事件）
-2. 去除冗余信息和噪声
-3. 使用清晰、专业的语言
-4. 控制在 200 字以内
+        return f"""请将以下财经新闻内容重写为一句话摘要，要求：
+1. 提取最核心的信息（市场趋势、关键数据、重要事件）
+2. 用一句话表达，简洁有力
+3. 不超过 50 字
+4. 使用清晰、专业的语言
 
 原始内容：
 {text}
 
-重写后的摘要："""
+一句话摘要："""
     
     def _news_system_prompt(self) -> str:
         """新闻重写系统提示词"""
         return """你是一个专业的财经新闻编辑。你的任务是：
-1. 提取新闻的核心信息（市场趋势、关键数据、重要事件）
-2. 去除冗余信息和噪声（URL、格式标记等）
-3. 使用清晰、专业的语言重写
-4. 保持客观中立，不添加主观评论
-5. 控制输出长度在 200 字以内
+1. 提取新闻的最核心信息（市场趋势、关键数据、重要事件）
+2. 用一句话表达，简洁有力
+3. 不超过 50 字
+4. 使用清晰、专业的语言
+5. 保持客观中立，不添加主观评论
 
-只输出重写后的摘要，不要输出其他内容。"""
+只输出一句话摘要，不要输出其他内容。"""
 
 
 def rewrite_news_batch(

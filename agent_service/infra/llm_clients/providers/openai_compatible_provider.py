@@ -7,8 +7,8 @@ import logging
 import urllib.request
 from typing import Any, Dict, Optional
 
-from agent_service.infra.llm_clients.base import LLMClient
-from agent_service.infra.llm_clients.llm_config import LLMServiceConfig
+from infra.llm_clients.base import LLMClient
+from infra.llm_clients.llm_config import LLMServiceConfig
 
 logger = logging.getLogger(__name__)
 

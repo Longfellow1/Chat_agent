@@ -214,6 +214,17 @@ class UnifiedRouterV3_7BOptimized:
 
 【重要】reasoning 字段必须放在第一个！这样你在生成 tool 时，能看到自己的分析，准确率会更高。
 
+【reasoning 字段约束】⚠️ 必须遵守
+"reasoning": "你的分析过程（必须控制在 50 字以内）"
+
+示例：
+✅ 好的 reasoning（30 字）：
+"用户提到'北京'和'3天'，明确要规划行程。这是 plan_trip。"
+
+❌ 坏的 reasoning（300 字）：
+"用户提出了一个复杂的旅行规划需求。首先，用户明确表示要去北京...
+这样的长篇大论会导致 JSON 截断。"
+
 【边缘场景示例】
 {few_shot_examples}
 
@@ -226,6 +237,7 @@ class UnifiedRouterV3_7BOptimized:
 - 不要生造参数
 - 不要选错工具
 - 如果信息不足，选择 need_clarification
+- reasoning 必须 ≤ 50 字（这是硬性要求）
 """
     
     # Few-Shot 示例（边缘场景）
@@ -351,7 +363,14 @@ class UnifiedRouterV3_7BOptimized:
             }
     
     def _parse_response(self, response: str) -> Optional[ToolCall]:
-        """解析 LLM 响应"""
+        """
+        解析 LLM 响应（包含截断防护）
+        
+        处理以下情况：
+        1. 正常的 JSON
+        2. 前后有文本的 JSON
+        3. 被截断的 JSON（修复）
+        """
         import re
         
         try:
@@ -361,13 +380,42 @@ class UnifiedRouterV3_7BOptimized:
         except json.JSONDecodeError:
             pass
         
-        # 尝试提取 JSON
-        json_match = re.search(r'\{.*\}', response, re.DOTALL)
+        # 尝试提取 JSON（处理前后有文本的情况）
+        json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', response, re.DOTALL)
         if json_match:
             try:
                 data = json.loads(json_match.group())
                 return self._build_tool_call(data)
             except json.JSONDecodeError:
+                pass
+        
+        # 尝试修复截断的 JSON
+        # 如果 response 包含 "tool" 但缺少 "params"
+        if '"tool"' in response and '"params"' not in response:
+            # 尝试补全
+            fixed = response.rstrip().rstrip(',').rstrip('}') + ', "params": {}}'
+            try:
+                data = json.loads(fixed)
+                return self._build_tool_call(data)
+            except json.JSONDecodeError:
+                pass
+        
+        # 如果 response 包含 "reasoning" 和 "tool" 但缺少 "params"
+        if '"reasoning"' in response and '"tool"' in response:
+            # 尝试提取已有的字段并补全
+            try:
+                reasoning_match = re.search(r'"reasoning"\s*:\s*"([^"]*)"', response)
+                tool_match = re.search(r'"tool"\s*:\s*"([^"]*)"', response)
+                
+                if reasoning_match and tool_match:
+                    fixed = json.dumps({
+                        "reasoning": reasoning_match.group(1),
+                        "tool": tool_match.group(1),
+                        "params": {}
+                    })
+                    data = json.loads(fixed)
+                    return self._build_tool_call(data)
+            except (json.JSONDecodeError, AttributeError):
                 pass
         
         return None

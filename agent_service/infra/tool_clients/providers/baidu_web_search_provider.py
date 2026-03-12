@@ -113,30 +113,27 @@ class BaiduWebSearchProvider(ToolProvider):
                 references,
                 query=query,
                 max_results=self.max_results,
-                relevance_threshold=0.1,
+                relevance_threshold=0.3,  # 提高相关性阈值，过滤不相关结果
             )
             
             if not processed:
                 # Fallback: return at least top result
                 processed = references[:1]
             
-            # Format output
+            # Format output - 第一轮只返回精炼内容（标题+简短摘要，无URL）
             lines = []
             for i, r in enumerate(processed, 1):
-                title = r.get("title", "")
-                url = r.get("url", "")
-                snippet = r.get("snippet", "")[:self.snippet_chars]
-                credibility = r.get("credibility", 5)
+                title = r.get("title", "").strip()
+                snippet = r.get("snippet", "").strip()
                 
-                trust_mark = ""
-                if credibility >= 9:
-                    trust_mark = " [官方]"
-                elif credibility >= 7:
-                    trust_mark = " [可信]"
+                # 截断摘要到合理长度（约50字）
+                if len(snippet) > 100:
+                    snippet = snippet[:100].rstrip() + "..."
                 
-                lines.append(f"{i}. {title}{trust_mark} | {url} | {snippet}")
+                # 格式：序号. 标题\n摘要（无URL、无日期）
+                lines.append(f"{i}. {title}\n{snippet}")
             
-            text = f"已搜索{query}，结果如下：\n" + "\n".join(lines)
+            text = f"已搜索{query}，结果如下：\n" + "\n\n".join(lines)
             
             tool_result = ToolResult(
                 ok=True,

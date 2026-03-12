@@ -5,13 +5,13 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from agent_service.infra.llm_clients.base import LLMClient
-from agent_service.infra.llm_clients.llm_config import LLMProvider, LLMServiceConfig
-from agent_service.infra.llm_clients.providers.vllm_provider import VLLMProvider
-from agent_service.infra.llm_clients.providers.ollama_provider import OllamaProvider
-from agent_service.infra.llm_clients.providers.openai_compatible_provider import OpenAICompatibleProvider
-from agent_service.infra.llm_clients.lm_studio_client import LMStudioClient
-from agent_service.infra.llm_clients.coze_client import CozeClient
+from infra.llm_clients.base import LLMClient
+from infra.llm_clients.llm_config import LLMProvider, LLMServiceConfig
+from infra.llm_clients.providers.vllm_provider import VLLMProvider
+from infra.llm_clients.providers.ollama_provider import OllamaProvider
+from infra.llm_clients.providers.openai_compatible_provider import OpenAICompatibleProvider
+from infra.llm_clients.lm_studio_client import LMStudioClient
+from infra.llm_clients.coze_client import CozeClient
 
 logger = logging.getLogger(__name__)
 

@@ -41,7 +41,7 @@ def test_three_hop_fallback():
         return False
     
     from infra.tool_clients.providers.baidu_news_provider import BaiduNewsProvider
-    from infra.tool_clients.providers.sina_news_provider import SinaNewsProvider
+    from infra.tool_clients.providers.news_provider import SinaNewsProvider
     
     def mock_baidu_failure(self, **kwargs):
         return ProviderResult(
@@ -167,7 +167,7 @@ def test_sina_news_quality():
     print("Test 3: Sina News Quality Evaluation")
     print("=" * 80)
     
-    from infra.tool_clients.providers.sina_news_provider import SinaNewsProvider
+    from infra.tool_clients.providers.news_provider import SinaNewsProvider
     from infra.tool_clients.provider_base import ProviderConfig
     
     config = ProviderConfig(

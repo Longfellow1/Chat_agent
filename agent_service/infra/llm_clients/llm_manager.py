@@ -7,9 +7,9 @@ import time
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from agent_service.infra.llm_clients.base import LLMClient
-from agent_service.infra.llm_clients.llm_config import LLMServiceConfig
-from agent_service.infra.llm_clients.llm_client_factory import LLMClientFactory
+from infra.llm_clients.base import LLMClient
+from infra.llm_clients.llm_config import LLMServiceConfig
+from infra.llm_clients.llm_client_factory import LLMClientFactory
 
 logger = logging.getLogger(__name__)
 

@@ -60,7 +60,8 @@ class MCPToolGateway:
             try:
                 self.amap_mcp = AmapMCPClient()
             except Exception as e:
-                print(f"Warning: Failed to initialize Amap MCP client: {e}")
+                import sys
+                print(f"Warning: Failed to initialize Amap MCP client: {e}", file=sys.stderr)
         
         # Initialize web_search provider chain
         self._init_web_search_chain()
@@ -73,6 +74,12 @@ class MCPToolGateway:
         
         # Initialize find_nearby provider chain
         self._init_find_nearby_chain()
+        
+        # Initialize get_weather provider chain
+        self._init_get_weather_chain()
+        
+        # News deduplication cache: {query: set(title_hashes)}
+        self._news_cache: dict[str, set[str]] = {}
     
     def _init_find_nearby_chain(self) -> None:
         """Initialize find_nearby provider chain (Amap MCP -> Baidu Maps MCP -> LLM Fallback)."""
@@ -97,7 +104,8 @@ class MCPToolGateway:
                 self.use_find_nearby_chain = False
             
         except Exception as e:
-            print(f"Warning: Failed to initialize find_nearby provider chain: {e}")
+            import sys
+            print(f"Warning: Failed to initialize find_nearby provider chain: {e}", file=sys.stderr)
             self.find_nearby_chain = None
             self.use_find_nearby_chain = False
     
@@ -122,7 +130,8 @@ class MCPToolGateway:
                 self.use_get_weather_chain = False
             
         except Exception as e:
-            print(f"Warning: Failed to initialize get_weather provider chain: {e}")
+            import sys
+            print(f"Warning: Failed to initialize get_weather provider chain: {e}", file=sys.stderr)
             self.get_weather_chain = None
             self.use_get_weather_chain = False
     
@@ -150,38 +159,50 @@ class MCPToolGateway:
             self.use_provider_chain = True
             
         except Exception as e:
-            print(f"Warning: Failed to initialize web_search provider chain: {e}")
+            import sys
+            print(f"Warning: Failed to initialize web_search provider chain: {e}", file=sys.stderr)
             import traceback
-            traceback.print_exc()
+            traceback.print_exc(file=sys.stderr)
             self.web_search_chain = None
             self.use_provider_chain = False
     
     def _init_get_news_chain(self) -> None:
-        """Initialize get_news provider chain (Sina -> Tavily)."""
+        """Initialize get_news provider chains (finance + general)."""
         try:
             from infra.tool_clients.provider_chain import ProviderChainManager
             from infra.tool_clients.provider_config import load_provider_configs
-            from infra.tool_clients.providers.sina_news_provider import SinaNewsProvider
-            from infra.tool_clients.providers.tavily_provider import TavilyProvider
+            from infra.tool_clients.providers.news_provider import SinaNewsProvider
+            from infra.tool_clients.providers.baidu_web_search_provider import BaiduWebSearchProvider
             
-            self.get_news_chain = ProviderChainManager()
+            # Finance news chain (Sina only)
+            self.get_news_finance_chain = ProviderChainManager()
+            self.get_news_finance_chain.register_provider("sina_news", SinaNewsProvider)
             
-            # Register providers
-            self.get_news_chain.register_provider("sina_news", SinaNewsProvider)
-            self.get_news_chain.register_provider("tavily", TavilyProvider)
+            # General news chain (Baidu Web Search)
+            self.get_news_general_chain = ProviderChainManager()
+            self.get_news_general_chain.register_provider("baidu_web_search", BaiduWebSearchProvider)
             
             # Load configuration
             configs = load_provider_configs()
             if "get_news" in configs:
-                self.get_news_chain.configure_chain("get_news", configs["get_news"])
-                self.use_get_news_chain = True
+                self.get_news_finance_chain.configure_chain("get_news", configs["get_news"])
+                self.use_get_news_finance_chain = True
             else:
-                self.use_get_news_chain = False
+                self.use_get_news_finance_chain = False
+            
+            if "get_news_general" in configs:
+                self.get_news_general_chain.configure_chain("get_news_general", configs["get_news_general"])
+                self.use_get_news_general_chain = True
+            else:
+                self.use_get_news_general_chain = False
             
         except Exception as e:
-            print(f"Warning: Failed to initialize get_news provider chain: {e}")
-            self.get_news_chain = None
-            self.use_get_news_chain = False
+            import sys
+            print(f"Warning: Failed to initialize get_news provider chains: {e}", file=sys.stderr)
+            self.get_news_finance_chain = None
+            self.get_news_general_chain = None
+            self.use_get_news_finance_chain = False
+            self.use_get_news_general_chain = False
     
     def _init_get_stock_chain(self) -> None:
         """Initialize get_stock provider chain (Sina -> Web Search -> LLM Fallback)."""
@@ -202,7 +223,8 @@ class MCPToolGateway:
                 self.use_get_stock_chain = False
             
         except Exception as e:
-            print(f"Warning: Failed to initialize get_stock provider chain: {e}")
+            import sys
+            print(f"Warning: Failed to initialize get_stock provider chain: {e}", file=sys.stderr)
             self.get_stock_chain = None
             self.use_get_stock_chain = False
 
@@ -466,66 +488,80 @@ class MCPToolGateway:
             )
 
     def _news(self, topic: str) -> ToolResult:
-        # Use provider chain if available
-        if hasattr(self, 'use_get_news_chain') and self.use_get_news_chain and self.get_news_chain:
+        """获取新闻 - 根据类别选择链路
+        
+        财经类新闻：Sina News（专用）
+        通用新闻：Baidu Web Search（备用）
+        """
+        # 检测是否为财经类新闻
+        is_finance = self._is_finance_news(topic)
+        
+        if is_finance:
+            # 财经新闻链路
+            if hasattr(self, 'use_get_news_finance_chain') and self.use_get_news_finance_chain and self.get_news_finance_chain:
+                try:
+                    result = self.get_news_finance_chain.execute("get_news", query=topic)
+                    
+                    if result.ok and result.data:
+                        # 应用去重
+                        result.data = self._deduplicate_news(result.data, topic)
+                        
+                        if result.fallback_chain:
+                            if result.data.raw is None:
+                                result.data.raw = {}
+                            result.data.raw["fallback_chain"] = result.fallback_chain
+                        return result.data
+                    
+                    # Sina失败，fallback到通用新闻
+                    print(f"Finance news failed: {result.error}, trying general news")
+                except Exception as e:
+                    print(f"Finance news chain error: {e}, trying general news")
+        
+        # 通用新闻链路
+        if hasattr(self, 'use_get_news_general_chain') and self.use_get_news_general_chain and self.get_news_general_chain:
             try:
-                result = self.get_news_chain.execute("get_news", query=topic)
+                result = self.get_news_general_chain.execute("get_news_general", query=topic)
                 
                 if result.ok and result.data:
-                    # Add fallback chain info if present
+                    # 应用去重
+                    result.data = self._deduplicate_news(result.data, topic)
+                    
+                    # 应用content_rewriter进行LLM重写
+                    result.data = self._apply_news_rewrite(result.data, topic)
+                    
                     if result.fallback_chain:
                         if result.data.raw is None:
                             result.data.raw = {}
                         result.data.raw["fallback_chain"] = result.fallback_chain
                     return result.data
                 
-                # All providers failed, fallback to web_search
+                # 所有新闻源失败，fallback到web_search
                 return self._fallback_to_web_search(
                     original_tool="get_news",
                     query=f"{topic} 新闻",
-                    error=result.error or "all_providers_failed",
-                    fallback_chain=result.fallback_chain if result.fallback_chain else ["get_news_chain"]
+                    error=result.error or "all_news_providers_failed",
+                    fallback_chain=result.fallback_chain if result.fallback_chain else ["get_news_general_chain"]
                 )
                 
             except Exception as e:
-                print(f"Provider chain error: {e}, falling back to legacy")
-                # Fall through to legacy implementation
+                print(f"General news chain error: {e}")
         
-        # Legacy implementation (fallback if provider chain not available)
-        if not self.tavily_key:
-            return self._fallback_to_llm(
-                original_tool="get_news",
-                query=f"{topic} 新闻",
-                error="no_tavily_key",
-                fallback_chain=["get_news"]
-            )
-
-        query = f"{topic} 最新新闻"
-        payload = {
-            "api_key": self.tavily_key,
-            "query": query,
-            "search_depth": self.news_depth or "basic",
-            "topic": "news",
-            "max_results": max(1, self.search_max_results),
-        }
-        try:
-            body = _http_post_json("https://api.tavily.com/search", payload, timeout=self.timeout)
-            results = body.get("results") or []
-            if not results:
-                return ToolResult(ok=False, text=f'未检索到"{topic}"相关新闻', error="no_news_results")
-
-            packed = _pack_search_results(results, max_results=self.search_max_results, snippet_chars=self.search_snippet_chars)
-            lines = [f"{i}. {r['title']} | {r['url']} | {r['snippet']}" for i, r in enumerate(packed, 1)]
-            text = f'"{topic}"相关新闻：\n' + "\n".join(lines)
-            return ToolResult(ok=True, text=text, raw={"provider": "tavily_news", "topic": topic, "results": packed})
-        except Exception as e:  # noqa: BLE001
-            fallback = self._fallback_to_web_search(
-                original_tool="get_news",
-                query=f"{topic} 最新新闻",
-                error=f"tavily_news_fail:{e}",
-                fallback_chain=["tavily_news"]
-            )
-            return fallback
+        # Fallback到web_search
+        return self._fallback_to_web_search(
+            original_tool="get_news",
+            query=f"{topic} 新闻",
+            error="news_chains_unavailable",
+            fallback_chain=["get_news_finance_chain", "get_news_general_chain"]
+        )
+    
+    def _is_finance_news(self, topic: str) -> bool:
+        """检测是否为财经类新闻"""
+        finance_keywords = [
+            "财经", "金融", "股票", "股市", "基金", "期货", "外汇", 
+            "经济", "市场", "投资", "A股", "港股", "美股", "上证", "深证",
+            "涨跌", "行情", "市值", "IPO", "融资"
+        ]
+        return any(kw in topic for kw in finance_keywords)
 
     def _nearby(self, keyword: str, city: str | None, location: str | None = None) -> ToolResult:
         # Use provider chain if available
@@ -653,6 +689,9 @@ class MCPToolGateway:
         result.raw["original_tool"] = original_tool
         result.raw["original_error"] = error
         
+        # Set result_quality
+        result.result_quality = "fallback_search"
+        
         return result
     
     def _fallback_to_llm(
@@ -693,6 +732,7 @@ class MCPToolGateway:
                     "original_error": error,
                     "fallback_chain": fallback_chain or [original_tool],
                 },
+                result_quality="fallback_llm",
             )
             
             return result
@@ -709,7 +749,135 @@ class MCPToolGateway:
                     "llm_error": str(e),
                     "fallback_chain": fallback_chain or [original_tool],
                 },
+                result_quality="fallback_llm",
             )
+
+    def _deduplicate_news(self, result: ToolResult, topic: str) -> ToolResult:
+        """对新闻结果进行去重
+        
+        Args:
+            result: 原始新闻结果
+            topic: 查询主题
+            
+        Returns:
+            去重后的结果
+        """
+        import hashlib
+        
+        # 初始化该query的缓存
+        if topic not in self._news_cache:
+            self._news_cache[topic] = set()
+        
+        # 从raw中获取新闻列表
+        if not result.raw or "results" not in result.raw:
+            return result
+        
+        original_results = result.raw["results"]
+        filtered_results = []
+        
+        for news in original_results:
+            title = news.get("title", "").strip()
+            if not title:
+                continue
+            
+            # 计算标题hash
+            title_hash = hashlib.md5(title.encode()).hexdigest()
+            
+            # 检查是否已返回过
+            if title_hash not in self._news_cache[topic]:
+                filtered_results.append(news)
+                self._news_cache[topic].add(title_hash)
+        
+        # 如果过滤后没有结果，清空缓存重新开始
+        if not filtered_results:
+            print(f"All news filtered as duplicates for '{topic}', clearing cache")
+            self._news_cache[topic].clear()
+            filtered_results = original_results[:3]  # 返回前3条
+            for news in filtered_results:
+                title = news.get("title", "").strip()
+                if title:
+                    title_hash = hashlib.md5(title.encode()).hexdigest()
+                    self._news_cache[topic].add(title_hash)
+        
+        # 更新结果
+        result.raw["results"] = filtered_results
+        
+        # 重新格式化text
+        lines = []
+        for i, r in enumerate(filtered_results, 1):
+            title = r.get("title", "").strip()
+            snippet = r.get("snippet", "").strip()
+            
+            # 截断摘要到合理长度（约50字）
+            if len(snippet) > 100:
+                snippet = snippet[:100].rstrip() + "..."
+            
+            lines.append(f"{i}. {title}\n{snippet}")
+        
+        result.text = f"已搜索{topic}，结果如下：\n" + "\n\n".join(lines)
+        
+        return result
+
+    def _apply_news_rewrite(self, result: ToolResult, topic: str) -> ToolResult:
+        """Apply LLM rewriting to news result.
+
+        Args:
+            result: Original tool result
+            topic: News topic
+
+        Returns:
+            ToolResult with rewritten text
+        """
+        try:
+            from infra.llm_clients.lm_studio_client import LMStudioClient
+            import logging
+
+            logger = logging.getLogger(__name__)
+            llm = LMStudioClient()
+
+            system_prompt = """你是新闻摘要助手。将新闻重写为口语化、简洁的格式。
+
+规则：
+1. 保持原有序号和标题
+2. 摘要用口语化表达，30-50字
+3. 可用"据说"、"看来"、"竟然"等词
+4. 只输出新闻列表，不要其他内容
+
+格式：
+序号. 标题
+摘要内容"""
+
+            user_prompt = f"""原始新闻：
+{result.text}
+
+重写为口语化摘要："""
+
+            rewritten_text = llm.generate(
+                user_query=user_prompt,
+                system_prompt=system_prompt
+            )
+
+            # Handle empty response from LLM
+            if not rewritten_text or not rewritten_text.strip():
+                logger.warning("LLM returned empty response for news rewrite, using original output")
+                return result
+
+            # Update result with rewritten text
+            result.text = rewritten_text
+
+            # Add rewrite metadata
+            if result.raw is None:
+                result.raw = {}
+            result.raw["llm_rewritten"] = True
+
+            return result
+
+        except Exception as e:
+            # If LLM fails, return original result
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"News LLM rewrite failed: {e}, using original output")
+            return result
 
     def _apply_llm_rewrite(self, result: ToolResult, destination: str, days: int, travel_mode: str) -> ToolResult:
         """Apply LLM rewriting to trip result.

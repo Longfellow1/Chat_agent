@@ -12,7 +12,7 @@ from infra.tool_clients.providers.baidu_providers import (
 from infra.tool_clients.providers.baidu_search_mcp_provider import BaiduSearchMCPProvider
 from infra.tool_clients.providers.baidu_web_search_provider import BaiduWebSearchProvider
 from infra.tool_clients.providers.bing_mcp_provider import BingMCPProvider
-from infra.tool_clients.providers.sina_news_provider import SinaNewsProvider
+from infra.tool_clients.providers.news_provider import SinaNewsProvider
 from infra.tool_clients.providers.sina_stock_provider import SinaStockProvider
 from infra.tool_clients.providers.tavily_provider import TavilyProvider
 from infra.tool_clients.providers.web_fallback_provider import WebSearchFallbackProvider
