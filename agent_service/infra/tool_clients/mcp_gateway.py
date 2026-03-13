@@ -259,8 +259,32 @@ class MCPToolGateway:
     def _weather(self, city: str) -> ToolResult:
         if not city:
             return ToolResult(ok=False, text="缺少城市信息", error="missing_city")
-        
-        # 1. Try Amap MCP weather (primary)
+
+        # 1. Use provider chain if available (QWeather -> Tavily)
+        if hasattr(self, 'use_get_weather_chain') and self.use_get_weather_chain and self.get_weather_chain:
+            try:
+                result = self.get_weather_chain.execute("get_weather", city=city)
+
+                if result.ok and result.data:
+                    if result.fallback_chain:
+                        if result.data.raw is None:
+                            result.data.raw = {}
+                        result.data.raw["fallback_chain"] = result.fallback_chain
+                    return result.data
+
+                # All chain providers failed, fallback to web_search
+                return self._fallback_to_web_search(
+                    original_tool="get_weather",
+                    query=f"{city} 天气",
+                    error=result.error or "all_providers_failed",
+                    fallback_chain=result.fallback_chain if result.fallback_chain else ["get_weather_chain"]
+                )
+
+            except Exception as e:
+                print(f"Weather provider chain error: {e}, falling back to legacy")
+                # Fall through to legacy implementation
+
+        # 2. Legacy: Try Amap MCP weather
         if self.amap_mcp:
             try:
                 result = self.amap_mcp.get_weather(city)
@@ -269,8 +293,8 @@ class MCPToolGateway:
                 print(f"Amap MCP weather failed: {result.error}, trying QWeather")
             except Exception as e:
                 print(f"Amap MCP weather error: {e}, trying QWeather")
-        
-        # 2. Try QWeather API (secondary, keep for when network is good)
+
+        # 3. Legacy: Try QWeather API directly
         if self.qweather_key:
             try:
                 city_id = self._qweather_lookup_city_id(city)
@@ -302,9 +326,9 @@ class MCPToolGateway:
                     },
                 )
             except Exception as e:
-                print(f"QWeather failed: {e}, falling back to Tavily")
-        
-        # 3. Fallback to web_search
+                print(f"QWeather failed: {e}, falling back to web_search")
+
+        # 4. Fallback to web_search
         return self._fallback_to_web_search(
             original_tool="get_weather",
             query=f"{city} 天气",
