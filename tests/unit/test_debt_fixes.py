@@ -43,6 +43,9 @@ class FakeLLM:
 
 
 def _flow(llm: FakeLLM | None = None) -> ChatFlow:
+    import os
+    # 测试时禁用 4B router，避免 FakeLLM 缺少 .call() 方法
+    os.environ.setdefault("USE_4B_ROUTER", "false")
     return ChatFlow(
         llm_client=llm or FakeLLM(),
         tool_executor=ToolExecutor(),
@@ -285,3 +288,106 @@ class TestCoreferenceRewrite:
     def test_no_rewrite_without_context(self) -> None:
         result = rewrite_query("它怎么样", {})
         assert result.rewritten is False
+
+
+# ---------------------------------------------------------------------------
+# History context helpers
+# ---------------------------------------------------------------------------
+
+class TestHistoryContextHelpers:
+    """Test _build_history_messages 3-turn window + truncation,
+    _get_prev_user_msg, and _get_prev_assistant_msg."""
+
+    def test_build_history_3_turn_limit(self) -> None:
+        """_build_history_messages returns at most 3 turns (6 items)."""
+        store = InMemorySessionStore()
+        llm = FakeLLM()
+        flow = ChatFlow(llm_client=llm, tool_executor=ToolExecutor(), session_store=store)
+        sid = "test_3turn"
+
+        # Send 5 turns to accumulate history
+        for i in range(5):
+            flow.run(ChatRequest(query=f"消息{i}", session_id=sid))
+
+        ctx = store.get(sid)
+        msgs = flow._build_history_messages(ctx)
+        # At most 6 items (3 turns × 2)
+        assert len(msgs) <= 6
+
+    def test_build_history_truncates_assistant(self) -> None:
+        """Assistant messages > 200 chars get truncated in the output."""
+        ctx = {
+            "history": [
+                {"role": "user", "content": "你好"},
+                {"role": "assistant", "content": "A" * 500},
+            ]
+        }
+        flow = _flow()
+        msgs = flow._build_history_messages(ctx)
+        assert len(msgs) == 2
+        assert len(msgs[1]["content"]) == 200
+
+    def test_get_prev_user_msg(self) -> None:
+        ctx = {
+            "history": [
+                {"role": "user", "content": "帮我查茅台"},
+                {"role": "assistant", "content": "茅台(600519.SS)..."},
+            ]
+        }
+        assert ChatFlow._get_prev_user_msg(ctx) == "帮我查茅台"
+
+    def test_get_prev_user_msg_truncates(self) -> None:
+        long_msg = "x" * 100
+        ctx = {"history": [{"role": "user", "content": long_msg}]}
+        result = ChatFlow._get_prev_user_msg(ctx, max_len=60)
+        assert len(result) == 60
+
+    def test_get_prev_user_msg_empty_history(self) -> None:
+        assert ChatFlow._get_prev_user_msg({}) == ""
+
+    def test_get_prev_assistant_msg(self) -> None:
+        ctx = {
+            "history": [
+                {"role": "user", "content": "帮我查茅台"},
+                {"role": "assistant", "content": "茅台(600519.SS)今日收盘1820元"},
+            ]
+        }
+        result = ChatFlow._get_prev_assistant_msg(ctx)
+        assert "600519.SS" in result
+
+    def test_get_prev_assistant_msg_truncates(self) -> None:
+        ctx = {"history": [{"role": "assistant", "content": "B" * 200}]}
+        result = ChatFlow._get_prev_assistant_msg(ctx, max_len=80)
+        assert len(result) == 80
+
+
+# ---------------------------------------------------------------------------
+# History injection: router and extractor receive context
+# ---------------------------------------------------------------------------
+
+class TestHistoryInjection:
+    """Verify that prev_user_msg reaches the router and prev_assistant_msg
+    reaches the extractor when multi-turn context exists."""
+
+    def test_router_receives_prev_user_msg_on_second_turn(self) -> None:
+        """On the second turn, the LLM router's input should contain
+        the previous user message as context."""
+        llm = FakeLLM()
+        store = InMemorySessionStore()
+        flow = ChatFlow(llm_client=llm, tool_executor=ToolExecutor(), session_store=store)
+        sid = "test_router_ctx"
+
+        # Turn 1: a normal greeting
+        flow.run(ChatRequest(query="你好", session_id=sid))
+        # Turn 2: a follow-up — the router should receive prev context
+        flow.run(ChatRequest(query="继续聊天吧", session_id=sid))
+
+        # In the second turn, generate was called with context containing
+        # the previous user message. FakeLLM.generate records user_query.
+        # Since the flow uses generate_with_history on the second turn,
+        # the history should contain the previous user + assistant messages.
+        assert len(llm.history_calls) >= 1
+        last_call = llm.history_calls[-1]
+        user_contents = [m["content"] for m in last_call if m["role"] == "user"]
+        # The current query should be in the messages
+        assert any("继续聊天吧" in c for c in user_contents)

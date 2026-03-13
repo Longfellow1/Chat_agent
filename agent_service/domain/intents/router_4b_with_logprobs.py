@@ -450,10 +450,14 @@ web_search   通用搜索（兜底） 参数: query（查询词）
         self.rule_router = RuleBasedRouter()
         self.validator = LogprobsValidator()
     
-    def route(self, query: str) -> Dict[str, Any]:
+    def route(self, query: str, prev_user_msg: str = "") -> Dict[str, Any]:
         """
         路由查询
-        
+
+        Args:
+            query: 当前用户查询
+            prev_user_msg: 上一轮用户原话（帮助 LLM 理解指代/省略，规则层不用）
+
         Returns:
         {
             "success": bool,
@@ -464,9 +468,9 @@ web_search   通用搜索（兜底） 参数: query（查询词）
             "error": str (if any)
         }
         """
-        
+
         try:
-            # 步骤1：尝试规则路由
+            # 步骤1：尝试规则路由（规则层不传 history，纯 keyword 匹配）
             rule_result = self.rule_router.try_route(query)
             
             if rule_result:
@@ -511,7 +515,7 @@ web_search   通用搜索（兜底） 参数: query（查询词）
                     "source": "none"
                 }
             
-            llm_result = self._route_with_llm(query)
+            llm_result = self._route_with_llm(query, prev_user_msg=prev_user_msg)
             return llm_result
         
         except Exception as e:
@@ -525,18 +529,25 @@ web_search   通用搜索（兜底） 参数: query（查询词）
                 "source": "error"
             }
     
-    def _route_with_llm(self, query: str) -> Dict[str, Any]:
+    def _route_with_llm(self, query: str, prev_user_msg: str = "") -> Dict[str, Any]:
         """
         用 LLM 路由（兜底）
-        
-        使用 logprobs 验证置信度
+
+        使用 logprobs 验证置信度。
+        prev_user_msg 提供上一轮用户原话，帮助 4B 理解指代/省略。
         """
-        
+
         try:
+            # 拼接上一轮用户原话作为短上下文（不带 intent，不带助手回复）
+            if prev_user_msg:
+                user_message = f"[上文：{prev_user_msg}] {query}"
+            else:
+                user_message = query
+
             # 调用 LLM
             response = self.llm_client.call(
                 system_prompt=self.SYSTEM_PROMPT,
-                user_message=query,
+                user_message=user_message,
                 response_format="json",
                 temperature=0.2,  # 低温度提高一致性
                 max_tokens=150,   # 极简输出

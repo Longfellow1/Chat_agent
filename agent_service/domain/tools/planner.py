@@ -256,10 +256,10 @@ def extract_stock_target(query: str) -> str | None:
         if k in q:
             return v
 
-    m = re.search(r"\b([A-Z]{1,5}(?:\.[A-Z]{1,3})?)\b", q.upper())
+    m = re.search(r"(?<![A-Z])([A-Z]{1,5}(?:\.[A-Z]{1,3})?)(?![A-Z])", q.upper())
     if m:
         return m.group(1)
-    m2 = re.search(r"\b(\d{6})\b", q)
+    m2 = re.search(r"(?<!\d)(\d{6})(?!\d)", q)
     if m2:
         code = m2.group(1)
         # 沪市: 6xxxxx；深市: 0xxxxx/3xxxxx；北交所: 4xxxxx/8xxxxx

@@ -74,7 +74,9 @@ def detect_meaningless_noise(query: str) -> bool:
     if not text:
         return True
     if len(text) >= 6 and len(set(text)) <= 2:
-        return True
+        # 放行 6 位股票代码（如 000001 只有 2 种字符但是合法代码）
+        if not re.fullmatch(r"\d{6}", text):
+            return True
     if re.fullmatch(r"[0-9\W_]+", text):
         # 放行：6位股票代码（如 600519, 000001）
         if re.fullmatch(r"\d{6}", text):

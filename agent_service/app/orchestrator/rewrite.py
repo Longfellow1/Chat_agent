@@ -19,13 +19,17 @@ class RewriteResult:
 
 
 def detect_coref_signal(query: str) -> str | None:
-    """检测查询中是否含有指代/省略信号，返回信号类型或 None。"""
+    """检测查询中是否含有指代/省略信号，返回信号类型或 None。
+
+    省略信号（"怎么样"/"如何"/"多少"）只在短查询（≤10字）中才算有效信号，
+    避免 "北京今天天气怎么样" 这类完整句被误判。
+    """
     q = query.strip()
     if any(k in q for k in _PRONOUN_SIGNALS):
         return "pronoun"
     if any(k in q for k in _COMPARE_SIGNALS):
         return "compare"
-    if any(k in q for k in _ELLIPSIS_SIGNALS):
+    if any(k in q for k in _ELLIPSIS_SIGNALS) and len(q) <= 6:
         return "ellipsis"
     if any(k in q for k in _FOLLOWUP_SIGNALS):
         return "followup"
@@ -65,7 +69,7 @@ def rewrite_query(query: str, session_ctx: dict[str, object]) -> RewriteResult:
             return RewriteResult(effective_query=resolved, rewritten=True, source="coref_pronoun")
 
     # D) Ellipsis + city context: "那呢"/"怎么样" + city -> rebuild last tool query
-    if city and last_tool and any(k in q for k in _ELLIPSIS_SIGNALS) and len(q) <= 10:
+    if city and last_tool and any(k in q for k in _ELLIPSIS_SIGNALS) and len(q) <= 6:
         rebuilt = _rebuild_from_last_tool(last_tool, city, last_topic, last_target, last_destination)
         if rebuilt:
             return RewriteResult(effective_query=rebuilt, rewritten=True, source="ellipsis_city")

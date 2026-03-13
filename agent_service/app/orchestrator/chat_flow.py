@@ -287,14 +287,17 @@ class ChatFlow:
             self._persist_context(req=req, resp=resp)
             return resp
 
-        # 2) route
+        # 2) route — 提取上下文供路由和参数提取使用
+        prev_user_msg = self._get_prev_user_msg(session_ctx)
+        prev_assistant_msg = self._get_prev_assistant_msg(session_ctx)
+
         t_route = time.perf_counter()
         route_source = "rule"
         llm_tool_args: dict[str, object] = {}
-        
+
         # 使用4B router（如果启用）
         if self.use_4b_router and self.router_4b:
-            router_result = self.router_4b.route(effective_query)
+            router_result = self.router_4b.route(effective_query, prev_user_msg=prev_user_msg)
             
             # 转换为RouteDecision格式
             if router_result.get("tool") is None:
@@ -320,7 +323,7 @@ class ChatFlow:
                 route = fast_rule
                 route_source = "rule_fastpath"
             else:
-                route, llm_tool_args = self._route_with_llm(effective_query)
+                route, llm_tool_args = self._route_with_llm(effective_query, prev_user_msg=prev_user_msg)
                 route_source = "llm_router"
                 if self.use_route_override:
                     fixed = self._route_safety_override(effective_query, route)
@@ -366,6 +369,7 @@ class ChatFlow:
                 llm_tool_args=llm_tool_args,
                 llm_client=self.llm_client,
                 timeout_sec=self.extract_timeout_sec,
+                prev_assistant_msg=prev_assistant_msg,
             )
             if plan.missing_slots:
                 resp = ChatResponse(
@@ -480,17 +484,20 @@ class ChatFlow:
         self._persist_context(req=req, resp=resp)
         return resp
 
-    def _route_with_llm(self, query: str) -> tuple[RouteDecision, dict[str, object]]:
+    def _route_with_llm(self, query: str, prev_user_msg: str = "") -> tuple[RouteDecision, dict[str, object]]:
         raw = ""
         try:
+            # 带上一轮用户原话帮助 LLM 理解指代/省略
+            context = f"上一条提问：{prev_user_msg}\n" if prev_user_msg else ""
+            user_input = f"{context}当前问题：{query}"
             if hasattr(self.llm_client, "generate_with_timeout"):
                 raw = self.llm_client.generate_with_timeout(  # type: ignore[attr-defined]
-                    user_query=f"用户问题：{query}",
+                    user_query=user_input,
                     system_prompt=ROUTER_PROMPT,
                     timeout_sec=self.route_timeout_sec,
                 )
             else:
-                raw = self.llm_client.generate(user_query=f"用户问题：{query}", system_prompt=ROUTER_PROMPT)
+                raw = self.llm_client.generate(user_query=user_input, system_prompt=ROUTER_PROMPT)
 
             obj = _extract_json_object(raw)
             if not isinstance(obj, dict):
@@ -571,11 +578,47 @@ class ChatFlow:
             ]
         self.session_store.upsert(req.session_id, patch)
 
+    # ------------------------------------------------------------------
+    # History / context helpers
+    # ------------------------------------------------------------------
+
+    _HISTORY_MAX_TURNS = 3          # 回复生成用 3 轮
+    _HISTORY_ASSISTANT_TRUNC = 200  # 助手回复截断字符数
+
     def _build_history_messages(self, session_ctx: dict) -> list[dict]:
-        """从 session 中取最近 3 轮历史，构造 messages 列表（不含当前 query）。"""
+        """从 session 中取最近 3 轮历史，构造 messages 列表（不含当前 query）。
+
+        助手回复超过 200 字符自动截断，防止小模型注意力涣散。
+        """
         history: list[dict] = session_ctx.get("history", [])
-        # 最多取最近 6 条（3轮）
-        return [{"role": m["role"], "content": m["content"]} for m in history[-6:]]
+        max_items = self._HISTORY_MAX_TURNS * 2  # 每轮 user+assistant
+        out: list[dict] = []
+        for m in history[-max_items:]:
+            content = m.get("content", "")
+            if m.get("role") == "assistant" and len(content) > self._HISTORY_ASSISTANT_TRUNC:
+                content = content[: self._HISTORY_ASSISTANT_TRUNC]
+            out.append({"role": m["role"], "content": content})
+        return out
+
+    @staticmethod
+    def _get_prev_user_msg(session_ctx: dict, max_len: int = 60) -> str:
+        """取上一轮用户原话（路由用，≤60 字）。"""
+        history: list[dict] = session_ctx.get("history", [])
+        for m in reversed(history):
+            if m.get("role") == "user":
+                text = m.get("content", "")
+                return text[:max_len] if len(text) > max_len else text
+        return ""
+
+    @staticmethod
+    def _get_prev_assistant_msg(session_ctx: dict, max_len: int = 80) -> str:
+        """取上一轮助手回复（参数提取用，≤80 字，包含已解析实体）。"""
+        history: list[dict] = session_ctx.get("history", [])
+        for m in reversed(history):
+            if m.get("role") == "assistant":
+                text = m.get("content", "")
+                return text[:max_len] if len(text) > max_len else text
+        return ""
 
 
 _SLOT_FRIENDLY_NAMES: dict[str, str] = {
@@ -811,6 +854,7 @@ def _build_merged_tool_plan(
     llm_tool_args: dict[str, object],
     llm_client: LLMClient,
     timeout_sec: float,
+    prev_assistant_msg: str = "",
 ) -> ToolPlan:
     # Use planner_v2 for find_nearby
     if tool_name == "find_nearby":
@@ -832,12 +876,13 @@ def _build_merged_tool_plan(
     if not missing:
         return ToolPlan(tool_name=tool_name, tool_args=merged, missing_slots=[], extract_source="rule_or_router")
 
-    # 2) slow path: llm extractor fallback
+    # 2) slow path: llm extractor fallback（带上一轮助手回复辅助实体解析）
     llm_extra = _extract_slots_with_llm(
         llm_client=llm_client,
         query=query,
         tool_name=tool_name,
         timeout_sec=timeout_sec,
+        prev_assistant_msg=prev_assistant_msg,
     )
     merged.update(_sanitize_tool_args(tool_name=tool_name, tool_args=llm_extra))
     merged = normalize_tool_args(tool_name=tool_name, tool_args=merged, raw_query=query)
@@ -887,19 +932,23 @@ def _extract_slots_with_llm(
     query: str,
     tool_name: str,
     timeout_sec: float,
+    prev_assistant_msg: str = "",
 ) -> dict[str, object]:
     prompt = EXTRACTOR_PROMPTS.get(tool_name)
     if not prompt:
         return {}
     try:
+        # 带上一轮助手回复（含已解析实体），帮助提取器做指代消解
+        hint = f"参考上轮回复：{prev_assistant_msg}\n\n" if prev_assistant_msg else ""
+        user_input = f"{hint}用户原句：{query}"
         if hasattr(llm_client, "generate_with_timeout"):
             raw = llm_client.generate_with_timeout(  # type: ignore[attr-defined]
-                user_query=f"用户原句：{query}",
+                user_query=user_input,
                 system_prompt=prompt,
                 timeout_sec=timeout_sec,
             )
         else:
-            raw = llm_client.generate(user_query=f"用户原句：{query}", system_prompt=prompt)
+            raw = llm_client.generate(user_query=user_input, system_prompt=prompt)
         obj = _extract_json_object(raw)
         if not isinstance(obj, dict):
             return {}

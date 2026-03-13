@@ -37,7 +37,18 @@ class InMemorySessionStore:
         with self._lock:
             rec = self._store.get(session_id)
             if not rec:
-                self._store[session_id] = SessionRecord(data=dict(patch), updated_at=now)
+                # 首次写入也需要处理 history_append
+                data = dict(patch)
+                if "history_append" in data:
+                    turns = data.pop("history_append")
+                    history: list[dict] = []
+                    for turn in turns:
+                        if turn.get("role") == "assistant":
+                            content = turn.get("content", "")
+                            turn = {**turn, "content": content[: self._MAX_ASSISTANT_CONTENT_LEN]}
+                        history.append(turn)
+                    data["history"] = history
+                self._store[session_id] = SessionRecord(data=data, updated_at=now)
                 return
             # history 需要追加而非覆盖
             if "history_append" in patch:
