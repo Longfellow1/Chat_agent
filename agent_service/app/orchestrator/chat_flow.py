@@ -334,7 +334,12 @@ class ChatFlow:
         # 2.5) 纯闲聊检测：如果tool=None，直接用LLM回复
         if route.tool_name is None:
             t1 = time.perf_counter()
-            text = self.llm_client.generate(user_query=effective_query, system_prompt=SYSTEM_PROMPT)
+            history_msgs = self._build_history_messages(session_ctx)
+            if history_msgs and hasattr(self.llm_client, "generate_with_history"):
+                messages = history_msgs + [{"role": "user", "content": effective_query}]
+                text = self.llm_client.generate_with_history(messages=messages, system_prompt=SYSTEM_PROMPT)
+            else:
+                text = self.llm_client.generate(user_query=effective_query, system_prompt=SYSTEM_PROMPT)
             llm_ms = int((time.perf_counter() - t1) * 1000)
             
             resp = ChatResponse(
@@ -447,7 +452,12 @@ class ChatFlow:
 
         # 4) llm fallback
         t1 = time.perf_counter()
-        text = self.llm_client.generate(user_query=effective_query, system_prompt=SYSTEM_PROMPT)
+        history_msgs = self._build_history_messages(session_ctx)
+        if history_msgs and hasattr(self.llm_client, "generate_with_history"):
+            messages = history_msgs + [{"role": "user", "content": effective_query}]
+            text = self.llm_client.generate_with_history(messages=messages, system_prompt=SYSTEM_PROMPT)
+        else:
+            text = self.llm_client.generate(user_query=effective_query, system_prompt=SYSTEM_PROMPT)
         llm_ms = int((time.perf_counter() - t1) * 1000)
 
         # 5) post-rules anti-hallucination
@@ -543,7 +553,7 @@ class ChatFlow:
             return
 
         tool_args = resp.tool_args or {}
-        patch = {
+        patch: dict = {
             "last_query": req.query,
             "last_effective_query": resp.effective_query,
             "last_tool": resp.tool_name,
@@ -553,7 +563,30 @@ class ChatFlow:
             "last_target": tool_args.get("target"),
             "last_destination": tool_args.get("destination"),
         }
+        # 追加对话历史（reply/tool_call 均记录，reject/clarify 不记录）
+        if resp.decision_mode in ("reply", "tool_call") and resp.final_text:
+            patch["history_append"] = [
+                {"role": "user", "content": req.query},
+                {"role": "assistant", "content": resp.final_text},
+            ]
         self.session_store.upsert(req.session_id, patch)
+
+    def _build_history_messages(self, session_ctx: dict) -> list[dict]:
+        """从 session 中取最近 3 轮历史，构造 messages 列表（不含当前 query）。"""
+        history: list[dict] = session_ctx.get("history", [])
+        # 最多取最近 6 条（3轮）
+        return [{"role": m["role"], "content": m["content"]} for m in history[-6:]]
+
+
+_SLOT_FRIENDLY_NAMES: dict[str, str] = {
+    "city": "城市",
+    "destination": "目的地城市",
+    "target": "股票代码或名称",
+    "topic": "查询关键词",
+    "keyword": "搜索关键词",
+    "days": "出行天数",
+    "query": "搜索内容",
+}
 
 
 def _clarify_text(plan: ToolPlan) -> str:
@@ -561,8 +594,9 @@ def _clarify_text(plan: ToolPlan) -> str:
         return "你要查哪个城市的天气？例如：郑州今天天气怎么样。"
     if plan.tool_name == "plan_trip":
         return "你要去哪个城市？我可以按目的地帮你规划行程。"
-    slots = "、".join(plan.missing_slots)
-    return f"我还缺少必要信息：{slots}，补充后我马上帮你查。"
+    friendly = [_SLOT_FRIENDLY_NAMES.get(s, s) for s in plan.missing_slots]
+    slots = "、".join(friendly)
+    return f"请告诉我{slots}，我马上帮你查。"
 
 
 def _tool_post_input(

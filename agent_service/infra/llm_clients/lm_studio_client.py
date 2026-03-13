@@ -25,6 +25,25 @@ class LMStudioClient:
     def generate(self, user_query: str, system_prompt: str) -> str:
         return self.generate_with_timeout(user_query=user_query, system_prompt=system_prompt, timeout_sec=self.timeout)
 
+    def generate_with_history(self, messages: list[dict], system_prompt: str) -> str:
+        payload = {
+            "model": self.model,
+            "messages": [{"role": "system", "content": system_prompt}] + messages,
+            "temperature": 0.2,
+            "max_tokens": 512,
+            "stream": False,
+            "thinking": {"type": "disabled"},
+        }
+        req = urllib.request.Request(
+            f"{self.base_url}/v1/chat/completions",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+            body = json.loads(resp.read().decode("utf-8"))
+        return body["choices"][0]["message"]["content"].strip()
+
     def generate_with_timeout(self, user_query: str, system_prompt: str, timeout_sec: float) -> str:
         payload = {
             "model": self.model,

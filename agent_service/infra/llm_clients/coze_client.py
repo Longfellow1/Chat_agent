@@ -17,6 +17,19 @@ class CozeClient:
         self.token = os.getenv("COZE_API_TOKEN", "")
         self.timeout = float(os.getenv("COZE_TIMEOUT_SEC", "60"))
 
+    def generate_with_history(self, messages: list[dict], system_prompt: str) -> str:
+        # 从 messages 列表中提取最后一条 user 消息，历史作为上下文附加
+        last_user = next(
+            (m["content"] for m in reversed(messages) if m.get("role") == "user"), ""
+        )
+        history_lines = []
+        for m in messages[:-1]:  # 除最后一条外
+            role_label = "用户" if m.get("role") == "user" else "助手"
+            history_lines.append(f"{role_label}：{m['content']}")
+        context = "\n".join(history_lines)
+        combined_query = f"对话历史：\n{context}\n\n当前问题：{last_user}" if context else last_user
+        return self.generate(user_query=combined_query, system_prompt=system_prompt)
+
     def generate(self, user_query: str, system_prompt: str) -> str:
         if not self.bot_id or not self.token:
             raise RuntimeError("missing COZE_BOT_ID or COZE_API_TOKEN")

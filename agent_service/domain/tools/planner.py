@@ -195,8 +195,22 @@ def extract_city(query: str) -> str | None:
         
         if 2 <= len(first) <= 5 and re.fullmatch(r"[\u4e00-\u9fa5]+", first):
             blocked = {
+                # 时间词
                 "今天", "明天", "后天", "现在", "最近", "下周", "周末",
-                "天气", "新闻", "股票", "附近", "周边", "这里", "那里"
+                "昨天", "前天", "早上", "中午", "下午", "晚上", "凌晨",
+                # 天气/位置通用词
+                "天气", "气温", "温度", "附近", "周边", "这里", "那里",
+                "附近的", "周围", "旁边",
+                # 工具/行业领域词（高频误提取来源）
+                "新闻", "股票", "行情", "股价", "指数", "基金",
+                "电影", "电视", "视频", "音乐", "游戏", "动漫",
+                "苹果", "华为", "小米", "三星", "手机", "电脑",
+                "公司", "企业", "品牌", "产品", "价格", "报价",
+                "推荐", "介绍", "怎么", "如何", "什么", "哪里",
+                "美食", "餐厅", "酒店", "旅游", "旅行", "景点",
+                "快递", "外卖", "打车", "地铁", "公交",
+                "医院", "药店", "银行", "超市", "商场",
+                "学校", "大学", "工作", "招聘", "求职",
             }
             if first not in blocked:
                 return first
@@ -247,7 +261,15 @@ def extract_stock_target(query: str) -> str | None:
         return m.group(1)
     m2 = re.search(r"\b(\d{6})\b", q)
     if m2:
-        return f"{m2.group(1)}.SS"
+        code = m2.group(1)
+        # 沪市: 6xxxxx；深市: 0xxxxx/3xxxxx；北交所: 4xxxxx/8xxxxx
+        if code.startswith("6"):
+            suffix = "SS"
+        elif code.startswith(("4", "8")):
+            suffix = "BJ"
+        else:
+            suffix = "SZ"
+        return f"{code}.{suffix}"
     if any(k in q for k in ("股价", "股票", "行情", "涨跌", "指数")):
         return extract_topic(q, default="上证指数")
     return None

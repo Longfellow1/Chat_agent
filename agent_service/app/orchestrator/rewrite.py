@@ -2,12 +2,34 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+# ---------------------------------------------------------------------------
+# 指代信号关键词（用于 detect_coref_signal）
+# ---------------------------------------------------------------------------
+_PRONOUN_SIGNALS = ("它", "他", "她", "这个", "那个", "这只", "那只", "该股")
+_ELLIPSIS_SIGNALS = ("那呢", "那边呢", "那里呢", "怎么样", "如何", "多少")
+_FOLLOWUP_SIGNALS = ("还有吗", "还有别的", "再查", "换一个", "其他的", "还有呢", "接着")
+_COMPARE_SIGNALS = ("和它比", "哪个好", "有什么区别", "对比", "哪个更")
+
 
 @dataclass
 class RewriteResult:
     effective_query: str
     rewritten: bool
     source: str = "none"
+
+
+def detect_coref_signal(query: str) -> str | None:
+    """检测查询中是否含有指代/省略信号，返回信号类型或 None。"""
+    q = query.strip()
+    if any(k in q for k in _PRONOUN_SIGNALS):
+        return "pronoun"
+    if any(k in q for k in _COMPARE_SIGNALS):
+        return "compare"
+    if any(k in q for k in _ELLIPSIS_SIGNALS):
+        return "ellipsis"
+    if any(k in q for k in _FOLLOWUP_SIGNALS):
+        return "followup"
+    return None
 
 
 def rewrite_query(query: str, session_ctx: dict[str, object]) -> RewriteResult:
@@ -34,7 +56,21 @@ def rewrite_query(query: str, session_ctx: dict[str, object]) -> RewriteResult:
             rewritten = rewritten.replace(k, city)
         return RewriteResult(effective_query=rewritten, rewritten=True, source="coref_city")
 
-    # C) City + generic ask, inherit previous tool domain
+    # C) Pronoun resolution: 它/这只/该股 -> last_target（股票场景）
+    if last_target and any(k in q for k in _PRONOUN_SIGNALS):
+        resolved = q
+        for k in _PRONOUN_SIGNALS:
+            resolved = resolved.replace(k, last_target)
+        if resolved != q:
+            return RewriteResult(effective_query=resolved, rewritten=True, source="coref_pronoun")
+
+    # D) Ellipsis + city context: "那呢"/"怎么样" + city -> rebuild last tool query
+    if city and last_tool and any(k in q for k in _ELLIPSIS_SIGNALS) and len(q) <= 10:
+        rebuilt = _rebuild_from_last_tool(last_tool, city, last_topic, last_target, last_destination)
+        if rebuilt:
+            return RewriteResult(effective_query=rebuilt, rewritten=True, source="ellipsis_city")
+
+    # E) City + generic ask, inherit previous tool domain
     if city and _is_generic_ask(q) and last_tool:
         rebuilt = _rebuild_from_last_tool(last_tool, city, last_topic, last_target, last_destination)
         if rebuilt:
