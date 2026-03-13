@@ -5,7 +5,7 @@ import os
 import re
 import time
 
-from app.orchestrator.rewrite import rewrite_query
+from app.orchestrator.rewrite import detect_coref_signal, rewrite_query
 from app.policies.post_rules import realtime_guard_reply, should_block_free_realtime_reply
 from app.policies.pre_rules import (
     detect_crisis,
@@ -287,9 +287,14 @@ class ChatFlow:
             self._persist_context(req=req, resp=resp)
             return resp
 
-        # 2) route — 提取上下文供路由和参数提取使用
-        prev_user_msg = self._get_prev_user_msg(session_ctx)
-        prev_assistant_msg = self._get_prev_assistant_msg(session_ctx)
+        # 2) route — 仅在检测到指代/省略信号时才注入上下文，避免干扰正常路由
+        coref = detect_coref_signal(effective_query)
+        if coref and session_ctx:
+            prev_user_msg = self._get_prev_user_msg(session_ctx)
+            prev_assistant_msg = self._get_prev_assistant_msg(session_ctx)
+        else:
+            prev_user_msg = ""
+            prev_assistant_msg = ""
 
         t_route = time.perf_counter()
         route_source = "rule"
@@ -487,9 +492,11 @@ class ChatFlow:
     def _route_with_llm(self, query: str, prev_user_msg: str = "") -> tuple[RouteDecision, dict[str, object]]:
         raw = ""
         try:
-            # 带上一轮用户原话帮助 LLM 理解指代/省略
-            context = f"上一条提问：{prev_user_msg}\n" if prev_user_msg else ""
-            user_input = f"{context}当前问题：{query}"
+            # 仅在有上下文时才注入，无上下文时保持原始格式不变
+            if prev_user_msg:
+                user_input = f"上一条提问：{prev_user_msg}\n当前问题：{query}"
+            else:
+                user_input = f"用户问题：{query}"
             if hasattr(self.llm_client, "generate_with_timeout"):
                 raw = self.llm_client.generate_with_timeout(  # type: ignore[attr-defined]
                     user_query=user_input,
@@ -938,9 +945,11 @@ def _extract_slots_with_llm(
     if not prompt:
         return {}
     try:
-        # 带上一轮助手回复（含已解析实体），帮助提取器做指代消解
-        hint = f"参考上轮回复：{prev_assistant_msg}\n\n" if prev_assistant_msg else ""
-        user_input = f"{hint}用户原句：{query}"
+        # 仅在有上下文时才注入，无上下文时保持原始格式不变
+        if prev_assistant_msg:
+            user_input = f"参考上轮回复：{prev_assistant_msg}\n\n用户原句：{query}"
+        else:
+            user_input = f"用户原句：{query}"
         if hasattr(llm_client, "generate_with_timeout"):
             raw = llm_client.generate_with_timeout(  # type: ignore[attr-defined]
                 user_query=user_input,
