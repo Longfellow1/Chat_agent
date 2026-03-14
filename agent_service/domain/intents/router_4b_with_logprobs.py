@@ -161,12 +161,12 @@ class RuleBasedRouter:
         # ========== 规则 3：天气关键词 ==========
         if any(kw in query for kw in ["天气", "温度", "下雨", "晴天", "风"]):
             location = RuleBasedRouter._extract_destination(query)
-            if location:
-                return ToolCall(
-                    tool=ToolType.GET_WEATHER,
-                    params={"location": location},
-                    confidence=0.85
-                )
+            # Always route to get_weather; let the planner handle missing city via clarify.
+            return ToolCall(
+                tool=ToolType.GET_WEATHER,
+                params={"location": location or ""},
+                confidence=0.85
+            )
         
         # ========== 规则 4：新闻关键词 ==========
         # 强新闻词（单独出现即可判定为新闻）

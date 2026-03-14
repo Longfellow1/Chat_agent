@@ -51,3 +51,28 @@ def test_rewrite_with_session_followup() -> None:
     second = flow.run(ChatRequest(query="那边再查一下", session_id=sid))
     assert second.rewritten == 1
     assert "郑州" in second.effective_query
+
+
+def test_weather_session_city_autofill() -> None:
+    """Session city from previous query should auto-fill missing city slot for weather."""
+    flow = _flow()
+    sid = "s2"
+    # First query establishes city=北京 in session
+    flow.run(ChatRequest(query="北京今天天气怎么样", session_id=sid))
+    # Second query has no city — should use session city instead of asking clarification
+    second = flow.run(ChatRequest(query="今天天气怎么样", session_id=sid))
+    assert second.decision_mode != "clarify", "Should not ask for city when session city is known"
+    assert second.tool_name == "get_weather"
+
+
+def test_nearby_session_city_autofill() -> None:
+    """Session city from previous weather query should fill missing city for find_nearby."""
+    flow = _flow()
+    sid = "s3"
+    # Establish city=成都 in session via weather query
+    flow.run(ChatRequest(query="成都今天天气怎么样", session_id=sid))
+    # find_nearby without city should use session city
+    third = flow.run(ChatRequest(query="附近有什么好吃的", session_id=sid))
+    # Should go to tool_call (not clarify) since city is known from session
+    assert third.tool_name == "find_nearby"
+    assert third.decision_mode != "clarify"

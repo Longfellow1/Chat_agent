@@ -22,6 +22,7 @@ from domain.tools.executor import ToolExecutor
 from domain.tools.planner import (
     ToolPlan,
     extract_city,
+    extract_nearby_keyword,
     extract_rule_tool_args,
     normalize_tool_args,
     required_slots,
@@ -51,11 +52,29 @@ TOOL_POST_PROMPT_STOCK = (
     "禁止编造，不要输出与行情无关内容。"
 )
 TOOL_POST_PROMPT_WEATHER = (
-    "你是天气播报助手。"
-    "请基于工具结果生成自然、通顺、简洁的中文回复。"
-    "必须保留：城市、当前天气、气温/体感、必要建议。"
-    "如用户问指数类（穿衣/紫外线等）但工具无该指数值，请明确为根据当前天气给出建议，不要把天气现象当指数值。"
-    "禁止编造。"
+    "你是天气播报助手。请根据用户问题和工具返回的天气数据，生成自然简洁的中文回复。\n\n"
+    "### 核心要求 ###\n"
+    "1. 优先直接回答用户的核心问题：\n"
+    "   - '要带伞吗/会下雨吗' → 明确说是否需要带伞\n"
+    "   - '适合跑步/出去玩/爬山吗' → 给出是否建议及简短理由\n"
+    "   - '穿什么/穿衣建议' → 根据气温和天气给出穿衣建议\n"
+    "   - '防晒/紫外线' → 根据天气状况给出建议（注明是推断非实测）\n"
+    "2. 必须包含：城市、当前天气状况、气温\n"
+    "3. 回复控制在3句话以内，简洁自然\n\n"
+    "### 禁止行为 ###\n"
+    "- 禁止编造工具中没有的数值\n"
+    "- 禁止把天气现象当作指数值（如把'晴'当作紫外线指数）"
+)
+TOOL_POST_PROMPT_NEARBY = (
+    "你是本地生活助手。请将附近搜索结果转化为自然、简洁的推荐回复。\n\n"
+    "### 任务要求 ###\n"
+    "1. 开头一句话直接回应用户需求（如'您附近有X家餐厅，推荐以下几家：'）\n"
+    "2. 列出2-3个最优推荐，每条包含：名称、距离/地址、亮点（评分或特色）\n"
+    "3. 格式自然口语化，适合语音播报\n"
+    "4. 总字数控制在120字以内\n\n"
+    "### 禁止行为 ###\n"
+    "- 禁止编造不在结果中的商家\n"
+    "- 禁止输出超过120字"
 )
 TOOL_POST_PROMPT_SEARCH = (
     "你是搜索结果总结助手。请将零散的搜索信息转化为简洁准确的回复。\n\n"
@@ -375,6 +394,7 @@ class ChatFlow:
                 llm_client=self.llm_client,
                 timeout_sec=self.extract_timeout_sec,
                 prev_assistant_msg=prev_assistant_msg,
+                session_ctx=session_ctx,
             )
             if plan.missing_slots:
                 resp = ChatResponse(
@@ -404,7 +424,7 @@ class ChatFlow:
             post_llm_applied = False
             post_llm_timeout = False
             final_text = tool_result.text if tool_result.ok else f"{tool_result.text}（工具：{plan.tool_name}）"
-            if self.tool_post_llm and not _should_skip_post_llm(plan.tool_name, tool_result.text, tool_result.raw):
+            if self.tool_post_llm and not _should_skip_post_llm(plan.tool_name, tool_result.text, tool_result.raw, query=effective_query):
                 post_llm_applied = True
                 t_llm = time.perf_counter()
                 try:
@@ -834,10 +854,19 @@ def _tool_post_system_prompt(tool_name: str) -> str:
         return TOOL_POST_PROMPT_NEWS
     if tool_name == "web_search":
         return TOOL_POST_PROMPT_SEARCH
+    if tool_name == "find_nearby":
+        return TOOL_POST_PROMPT_NEARBY
     return TOOL_POST_PROMPT
 
 
-def _should_skip_post_llm(tool_name: str, tool_text: str, tool_raw: dict[str, object]) -> bool:
+_WEATHER_ACTIVITY_SIGNALS = (
+    "带伞", "打伞", "要伞", "下雨", "下雪", "适合", "出门", "出去",
+    "穿什么", "穿多少", "穿衣", "防晒", "跑步", "骑车", "运动",
+    "爬山", "开车", "出行", "户外", "遮阳", "要不要", "需要吗",
+)
+
+
+def _should_skip_post_llm(tool_name: str, tool_text: str, tool_raw: dict[str, object], query: str = "") -> bool:
     # If tool response is already concise and structured, skip second LLM pass for latency/stability.
     provider = str(tool_raw.get("provider") or "")
     if tool_name == "get_stock":
@@ -845,7 +874,9 @@ def _should_skip_post_llm(tool_name: str, tool_text: str, tool_raw: dict[str, ob
             return True
     if tool_name == "get_weather":
         if provider == "qweather" and len(tool_text) <= 220:
-            return True
+            # Don't skip if user is asking an activity/advice question — they need a direct answer.
+            if not any(k in query for k in _WEATHER_ACTIVITY_SIGNALS):
+                return True
     if tool_name in {"web_search", "find_nearby", "plan_trip"}:
         if provider in {"tavily", "amap", "tavily_trip"}:
             return True
@@ -862,17 +893,32 @@ def _build_merged_tool_plan(
     llm_client: LLMClient,
     timeout_sec: float,
     prev_assistant_msg: str = "",
+    session_ctx: dict[str, object] | None = None,
 ) -> ToolPlan:
+    _session = session_ctx or {}
+
     # Use planner_v2 for find_nearby
     if tool_name == "find_nearby":
         plan_dict = build_tool_plan_v2(query=query, tool_name=tool_name, use_location_intent=True)
+        missing = plan_dict.get("missing_slots", [])
+        # If city is missing, use session context as fallback before asking the user.
+        if "city" in missing:
+            last_city = str(_session.get("last_city", "")).strip()
+            if last_city:
+                keyword = extract_nearby_keyword(query, city=None, default="餐厅")
+                return ToolPlan(
+                    tool_name=tool_name,
+                    tool_args={"keyword": keyword, "city": last_city},
+                    missing_slots=[],
+                    extract_source="location_intent+session_city",
+                )
         return ToolPlan(
             tool_name=plan_dict["tool_name"],
             tool_args=plan_dict["tool_args"],
-            missing_slots=plan_dict.get("missing_slots", []),
+            missing_slots=missing,
             extract_source="location_intent",
         )
-    
+
     # Original logic for other tools
     # 1) fast path: rules + router llm args
     rule_args = extract_rule_tool_args(query=query, tool_name=tool_name)
@@ -895,7 +941,18 @@ def _build_merged_tool_plan(
     merged = normalize_tool_args(tool_name=tool_name, tool_args=merged, raw_query=query)
     missing = [k for k in required_slots(tool_name) if not str(merged.get(k, "")).strip()]
 
-    # 3) final fallback policy: optional-slot tools keep running with raw query.
+    # 3) session context fallback: use last known city for weather/trip required slots.
+    if missing and _session:
+        last_city = str(_session.get("last_city", "")).strip()
+        if last_city:
+            if tool_name == "get_weather" and "city" in missing:
+                merged["city"] = last_city
+                missing = [k for k in required_slots(tool_name) if not str(merged.get(k, "")).strip()]
+            elif tool_name == "plan_trip" and "destination" in missing:
+                merged["destination"] = last_city
+                missing = [k for k in required_slots(tool_name) if not str(merged.get(k, "")).strip()]
+
+    # 4) final fallback policy: optional-slot tools keep running with raw query.
     if tool_name in {"get_stock", "get_news", "web_search"}:
         if tool_name == "get_stock" and not str(merged.get("target", "")).strip():
             merged["target"] = query
